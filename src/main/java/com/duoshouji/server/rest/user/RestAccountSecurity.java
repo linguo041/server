@@ -5,7 +5,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 
 @Path("/accounts/{account-id}/security")
-public class AccountSecurity {
+public class RestAccountSecurity {
 
 	@POST
 	@Path("/password")
