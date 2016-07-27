@@ -1,9 +1,10 @@
 package com.duoshouji.server.executor;
 
 import com.duoshouji.server.util.UserMessageProxy;
+import com.duoshouji.server.util.VerificationCode;
 import com.duoshouji.server.util.VerificationCodeGenerator;
 
-public class VerificationCodeAuthenticationExecutor {
+public class VerificationCodeAuthenticationExecutor implements VerificationCodeLoginExecutor {
 
 	public static enum State {
 		INIT,
@@ -14,7 +15,7 @@ public class VerificationCodeAuthenticationExecutor {
 	private UserMessageProxy messageProxy;
 	private VerificationCodeGenerator codeGenerator;
 	private State state;
-	private String verificationCode;
+	private VerificationCode verificationCode;
 	
 	public VerificationCodeAuthenticationExecutor(UserMessageProxy messageProxy, VerificationCodeGenerator codeGenerator) {
 		super();
@@ -32,7 +33,7 @@ public class VerificationCodeAuthenticationExecutor {
 		state = State.NOTIFIED;
 	}
 
-	public boolean verify(String verificationCode) {
+	public boolean verify(VerificationCode verificationCode) {
 		if (state == State.INIT) {
 			throw new IllegalStateException("Must send verificaton code first.");
 		}

@@ -8,12 +8,13 @@ import org.junit.Test;
 
 import com.duoshouji.server.executor.VerificationCodeAuthenticationExecutor.State;
 import com.duoshouji.server.util.UserMessageProxy;
+import com.duoshouji.server.util.VerificationCode;
 import com.duoshouji.server.util.VerificationCodeGenerator;
 
 public class VerificationCodeAuthenticationExecutorTest {
 
-	private static final String MOCK_VERIFICATION_CODE = "000000";
-	private static final String WRONG_VERIFICATION_CODE = "111111";
+	private static final VerificationCode MOCK_VERIFICATION_CODE = VerificationCode.valueOf("000000");
+	private static final VerificationCode WRONG_VERIFICATION_CODE = VerificationCode.valueOf("111111");
 	
 	private Mockery mockery;
 	private UserMessageProxy mockSms;

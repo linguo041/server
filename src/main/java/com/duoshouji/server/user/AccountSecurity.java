@@ -2,10 +2,12 @@ package com.duoshouji.server.user;
 
 import org.jvnet.hk2.annotations.Contract;
 
+import com.duoshouji.server.util.Password;
+
 @Contract
 public interface AccountSecurity {
 
-	void changePassword(String newPassword);
+	void changePassword(Password newPassword);
 	
-	boolean verifyPassword(String password);
+	boolean verifyPassword(Password password);
 }

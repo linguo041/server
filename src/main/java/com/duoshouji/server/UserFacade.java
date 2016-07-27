@@ -1,4 +1,4 @@
-package com.duoshouji.server.user;
+package com.duoshouji.server;
 
 import org.glassfish.jersey.spi.Contract;
 
@@ -6,6 +6,4 @@ import org.glassfish.jersey.spi.Contract;
 public interface UserFacade {
 
 	void register(String accountId, String password);
-
-	boolean verifyPassword(String accountId, String password);
 }
