@@ -9,7 +9,7 @@ public class InMemoryUserTest {
 
 	@Test
 	public void testPassword() {
-		InMemoryUser user = new InMemoryUser(MockConstants.MOCK_USER_IDENTIFIER);
+		OperationDelegatingMobileUser user = new OperationDelegatingMobileUser(MockConstants.MOCK_USER_IDENTIFIER);
 		
 		Assert.assertFalse(user.hasPassword());
 		user.setPassword(MockConstants.MOCK_PASSWORD);
@@ -19,7 +19,7 @@ public class InMemoryUserTest {
 	
 	@Test
 	public void testLoginExecutor() {
-		InMemoryUser user = new InMemoryUser(MockConstants.MOCK_USER_IDENTIFIER);
+		OperationDelegatingMobileUser user = new OperationDelegatingMobileUser(MockConstants.MOCK_USER_IDENTIFIER);
 		
 	}
 }

@@ -35,7 +35,7 @@ public class CachedUserRepository implements UserRepository {
 		if (containsUser(userId)) {
 			throw new UserAlreadyExistsException("User already exists in system, user id: " + userId);
 		}
-		InMemoryUser user = new InMemoryUser(userId, null);
+		OperationDelegatingMobileUser user = new OperationDelegatingMobileUser(userId, null);
 		userDao.addUser(user);
 		userCache.putUser(user);
 		return user;

@@ -18,10 +18,10 @@ public class MysqlUserDao implements UserDao {
 	public RegisteredUser findUser(UserIdentifier accountId) {
 		final List<Map<String, Object>> result = mysqlDataSource.queryForList(
 				"select password, password_salt from user where id = " + accountId);
-		InMemoryUser user = null;
+		OperationDelegatingMobileUser user = null;
 		if (!result.isEmpty()) {
 			final Map<String, Object> row = result.get(0);
-			user = new InMemoryUser(accountId, null);
+			user = new OperationDelegatingMobileUser(accountId, null);
 			user.setPassword(Password.valueOf((String)row.get("password")));
 		}
 		return user;

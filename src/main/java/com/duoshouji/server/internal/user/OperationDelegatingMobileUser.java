@@ -3,40 +3,38 @@ package com.duoshouji.server.internal.user;
 import org.jvnet.hk2.annotations.Service;
 
 import com.duoshouji.server.executor.VerificationCodeLoginExecutor;
-import com.duoshouji.server.internal.executor.DelegatedVerificationCodeLoginExecutor;
 import com.duoshouji.server.internal.executor.ExecutorHolder;
-import com.duoshouji.server.internal.executor.SmsVerificationCodeAuthenticationExecutor;
 import com.duoshouji.server.user.AccountSecurity;
 import com.duoshouji.server.user.PasswordNotSetException;
 import com.duoshouji.server.user.RegisteredUser;
 import com.duoshouji.server.user.UserIdentifier;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
-import com.duoshouji.server.util.Toolkit;
 
 @Service
-public class InMemoryUser implements RegisteredUser, AccountSecurity, ExecutorHolder {
+public class OperationDelegatingMobileUser implements RegisteredUser, AccountSecurity, ExecutorHolder {
 
+	private final UserOperationManager delegator;
+	
 	private final UserIdentifier userId;
 	private final MobileNumber mobileNumber;
 	private String passwordDigest;
 	private String passwordSalt;
-	private final Toolkit toolkit;
-	
 	private VerificationCodeLoginExecutor executor;
-
-	public InMemoryUser(UserIdentifier userId, Toolkit toolkit) {
+	
+	public OperationDelegatingMobileUser(MobileNumber mobileNumber, UserOperationManager delegator) {
 		super();
-		this.userId = userId;
-		mobileNumber = new MobileNumber(userId.toString());
-		this.toolkit = toolkit;
+		this.mobileNumber = mobileNumber;
+		this.userId = new UserIdentifier(mobileNumber);
+		this.delegator = delegator;
 	}
+	
 	@Override
 	public boolean verifyPassword(Password password) {
-		if (passwordDigest == null) {
+		if (!hasPassword()) {
 			throw new PasswordNotSetException();
 		}
-		return passwordDigest.equals(password.toString());
+		return delegator.verifyPassword(this, password);
 	}
 	@Override
 	public boolean hasPassword() {
@@ -47,10 +45,6 @@ public class InMemoryUser implements RegisteredUser, AccountSecurity, ExecutorHo
 		return userId;
 	}
 	
-	private MobileNumber getMobileNumber() {
-		return mobileNumber;
-	}
-	
 	@Override
 	public AccountSecurity getAccountSecurity() {
 		return this;
@@ -59,9 +53,7 @@ public class InMemoryUser implements RegisteredUser, AccountSecurity, ExecutorHo
 	@Override
 	public VerificationCodeLoginExecutor processVerificationCodeLogin() {
 		if (executor == null) {
-			executor = new DelegatedVerificationCodeLoginExecutor(
-					new SmsVerificationCodeAuthenticationExecutor(
-							toolkit.getMessageProxy(getMobileNumber()), toolkit.getVerificationCodeGenerator()), this);
+			executor = delegator.newVerificationCodeLoginExecutor(this);
 		}
 		return executor;
 	}
@@ -74,5 +66,10 @@ public class InMemoryUser implements RegisteredUser, AccountSecurity, ExecutorHo
 	@Override
 	public void setPassword(Password password) {
 		passwordDigest = password.toString();
+	}
+	
+	@Override
+	public MobileNumber getMobileNumber() {
+		return mobileNumber;
 	}
 }

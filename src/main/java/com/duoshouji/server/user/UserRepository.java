@@ -1,9 +1,11 @@
 package com.duoshouji.server.user;
 
+import com.duoshouji.server.util.MobileNumber;
+
 public interface UserRepository {
 
-	RegisteredUser findUser(UserIdentifier userId);
+	RegisteredUser findUser(MobileNumber mobileNumber);
 
-	RegisteredUser createUser(UserIdentifier userId);
+	RegisteredUser createUser(MobileNumber mobileNumber);
 
 }
