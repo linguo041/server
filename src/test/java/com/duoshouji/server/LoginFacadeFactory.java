@@ -10,7 +10,7 @@ public class LoginFacadeFactory implements Factory<LoginFacade> {
 	}
 
 	@Override
-	public void dispose(LoginFacade instance) {		
+	public void dispose(LoginFacade instance) {
 	}
 
 }

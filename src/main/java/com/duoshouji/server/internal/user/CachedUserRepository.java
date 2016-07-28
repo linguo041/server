@@ -4,11 +4,11 @@ import com.duoshouji.server.user.RegisteredUser;
 import com.duoshouji.server.user.UserDao;
 import com.duoshouji.server.user.UserRepository;
 
-public class UserRepositoryImpl implements UserRepository {
+public class CachedUserRepository implements UserRepository {
 
 	private UserDao userDao;
 	
-	public UserRepositoryImpl(UserDao userDao) {
+	public CachedUserRepository(UserDao userDao) {
 		this.userDao = userDao;
 	}
 

@@ -7,7 +7,10 @@ import com.duoshouji.server.executor.VerificationCodeLoginExecutor;
 @Contract
 public interface RegisteredUser {
 
+	String getIdentifier();
+	
 	AccountSecurity getAccountSecurity();
 
 	VerificationCodeLoginExecutor processVerificationCodeLogin();
+
 }
