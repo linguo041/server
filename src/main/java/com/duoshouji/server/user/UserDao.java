@@ -2,6 +2,10 @@ package com.duoshouji.server.user;
 
 public interface UserDao {
 
-	RegisteredUser findUser(String accountId);
+	RegisteredUser findUser(UserIdentifier accountId);
+
+	void saveUser(RegisteredUser user);
+
+	void addUser(RegisteredUser user);
 
 }

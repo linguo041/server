@@ -1,21 +1,21 @@
 package com.duoshouji.server.internal.user;
 
-import junit.framework.Assert;
-
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.duoshouji.server.user.RegisteredUser;
+import com.duoshouji.server.user.UserAlreadyExistsException;
 import com.duoshouji.server.user.UserCache;
 import com.duoshouji.server.user.UserDao;
+import com.duoshouji.server.user.UserIdentifier;
+
+import junit.framework.Assert;
 
 public class CachedUserRepositoryTest {
 	
-	private static final String MOCK_ACCOUNT_ID = "13661863279";
+	private static final UserIdentifier MOCK_ACCOUNT_ID = new UserIdentifier("13661863279");
 	
 	private Mockery mockery;
 	private UserDao userDao;
@@ -35,7 +35,7 @@ public class CachedUserRepositoryTest {
 		mockery.checking(new Expectations(){{
 			oneOf(userCache).findUser(MOCK_ACCOUNT_ID); will(returnValue(user));
 		}});
-		CachedUserRepository userRepository = new CachedUserRepository(userDao);
+		CachedUserRepository userRepository = new CachedUserRepository(userDao, userCache);
 		Assert.assertEquals(user, userRepository.findUser(MOCK_ACCOUNT_ID));
 	}
 	
@@ -46,36 +46,39 @@ public class CachedUserRepositoryTest {
 			oneOf(userDao).findUser(MOCK_ACCOUNT_ID); will(returnValue(user));
 			oneOf(userCache).putUser(user);
 		}});
-		CachedUserRepository userRepository = new CachedUserRepository(userDao);
+		CachedUserRepository userRepository = new CachedUserRepository(userDao, userCache);
 		Assert.assertEquals(user, userRepository.findUser(MOCK_ACCOUNT_ID));
 	}
 	
 	@Test
-	public void createNewUserWhenUserNotExists() {
+	public void createUser() {
 		mockery.checking(new Expectations(){{
-			oneOf(userCache).findUser(MOCK_ACCOUNT_ID); will(returnValue(null));
-			oneOf(userDao).findUser(MOCK_ACCOUNT_ID); will(returnValue(null));
-			oneOf(userCache).putUser(with(new UserWithMockAccountId()));
+			allowing(userCache).findUser(MOCK_ACCOUNT_ID); will(returnValue(null));
+			allowing(userDao).findUser(MOCK_ACCOUNT_ID); will(returnValue(null));
+			oneOf(userDao).addUser(with(any(RegisteredUser.class)));
+			oneOf(userCache).putUser(with(any(RegisteredUser.class)));
 		}});
-		CachedUserRepository userRepository = new CachedUserRepository(userDao);
-		Assert.assertEquals(user, userRepository.findUser(MOCK_ACCOUNT_ID));
-
+		CachedUserRepository userRepository = new CachedUserRepository(userDao, userCache);
+		userRepository.createUser(MOCK_ACCOUNT_ID);
+	}
+	
+	@Test(expected=UserAlreadyExistsException.class)
+	public void createUserWithExistingUserIdentifier1() {
+		mockery.checking(new Expectations(){{
+			allowing(userCache).findUser(MOCK_ACCOUNT_ID); will(returnValue(null));
+			allowing(userDao).findUser(MOCK_ACCOUNT_ID); will(returnValue(user));
+		}});
+		CachedUserRepository userRepository = new CachedUserRepository(userDao, userCache);
+		userRepository.createUser(MOCK_ACCOUNT_ID);
 	}
 
-	private static class UserWithMockAccountId extends BaseMatcher<RegisteredUser> {
-
-		@Override
-		public boolean matches(Object user) {
-			if (user == null)
-				return false;
-			if (!(user instanceof RegisteredUser))
-				return false;
-			RegisteredUser other = (RegisteredUser) user;
-			return other.getIdentifier().equals(MOCK_ACCOUNT_ID);
-		}
-
-		@Override
-		public void describeTo(Description arg0) {			
-		}
+	@Test(expected=UserAlreadyExistsException.class)
+	public void createUserWithExistingUserIdentifier2() {
+		mockery.checking(new Expectations(){{
+			allowing(userCache).findUser(MOCK_ACCOUNT_ID); will(returnValue(user));
+			allowing(userDao).findUser(MOCK_ACCOUNT_ID); will(returnValue(null));
+		}});
+		CachedUserRepository userRepository = new CachedUserRepository(userDao, userCache);
+		userRepository.createUser(MOCK_ACCOUNT_ID);
 	}
 }

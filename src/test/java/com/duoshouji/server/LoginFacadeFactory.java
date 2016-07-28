@@ -2,6 +2,8 @@ package com.duoshouji.server;
 
 import org.glassfish.hk2.api.Factory;
 
+import com.duoshouji.server.login.LoginFacade;
+
 public class LoginFacadeFactory implements Factory<LoginFacade> {
 	
 	@Override

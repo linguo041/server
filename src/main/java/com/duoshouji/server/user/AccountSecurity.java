@@ -6,8 +6,10 @@ import com.duoshouji.server.util.Password;
 
 @Contract
 public interface AccountSecurity {
-
-	void changePassword(Password newPassword);
 	
 	boolean verifyPassword(Password password);
+
+	boolean hasPassword();
+
+	void setPassword(Password password);
 }

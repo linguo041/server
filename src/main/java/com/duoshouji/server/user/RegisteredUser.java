@@ -3,11 +3,12 @@ package com.duoshouji.server.user;
 import org.jvnet.hk2.annotations.Contract;
 
 import com.duoshouji.server.executor.VerificationCodeLoginExecutor;
+import com.duoshouji.server.util.Identifiable;
 
 @Contract
-public interface RegisteredUser {
+public interface RegisteredUser extends Identifiable {
 
-	String getIdentifier();
+	UserIdentifier getIdentifier();
 	
 	AccountSecurity getAccountSecurity();
 

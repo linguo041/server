@@ -1,4 +1,4 @@
-package com.duoshouji.server.executor;
+package com.duoshouji.server.internal.executor;
 
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -6,12 +6,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.duoshouji.server.executor.VerificationCodeAuthenticationExecutor;
 import com.duoshouji.server.executor.VerificationCodeAuthenticationExecutor.State;
+import com.duoshouji.server.internal.executor.SmsVerificationCodeAuthenticationExecutor;
 import com.duoshouji.server.util.UserMessageProxy;
 import com.duoshouji.server.util.VerificationCode;
 import com.duoshouji.server.util.VerificationCodeGenerator;
 
-public class VerificationCodeAuthenticationExecutorTest {
+public class SmsVerificationCodeAuthenticationExecutorTest {
 
 	private static final VerificationCode MOCK_VERIFICATION_CODE = VerificationCode.valueOf("000000");
 	private static final VerificationCode WRONG_VERIFICATION_CODE = VerificationCode.valueOf("111111");
@@ -34,7 +36,7 @@ public class VerificationCodeAuthenticationExecutorTest {
 			oneOf(mockSms).sendVerificationCode(MOCK_VERIFICATION_CODE);
 		}});
 		
-		VerificationCodeAuthenticationExecutor executor = new VerificationCodeAuthenticationExecutor(mockSms, codeGenerator);
+		VerificationCodeAuthenticationExecutor executor = new SmsVerificationCodeAuthenticationExecutor(mockSms, codeGenerator);
 		Assert.assertEquals(State.INIT, executor.getState());
 		executor.sendVerificationCode();
 		Assert.assertEquals(State.NOTIFIED, executor.getState());
@@ -49,7 +51,7 @@ public class VerificationCodeAuthenticationExecutorTest {
 			oneOf(mockSms).sendVerificationCode(MOCK_VERIFICATION_CODE);
 		}});
 		
-		VerificationCodeAuthenticationExecutor executor = new VerificationCodeAuthenticationExecutor(mockSms, codeGenerator);
+		VerificationCodeAuthenticationExecutor executor = new SmsVerificationCodeAuthenticationExecutor(mockSms, codeGenerator);
 		Assert.assertEquals(State.INIT, executor.getState());
 		executor.sendVerificationCode();
 		Assert.assertEquals(State.NOTIFIED, executor.getState());
@@ -61,7 +63,7 @@ public class VerificationCodeAuthenticationExecutorTest {
 	
 	@Test(expected=IllegalStateException.class)
 	public void verifyBeforeSendVerificationCode() {
-		VerificationCodeAuthenticationExecutor executor = new VerificationCodeAuthenticationExecutor(mockSms, codeGenerator);
+		VerificationCodeAuthenticationExecutor executor = new SmsVerificationCodeAuthenticationExecutor(mockSms, codeGenerator);
 		executor.verify(MOCK_VERIFICATION_CODE);
 	}
 	
@@ -71,7 +73,7 @@ public class VerificationCodeAuthenticationExecutorTest {
 			oneOf(codeGenerator).generate(); will(returnValue(MOCK_VERIFICATION_CODE));
 			oneOf(mockSms).sendVerificationCode(MOCK_VERIFICATION_CODE);
 		}});
-		VerificationCodeAuthenticationExecutor executor = new VerificationCodeAuthenticationExecutor(mockSms, codeGenerator);
+		VerificationCodeAuthenticationExecutor executor = new SmsVerificationCodeAuthenticationExecutor(mockSms, codeGenerator);
 		executor.sendVerificationCode();
 		Assert.assertTrue(executor.verify(MOCK_VERIFICATION_CODE));
 		executor.sendVerificationCode();
@@ -83,7 +85,7 @@ public class VerificationCodeAuthenticationExecutorTest {
 			oneOf(codeGenerator).generate(); will(returnValue(MOCK_VERIFICATION_CODE));
 			oneOf(mockSms).sendVerificationCode(MOCK_VERIFICATION_CODE);
 		}});
-		VerificationCodeAuthenticationExecutor executor = new VerificationCodeAuthenticationExecutor(mockSms, codeGenerator);
+		VerificationCodeAuthenticationExecutor executor = new SmsVerificationCodeAuthenticationExecutor(mockSms, codeGenerator);
 		executor.sendVerificationCode();
 		Assert.assertTrue(executor.verify(MOCK_VERIFICATION_CODE));
 		executor.verify(MOCK_VERIFICATION_CODE);

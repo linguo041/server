@@ -1,8 +1,10 @@
 package com.duoshouji.server.internal.login;
 
-import com.duoshouji.server.LoginFacade;
-import com.duoshouji.server.executor.VerificationCodeLoginExecutor;
+import com.duoshouji.server.login.LoginFacade;
+import com.duoshouji.server.user.PasswordNotSetException;
+import com.duoshouji.server.user.RegisteredUser;
 import com.duoshouji.server.user.UserRepository;
+import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
 
@@ -15,21 +17,28 @@ public class LoginFacadeImpl implements LoginFacade {
 	}
 
 	@Override
-	public void sendVerificationCode(String accountId) {
-		getVerificationCodeLoginExecutor(accountId).sendVerificationCode();
+	public void sendVerificationCode(MobileNumber mobile) {
+		userRepository.findUser(mobile).processVerificationCodeLogin().sendVerificationCode();
 	}
 
 	@Override
-	public boolean checkVerificationCode(String accountId, VerificationCode verificationCode) {
-		return getVerificationCodeLoginExecutor(accountId).verify(verificationCode);
+	public RegisteredUser checkVerificationCode(MobileNumber accountId, VerificationCode verificationCode) {
+		RegisteredUser loginUser = userRepository.findUser(accountId);
+		if (!loginUser.processVerificationCodeLogin().authenticate(verificationCode)) {
+			loginUser = null;
+		}
+		return loginUser;
 	}
 
 	@Override
-	public boolean verifyPassword(String accountId, Password password) {
-		return userRepository.findUser(accountId).getAccountSecurity().verifyPassword(password);
-	}
-
-	private VerificationCodeLoginExecutor getVerificationCodeLoginExecutor(String accountId) {
-		return userRepository.findUser(accountId).processVerificationCodeLogin();
+	public RegisteredUser verifyPassword(MobileNumber mobile, Password password) {
+		RegisteredUser loginUser = userRepository.findUser(mobile);
+		if (!loginUser.getAccountSecurity().hasPassword()) {
+			throw new PasswordNotSetException("Password not set, can't apply credential login!");
+		}
+		if (!loginUser.getAccountSecurity().verifyPassword(password)) {
+			loginUser = null;
+		}
+		return loginUser;
 	}
 }

@@ -3,6 +3,7 @@ package com.duoshouji.server;
 import org.jvnet.hk2.annotations.Service;
 
 import com.duoshouji.server.session.SessionManager;
+import com.duoshouji.server.user.UserIdentifier;
 
 @Service
 public class MockSessionManager implements SessionManager {
@@ -15,7 +16,7 @@ public class MockSessionManager implements SessionManager {
 	}
 	
 	@Override
-	public String newToken(String accountId) {
+	public String newToken(UserIdentifier accountId) {
 		return MOCK_TOKEN;
 	}
 	public String findToken(String testAccountId) {

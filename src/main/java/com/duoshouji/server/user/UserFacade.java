@@ -1,4 +1,4 @@
-package com.duoshouji.server;
+package com.duoshouji.server.user;
 
 import org.glassfish.jersey.spi.Contract;
 

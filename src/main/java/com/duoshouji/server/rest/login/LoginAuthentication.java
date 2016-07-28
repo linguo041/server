@@ -7,8 +7,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
 import com.duoshouji.server.Contants;
-import com.duoshouji.server.LoginFacade;
+import com.duoshouji.server.login.LoginFacade;
 import com.duoshouji.server.session.SessionManager;
+import com.duoshouji.server.user.RegisteredUser;
+import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
 
@@ -28,18 +30,12 @@ public class LoginAuthentication {
 	@POST
 	@Path("/verification-code")
 	public Response authenticateVerificationCode(
-		@FormParam("account") String accountId,
+		@FormParam("account") String mobileNumber,
 		@FormParam("code") String verificationCode
 			) {
-		final Response response;
-		final boolean verified = loginFacade.checkVerificationCode(accountId, VerificationCode.valueOf(verificationCode));
-		if (verified) {
-			final String token = sessionManager.newToken(accountId);
-			response = Response.ok().header(Contants.APP_TOKEN_HTTP_HEADER_NAME, token).build();
-		} else {
-			response = Response.ok().build();
-		}
-		return response;
+		final MobileNumber mobile = new MobileNumber(mobileNumber);
+		final RegisteredUser user = loginFacade.checkVerificationCode(mobile, VerificationCode.valueOf(verificationCode));
+		return wrapUserInResponse(user);
 	}
 	
 	@POST
@@ -48,10 +44,15 @@ public class LoginAuthentication {
 		@FormParam("account") String accountId,
 		@FormParam("password") String password
 			) {
+		final MobileNumber mobile = new MobileNumber(accountId);
+		final RegisteredUser user = loginFacade.verifyPassword(mobile, Password.valueOf(password));
+		return wrapUserInResponse(user);
+	}
+	
+	private Response wrapUserInResponse(RegisteredUser user) {
 		final Response response;
-		final boolean isPasswordMatch = loginFacade.verifyPassword(accountId, Password.valueOf(password));
-		if (isPasswordMatch) {
-			final String token = sessionManager.newToken(accountId);
+		if (user != null) {
+			final String token = sessionManager.newToken(user);
 			response = Response.ok().header(Contants.APP_TOKEN_HTTP_HEADER_NAME, token).build();
 		} else {
 			response = Response.ok().build();

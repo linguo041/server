@@ -6,7 +6,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import com.duoshouji.server.LoginFacade;
+import com.duoshouji.server.login.LoginFacade;
+import com.duoshouji.server.util.MobileNumber;
 
 @Path("/message")
 public class Message {
@@ -22,10 +23,10 @@ public class Message {
 	@POST
 	@Path("/verification-code")
 	public Response sendVerificationCode(
-		@QueryParam("account") String accountId,
+		@QueryParam("account") String mobile,
 		@QueryParam("purpose") Purpose purpose 
 			) {
-		loginFacade.sendVerificationCode(accountId);
+		loginFacade.sendVerificationCode(new MobileNumber(mobile));
 		return Response.ok().build();
 	}
 	

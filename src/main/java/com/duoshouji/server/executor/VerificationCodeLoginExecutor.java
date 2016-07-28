@@ -6,6 +6,6 @@ public interface VerificationCodeLoginExecutor {
 
 	void sendVerificationCode();
 
-	boolean verify(VerificationCode verificationCode);
+	boolean authenticate(VerificationCode verificationCode);
 
 }

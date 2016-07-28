@@ -2,6 +2,8 @@ package com.duoshouji.server;
 
 import org.jvnet.hk2.annotations.Service;
 
+import com.duoshouji.server.login.LoginFacade;
+import com.duoshouji.server.user.UserIdentifier;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
 
@@ -21,17 +23,17 @@ public class MockLoginFacade implements LoginFacade {
 	}
 	
 	@Override
-	public void sendVerificationCode(String accountId) {
+	public void sendVerificationCode(UserIdentifier accountId) {
 
 	}
 
 	@Override
-	public boolean checkVerificationCode(String accountId, VerificationCode verificationCode) {
+	public boolean checkVerificationCode(UserIdentifier accountId, VerificationCode verificationCode) {
 		return true;
 	}
 
 	@Override
-	public boolean verifyPassword(String accountId, Password password) {
+	public boolean verifyPassword(UserIdentifier accountId, Password password) {
 		return true;
 	}
 

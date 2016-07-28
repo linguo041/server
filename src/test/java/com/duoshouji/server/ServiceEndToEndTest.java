@@ -15,6 +15,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.duoshouji.server.login.LoginFacade;
 import com.duoshouji.server.session.SessionManager;
 
 import junit.framework.Assert;

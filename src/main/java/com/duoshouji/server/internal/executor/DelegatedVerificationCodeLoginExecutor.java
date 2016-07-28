@@ -7,26 +7,26 @@ import com.duoshouji.server.util.VerificationCode;
 public class DelegatedVerificationCodeLoginExecutor implements VerificationCodeLoginExecutor {
 
 	private VerificationCodeAuthenticationExecutor delegator;
+	private ExecutorHolder holder;
 
-	public DelegatedVerificationCodeLoginExecutor(VerificationCodeAuthenticationExecutor delegator) {
+	public DelegatedVerificationCodeLoginExecutor(VerificationCodeAuthenticationExecutor delegator
+			, ExecutorHolder holder) {
 		super();
 		this.delegator = delegator;
+		this.holder = holder;
 	}
 	
-	/* (non-Javadoc)
-	 * @see com.duoshouji.server.executor.VerificationCodeLoginExecutor#sendVerificationCode()
-	 */
 	@Override
 	public void sendVerificationCode() {
 		delegator.sendVerificationCode();
 	}
 
-	/* (non-Javadoc)
-	 * @see com.duoshouji.server.executor.VerificationCodeLoginExecutor#verify(com.duoshouji.server.util.VerificationCode)
-	 */
 	@Override
-	public boolean verify(VerificationCode verificationCode) {
-		return delegator.verify(verificationCode);
+	public boolean authenticate(VerificationCode verificationCode) {
+		final boolean verified = delegator.verify(verificationCode);
+		if (verified) {
+			holder.detachExecutor(this);
+		}
+		return verified;
 	}
-	
 }
