@@ -1,6 +1,6 @@
 package com.duoshouji.server.internal.executor;
 
-import com.duoshouji.server.executor.VerificationCodeAuthenticationExecutor;
+import com.duoshouji.server.service.executor.VerificationCodeAuthenticationExecutor;
 import com.duoshouji.server.util.UserMessageProxy;
 import com.duoshouji.server.util.VerificationCode;
 import com.duoshouji.server.util.VerificationCodeGenerator;

@@ -15,7 +15,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.duoshouji.server.login.LoginFacade;
+import com.duoshouji.server.service.login.LoginFacade;
 import com.duoshouji.server.session.SessionManager;
 
 import junit.framework.Assert;
@@ -50,7 +50,7 @@ public class ServiceEndToEndTest {
 					.proxy(true)
 					.proxyForSameScope(false)
 					.in(RequestScoped.class);
-				bindFactory(SessionManagerFactory.class)
+				bindFactory(MockSessionManagerFactory.class)
 				.to(SessionManager.class)
 				.proxy(true)
 				.proxyForSameScope(false)

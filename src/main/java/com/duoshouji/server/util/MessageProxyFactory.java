@@ -1,6 +1,6 @@
 package com.duoshouji.server.util;
 
-import com.duoshouji.server.user.RegisteredUser;
+import com.duoshouji.server.service.user.RegisteredUser;
 
 public interface MessageProxyFactory {
 

@@ -2,8 +2,8 @@ package com.duoshouji.server;
 
 import org.jvnet.hk2.annotations.Service;
 
+import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.session.SessionManager;
-import com.duoshouji.server.user.UserIdentifier;
 
 @Service
 public class MockSessionManager implements SessionManager {

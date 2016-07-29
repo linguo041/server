@@ -1,4 +1,4 @@
-package com.duoshouji.server.user;
+package com.duoshouji.server.service.user;
 
 import com.duoshouji.server.util.MobileNumber;
 

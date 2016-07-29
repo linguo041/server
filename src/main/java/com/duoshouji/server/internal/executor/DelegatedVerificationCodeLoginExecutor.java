@@ -1,7 +1,7 @@
 package com.duoshouji.server.internal.executor;
 
-import com.duoshouji.server.executor.VerificationCodeAuthenticationExecutor;
-import com.duoshouji.server.executor.VerificationCodeLoginExecutor;
+import com.duoshouji.server.service.executor.VerificationCodeAuthenticationExecutor;
+import com.duoshouji.server.service.executor.VerificationCodeLoginExecutor;
 import com.duoshouji.server.util.VerificationCode;
 
 public class DelegatedVerificationCodeLoginExecutor implements VerificationCodeLoginExecutor {

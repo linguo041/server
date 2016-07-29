@@ -2,8 +2,8 @@ package com.duoshouji.server;
 
 import org.jvnet.hk2.annotations.Service;
 
-import com.duoshouji.server.login.LoginFacade;
-import com.duoshouji.server.user.UserIdentifier;
+import com.duoshouji.server.service.login.LoginFacade;
+import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
 

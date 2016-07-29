@@ -4,7 +4,7 @@ import org.glassfish.hk2.api.Factory;
 
 import com.duoshouji.server.session.SessionManager;
 
-public class SessionManagerFactory implements Factory<SessionManager> {
+public class MockSessionManagerFactory implements Factory<SessionManager> {
 
 	@Override
 	public SessionManager provide() {

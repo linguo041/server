@@ -6,7 +6,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
-import com.duoshouji.server.login.LoginFacade;
+import com.duoshouji.server.service.login.LoginFacade;
 import com.duoshouji.server.util.MobileNumber;
 
 @Path("/message")

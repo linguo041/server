@@ -1,4 +1,4 @@
-package com.duoshouji.server.user;
+package com.duoshouji.server.service.user;
 
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.StringIdentifier;
@@ -8,7 +8,7 @@ public class UserIdentifier extends StringIdentifier {
 	public UserIdentifier(String identifier) {
 		super(identifier);
 	}
-
+	
 	public UserIdentifier(MobileNumber mobileNumber) {
 		super(mobileNumber.toString());
 	}

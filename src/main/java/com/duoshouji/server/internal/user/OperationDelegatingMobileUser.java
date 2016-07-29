@@ -2,12 +2,13 @@ package com.duoshouji.server.internal.user;
 
 import org.jvnet.hk2.annotations.Service;
 
-import com.duoshouji.server.executor.VerificationCodeLoginExecutor;
 import com.duoshouji.server.internal.executor.ExecutorHolder;
-import com.duoshouji.server.user.AccountSecurity;
-import com.duoshouji.server.user.PasswordNotSetException;
-import com.duoshouji.server.user.RegisteredUser;
-import com.duoshouji.server.user.UserIdentifier;
+import com.duoshouji.server.service.executor.VerificationCodeLoginExecutor;
+import com.duoshouji.server.service.user.AccountSecurity;
+import com.duoshouji.server.service.user.PasswordNotSetException;
+import com.duoshouji.server.service.user.RegisteredUser;
+import com.duoshouji.server.service.user.RegisteredUserDto;
+import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 
@@ -16,16 +17,12 @@ public class OperationDelegatingMobileUser implements RegisteredUser, AccountSec
 
 	private final UserOperationManager delegator;
 	
-	private final UserIdentifier userId;
-	private final MobileNumber mobileNumber;
-	private String passwordDigest;
-	private String passwordSalt;
+	private RegisteredUserDto userDto;
 	private VerificationCodeLoginExecutor executor;
 	
-	public OperationDelegatingMobileUser(MobileNumber mobileNumber, UserOperationManager delegator) {
+	public OperationDelegatingMobileUser(RegisteredUserDto userDto, UserOperationManager delegator) {
 		super();
-		this.mobileNumber = mobileNumber;
-		this.userId = new UserIdentifier(mobileNumber);
+		this.userDto = userDto;
 		this.delegator = delegator;
 	}
 	
@@ -38,11 +35,11 @@ public class OperationDelegatingMobileUser implements RegisteredUser, AccountSec
 	}
 	@Override
 	public boolean hasPassword() {
-		return passwordDigest != null;
+		return userDto.getPasswordDigest() != null;
 	}
 	@Override
 	public UserIdentifier getIdentifier() {
-		return userId;
+		return userDto.getUserId();
 	}
 	
 	@Override
@@ -65,11 +62,15 @@ public class OperationDelegatingMobileUser implements RegisteredUser, AccountSec
 	
 	@Override
 	public void setPassword(Password password) {
-		passwordDigest = password.toString();
+		delegator.setPassword(this, password);
 	}
 	
 	@Override
 	public MobileNumber getMobileNumber() {
-		return mobileNumber;
+		return userDto.getMobileNumber();
+	}
+	
+	void setPasswordDigest(String passwordDigest) {
+		userDto.setPasswordDigest(passwordDigest);
 	}
 }

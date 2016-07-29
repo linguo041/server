@@ -1,6 +1,6 @@
 package com.duoshouji.server;
 
-import com.duoshouji.server.user.UserIdentifier;
+import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;

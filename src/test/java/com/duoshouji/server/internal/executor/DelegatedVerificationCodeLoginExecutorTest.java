@@ -6,7 +6,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.duoshouji.server.MockConstants;
-import com.duoshouji.server.executor.VerificationCodeAuthenticationExecutor;
+import com.duoshouji.server.internal.executor.DelegatedVerificationCodeLoginExecutor;
+import com.duoshouji.server.internal.executor.ExecutorHolder;
+import com.duoshouji.server.service.executor.VerificationCodeAuthenticationExecutor;
 
 public class DelegatedVerificationCodeLoginExecutorTest {
 
