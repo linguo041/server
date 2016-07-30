@@ -42,21 +42,21 @@ public class ServiceEndToEndTest {
 	}
 	
     private static void manageCustomDependencyInjection(final ResourceConfig rc) {
-    	rc.register(new AbstractBinder(){
-			@Override
-			protected void configure() {
-				bindFactory(LoginFacadeFactory.class)
-					.to(LoginFacade.class)
-					.proxy(true)
-					.proxyForSameScope(false)
-					.in(RequestScoped.class);
-				bindFactory(MockSessionManagerFactory.class)
-				.to(SessionManager.class)
-				.proxy(true)
-				.proxyForSameScope(false)
-				.in(RequestScoped.class);
-			}
-    	});
+//    	rc.register(new AbstractBinder(){
+//			@Override
+//			protected void configure() {
+//				bindFactory(LoginFacadeFactory.class)
+//					.to(LoginFacade.class)
+//					.proxy(true)
+//					.proxyForSameScope(false)
+//					.in(RequestScoped.class);
+//				bindFactory(MockSessionManagerFactory.class)
+//				.to(SessionManager.class)
+//				.proxy(true)
+//				.proxyForSameScope(false)
+//				.in(RequestScoped.class);
+//			}
+//    	});
     }
 
 	@SuppressWarnings("deprecation")

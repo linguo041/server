@@ -10,12 +10,12 @@ public class MockLoginFacadeFactory implements Factory<LoginFacade> {
 	private LoginFacade loginFacade;
 	
 	public MockLoginFacadeFactory() {
-		loginFacade = new LoginFacadeImpl(new );
+//		loginFacade = new LoginFacadeImpl(new );
 	}
 	
 	@Override
 	public LoginFacade provide() {
-		return new ;
+		return null;
 	}
 
 	@Override
