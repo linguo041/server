@@ -28,5 +28,4 @@ public class MockSessionManager implements SessionManager {
 		}
 		return instance;
 	}
-
 }

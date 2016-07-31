@@ -3,6 +3,7 @@ package com.duoshouji.server.internal.user;
 import java.util.List;
 import java.util.Map;
 
+import org.jvnet.hk2.annotations.Service;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.duoshouji.server.service.user.RegisteredUserDto;
@@ -10,6 +11,7 @@ import com.duoshouji.server.service.user.UserDao;
 import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.MobileNumber;
 
+@Service
 public class MysqlUserDao implements UserDao {
 
 	private JdbcTemplate mysqlDataSource;

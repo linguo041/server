@@ -1,6 +1,7 @@
 package com.duoshouji.server.rest.login;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -15,6 +16,7 @@ import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
 
 @Path("/login/authenticate")
+@Singleton
 public class LoginAuthentication {
 	
 	private LoginFacade loginFacade;
@@ -52,7 +54,7 @@ public class LoginAuthentication {
 	private Response wrapUserInResponse(RegisteredUser user) {
 		final Response response;
 		if (user != null) {
-			final String token = sessionManager.newToken(user);
+			final String token = sessionManager.newToken(user.getIdentifier());
 			response = Response.ok().header(Contants.APP_TOKEN_HTTP_HEADER_NAME, token).build();
 		} else {
 			response = Response.ok().build();
