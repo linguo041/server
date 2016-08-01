@@ -2,6 +2,7 @@ package com.duoshouji.server;
 
 import org.jvnet.hk2.annotations.Service;
 
+import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.session.SessionManager;
 
@@ -14,11 +15,7 @@ public class MockSessionManager implements SessionManager {
 	
 	private MockSessionManager() {
 	}
-	
-	@Override
-	public String newToken(UserIdentifier accountId) {
-		return MOCK_TOKEN;
-	}
+
 	public String findToken(String testAccountId) {
 		return MOCK_TOKEN;
 	}
@@ -27,5 +24,11 @@ public class MockSessionManager implements SessionManager {
 			instance = new MockSessionManager();
 		}
 		return instance;
+	}
+
+	@Override
+	public String newToken(UserIdentifier userId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
