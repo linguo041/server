@@ -25,4 +25,10 @@ public class MockSessionManager implements SessionManager {
 		}
 		return instance;
 	}
+
+	@Override
+	public String newToken(UserIdentifier userId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
