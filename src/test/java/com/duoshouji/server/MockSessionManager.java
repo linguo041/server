@@ -25,11 +25,4 @@ public class MockSessionManager implements SessionManager {
 		}
 		return instance;
 	}
-
-	@Override
-	public String newToken(RegisteredUser user) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

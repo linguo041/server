@@ -73,4 +73,8 @@ public class OperationDelegatingMobileUser implements RegisteredUser, AccountSec
 	void setPasswordDigest(String passwordDigest) {
 		userDto.setPasswordDigest(passwordDigest);
 	}
+	
+	String getPasswordDigest() {
+		return userDto.getPasswordDigest();
+	}
 }

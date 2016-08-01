@@ -11,9 +11,11 @@ import com.duoshouji.server.util.MobileNumber;
 
 public class MockUserDao implements UserDao {
 	
+	public static final MockUserDao INSTANCE = new MockUserDao();
+	
 	private List<InMemoryRegisteredUserDto> userDtos;
 	
-	public MockUserDao() {
+	private MockUserDao() {
 		userDtos = new LinkedList<InMemoryRegisteredUserDto>();
 		loadExistingUsers();
 	}
