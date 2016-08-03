@@ -3,19 +3,20 @@ package com.duoshouji.server;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.duoshouji.server.internal.user.InMemoryRegisteredUserDto;
 import com.duoshouji.server.service.user.RegisteredUserDto;
 import com.duoshouji.server.service.user.UserDao;
 import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.MobileNumber;
 
+@Service
 public class MockUserDao implements UserDao {
-	
-	public static final MockUserDao INSTANCE = new MockUserDao();
-	
+		
 	private List<InMemoryRegisteredUserDto> userDtos;
 	
-	private MockUserDao() {
+	public MockUserDao() {
 		userDtos = new LinkedList<InMemoryRegisteredUserDto>();
 		loadExistingUsers();
 	}

@@ -2,7 +2,7 @@ package com.duoshouji.server.internal.user;
 
 import java.util.HashMap;
 
-import org.jvnet.hk2.annotations.Service;
+import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserCache;

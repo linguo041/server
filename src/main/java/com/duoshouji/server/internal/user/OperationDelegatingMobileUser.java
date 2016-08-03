@@ -1,7 +1,5 @@
 package com.duoshouji.server.internal.user;
 
-import org.jvnet.hk2.annotations.Service;
-
 import com.duoshouji.server.internal.executor.ExecutorHolder;
 import com.duoshouji.server.service.executor.VerificationCodeLoginExecutor;
 import com.duoshouji.server.service.user.AccountSecurity;
@@ -12,7 +10,6 @@ import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 
-@Service
 public class OperationDelegatingMobileUser implements RegisteredUser, AccountSecurity, ExecutorHolder {
 
 	private final UserOperationManager delegator;

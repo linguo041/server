@@ -2,20 +2,18 @@ package com.duoshouji.server;
 
 import java.util.HashMap;
 
+import org.springframework.stereotype.Service;
+
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.MessageProxyFactory;
 import com.duoshouji.server.util.UserMessageProxy;
 import com.duoshouji.server.util.VerificationCode;
 
+@Service
 public class MockMessageSender implements MessageProxyFactory {
-
-	public static final MockMessageSender INSTANCE = new MockMessageSender();
 	
 	private HashMap<UserIdentifier, VerificationCode> history = new HashMap<UserIdentifier, VerificationCode>();
-	
-	private MockMessageSender() {
-	}
 	
 	@Override
 	public UserMessageProxy getMessageProxy(RegisteredUser user) {

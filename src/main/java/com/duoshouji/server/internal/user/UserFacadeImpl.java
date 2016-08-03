@@ -1,6 +1,7 @@
 package com.duoshouji.server.internal.user;
 
-import org.jvnet.hk2.annotations.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserFacade;
@@ -12,6 +13,7 @@ public class UserFacadeImpl implements UserFacade {
 
 	private UserRepository userRepository;
 	
+	@Autowired
 	public UserFacadeImpl(UserRepository userRepository) {
 		this.userRepository = userRepository;
 	}

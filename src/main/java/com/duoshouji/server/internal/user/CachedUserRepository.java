@@ -1,14 +1,11 @@
 package com.duoshouji.server.internal.user;
 
-import org.jvnet.hk2.annotations.Service;
-
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserCache;
 import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.util.MobileNumber;
 
-@Service
 public class CachedUserRepository implements UserRepository {
 
 	private UserCache userCache;

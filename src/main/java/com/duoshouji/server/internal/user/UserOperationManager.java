@@ -1,6 +1,7 @@
 package com.duoshouji.server.internal.user;
 
-import org.jvnet.hk2.annotations.Service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 
 import com.duoshouji.server.internal.executor.DelegatedVerificationCodeLoginExecutor;
 import com.duoshouji.server.internal.executor.SmsVerificationCodeAuthenticationExecutor;
@@ -16,21 +17,26 @@ import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCodeGenerator;
 
-@Service
 public class UserOperationManager implements UserRepository {
 	
 	private VerificationCodeGenerator codeGenerator;
 	private MessageProxyFactory messageProxyFactory;
 	private UserDao userDao;
 
+	@Required
+	@Autowired
 	public void setCodeGenerator(VerificationCodeGenerator codeGenerator) {
 		this.codeGenerator = codeGenerator;
 	}
-
+	
+	@Required
+	@Autowired
 	public void setMessageProxyFactory(MessageProxyFactory messageProxyFactory) {
 		this.messageProxyFactory = messageProxyFactory;
 	}
 
+	@Required
+	@Autowired
 	public void setUserDao(UserDao userDao) {
 		this.userDao = userDao;
 	}
