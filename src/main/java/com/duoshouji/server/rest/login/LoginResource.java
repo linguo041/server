@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.duoshouji.server.Contants;
+import com.duoshouji.server.rest.Constants;
 import com.duoshouji.server.service.login.LoginFacade;
 import com.duoshouji.server.service.user.RegisteredUser;
-import com.duoshouji.server.session.SessionManager;
+import com.duoshouji.server.session.TokenManager;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
@@ -22,10 +22,10 @@ import com.duoshouji.server.util.VerificationCode;
 public class LoginResource {
 	
 	private LoginFacade loginFacade;
-	private SessionManager sessionManager;
+	private TokenManager sessionManager;
 	
 	@Autowired
-	private LoginResource(LoginFacade loginFacade, SessionManager sessionManager) {
+	private LoginResource(LoginFacade loginFacade, TokenManager sessionManager) {
 		super();
 		this.loginFacade = loginFacade;
 		this.sessionManager = sessionManager;
@@ -54,7 +54,7 @@ public class LoginResource {
 	private ResponseEntity<?> wrapUserInResponse(RegisteredUser user) {
 		HttpHeaders headers = new HttpHeaders();
 		if (user != null) {
-			headers.add(Contants.APP_TOKEN_HTTP_HEADER_NAME, sessionManager.newToken(user.getIdentifier()));
+			headers.add(Constants.APP_TOKEN_HTTP_HEADER_NAME, sessionManager.newToken(user.getIdentifier()));
 		}
 		return new ResponseEntity<>(null, headers, HttpStatus.OK);
 	}

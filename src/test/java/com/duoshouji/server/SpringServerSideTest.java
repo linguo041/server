@@ -16,7 +16,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.duoshouji.server.session.SessionManager;
+import com.duoshouji.server.rest.Constants;
+import com.duoshouji.server.session.TokenManager;
 import com.duoshouji.server.util.MessageProxyFactory;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -41,7 +42,7 @@ public class SpringServerSideTest {
 		requestBuilder.param("password", MockConstants.MOCK_PASSWORD.toString());
 		mockMvc.perform(requestBuilder)
 			.andExpect(status().isOk())
-			.andExpect(MockMvcResultMatchers.header().string(Contants.APP_TOKEN_HTTP_HEADER_NAME, ((MockSessionManager)wac.getBean(SessionManager.class)).findToken(MockConstants.MOCK_USER_IDENTIFIER.toString())));
+			.andExpect(MockMvcResultMatchers.header().string(Constants.APP_TOKEN_HTTP_HEADER_NAME, ((MockTokenManager)wac.getBean(TokenManager.class)).findToken(MockConstants.MOCK_USER_IDENTIFIER.toString())));
 	}
 	
 	@Test
@@ -57,6 +58,6 @@ public class SpringServerSideTest {
 		requestBuilder.param("code", ((MockMessageSender)wac.getBean(MessageProxyFactory.class)).findHistory(MockConstants.MOCK_USER_IDENTIFIER).toString());
 		mockMvc.perform(requestBuilder)
 			.andExpect(status().isOk())
-			.andExpect(MockMvcResultMatchers.header().string(Contants.APP_TOKEN_HTTP_HEADER_NAME, ((MockSessionManager)wac.getBean(SessionManager.class)).findToken(MockConstants.MOCK_USER_IDENTIFIER.toString())));
+			.andExpect(MockMvcResultMatchers.header().string(Constants.APP_TOKEN_HTTP_HEADER_NAME, ((MockTokenManager)wac.getBean(TokenManager.class)).findToken(MockConstants.MOCK_USER_IDENTIFIER.toString())));
 	}
 }
