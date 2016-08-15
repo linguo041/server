@@ -11,4 +11,5 @@ public class MockConstants {
 	public static final MobileNumber MOCK_MOBILE_NUMBER = new MobileNumber("13661863279");
 	public static final Password MOCK_PASSWORD = Password.valueOf("******");
 	public static final UserIdentifier MOCK_USER_IDENTIFIER = new UserIdentifier(MOCK_MOBILE_NUMBER);
+	public static final int MOCK_TAG_ID = 1;
 }

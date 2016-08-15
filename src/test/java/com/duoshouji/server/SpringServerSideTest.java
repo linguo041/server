@@ -3,6 +3,8 @@ package com.duoshouji.server;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,5 +61,21 @@ public class SpringServerSideTest {
 		mockMvc.perform(requestBuilder)
 			.andExpect(status().isOk())
 			.andExpect(MockMvcResultMatchers.header().string(Constants.APP_TOKEN_HTTP_HEADER_NAME, ((MockTokenManager)wac.getBean(TokenManager.class)).findToken(MockConstants.MOCK_USER_IDENTIFIER.toString())));
+	}
+	
+	@Test
+	public void getSquareNotes() throws Exception {
+		MockTokenManager tokenManager = (MockTokenManager) wac.getBean(TokenManager.class);
+		
+		mockMvc.perform(post("/login/authenticate/credential")
+				.param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString())
+				.param("password", MockConstants.MOCK_PASSWORD.toString()));
+		
+		mockMvc.perform(post("/notes")
+				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, tokenManager.findToken(MockConstants.MOCK_USER_IDENTIFIER.toString())))
+				.andExpect(status().isOk())
+				.andExpect(MockMvcResultMatchers.content().json(
+						new JSONObject().put("resultCode", 0).put("resultValue", new JSONArray()).toString()
+						));
 	}
 }

@@ -1,7 +1,5 @@
 package com.duoshouji.server.service.note;
 
-import java.math.BigDecimal;
-
 import com.duoshouji.server.service.user.RegisteredUser;
 
 public interface Note {
@@ -19,8 +17,4 @@ public interface Note {
 	LikeCollection getLikes();
 	
 	CommentCollection getComments();
-	
-	BigDecimal getListPrice();
-	
-	BigDecimal getDiscountPrice();
 }

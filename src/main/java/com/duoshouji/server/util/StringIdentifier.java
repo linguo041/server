@@ -6,6 +6,9 @@ public abstract class StringIdentifier implements Identifier {
 	
 	protected StringIdentifier(String identifier) {
 		super();
+		if (identifier == null) {
+			throw new IllegalArgumentException("Identifier string can't be null!");
+		}
 		this.identifier = identifier;
 	}
 	

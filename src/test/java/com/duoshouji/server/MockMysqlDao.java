@@ -12,11 +12,11 @@ import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.MobileNumber;
 
 @Service
-public class MockUserDao implements UserDao {
+public class MockMysqlDao implements UserDao {
 		
 	private List<InMemoryRegisteredUserDto> userDtos;
 	
-	public MockUserDao() {
+	public MockMysqlDao() {
 		userDtos = new LinkedList<InMemoryRegisteredUserDto>();
 		loadExistingUsers();
 	}
