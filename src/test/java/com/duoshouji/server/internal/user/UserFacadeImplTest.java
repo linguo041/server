@@ -8,8 +8,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.duoshouji.server.MockConstants;
+import com.duoshouji.server.internal.core.UserFacadeImpl;
 import com.duoshouji.server.service.user.RegisteredUser;
-import com.duoshouji.server.service.user.UserRepository;
 
 public class UserFacadeImplTest {
 

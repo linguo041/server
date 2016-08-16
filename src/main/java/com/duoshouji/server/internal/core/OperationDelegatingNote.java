@@ -1,18 +1,19 @@
-package com.duoshouji.server.internal.note;
+package com.duoshouji.server.internal.core;
 
+import com.duoshouji.server.internal.note.NoteDto;
 import com.duoshouji.server.service.note.CommentCollection;
 import com.duoshouji.server.service.note.LikeCollection;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteAlbum;
 import com.duoshouji.server.service.user.RegisteredUser;
 
-public class OperationDelegatingNote implements Note {
+class OperationDelegatingNote implements Note {
 
 	NoteDto noteDto;
-	private NoteOperationManager operationDelegator;
+	private UserNoteOperationManager operationDelegator;
 	
 	public OperationDelegatingNote(NoteDto noteDto,
-			NoteOperationManager operationDelegator) {
+			UserNoteOperationManager operationDelegator) {
 		super();
 		this.noteDto = noteDto;
 		this.operationDelegator = operationDelegator;

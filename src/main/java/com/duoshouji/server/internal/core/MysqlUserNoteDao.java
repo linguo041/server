@@ -1,20 +1,21 @@
-package com.duoshouji.server.internal.user;
+package com.duoshouji.server.internal.core;
 
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.duoshouji.server.service.user.RegisteredUserDto;
-import com.duoshouji.server.service.user.UserDao;
+import com.duoshouji.server.internal.dao.UserNoteDao;
+import com.duoshouji.server.internal.note.NoteCollectionDto;
+import com.duoshouji.server.internal.user.RegisteredUserDto;
 import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.MobileNumber;
 
-public class MysqlUserDao implements UserDao {
+public class MysqlUserNoteDao implements UserNoteDao {
 
 	private JdbcTemplate mysqlDataSource;
 
-	public MysqlUserDao(JdbcTemplate mysqlDataSource) {
+	public MysqlUserNoteDao(JdbcTemplate mysqlDataSource) {
 		this.mysqlDataSource = mysqlDataSource;
 	}
 	
@@ -37,6 +38,11 @@ public class MysqlUserDao implements UserDao {
 		mysqlDataSource.update("insert into user (id, mobile) values (?, ?)"
 				, Long.valueOf(userId.toString())
 				, Long.valueOf(mobileNumber.toString()));
+	}
+
+	@Override
+	public NoteCollectionDto findNotes() {
+		return null;
 	}
 
 }

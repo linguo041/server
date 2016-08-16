@@ -1,7 +1,8 @@
-package com.duoshouji.server.internal.user;
+package com.duoshouji.server.internal.core;
 
-import com.duoshouji.server.service.user.RegisteredUserDto;
+import com.duoshouji.server.internal.user.RegisteredUserDto;
 import com.duoshouji.server.service.user.UserIdentifier;
+import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 
 public class InMemoryRegisteredUserDto implements RegisteredUserDto {
@@ -10,6 +11,7 @@ public class InMemoryRegisteredUserDto implements RegisteredUserDto {
 	private final MobileNumber mobileNumber;
 	private String passwordDigest;
 	private String passwordSalt;
+	private Image portrait;
 	
 	public InMemoryRegisteredUserDto(UserIdentifier userId, MobileNumber mobileNumber) {
 		super();
@@ -44,5 +46,10 @@ public class InMemoryRegisteredUserDto implements RegisteredUserDto {
 
 	void setPasswordSalt(String passwordSalt) {
 		this.passwordSalt = passwordSalt;
+	}
+
+	@Override
+	public Image getPortrait() {
+		return portrait;
 	}
 }

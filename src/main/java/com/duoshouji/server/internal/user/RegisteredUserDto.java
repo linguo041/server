@@ -1,5 +1,7 @@
-package com.duoshouji.server.service.user;
+package com.duoshouji.server.internal.user;
 
+import com.duoshouji.server.service.user.UserIdentifier;
+import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 
 public interface RegisteredUserDto {
@@ -13,5 +15,7 @@ public interface RegisteredUserDto {
 	String getPasswordSalt();
 
 	void setPasswordDigest(String passwordDigest);
+	
+	Image getPortrait();
 
 }

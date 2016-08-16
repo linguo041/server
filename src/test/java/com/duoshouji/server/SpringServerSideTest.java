@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -43,8 +45,9 @@ public class SpringServerSideTest {
 		requestBuilder.param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString());
 		requestBuilder.param("password", MockConstants.MOCK_PASSWORD.toString());
 		mockMvc.perform(requestBuilder)
-			.andExpect(status().isOk())
-			.andExpect(MockMvcResultMatchers.header().string(Constants.APP_TOKEN_HTTP_HEADER_NAME, ((MockTokenManager)wac.getBean(TokenManager.class)).findToken(MockConstants.MOCK_USER_IDENTIFIER.toString())));
+			.andExpect(statusIsOk())
+			.andExpect(headerContainsTokenForMockUser())
+			.andExpect(withJsonValue("{\"loginResultCode\" : 0}"));
 	}
 	
 	@Test
@@ -53,14 +56,17 @@ public class SpringServerSideTest {
 		requestBuilder = post("/message/verification-code");
 		requestBuilder.param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString());
 		requestBuilder.param("purpose", "LOGIN");
-		mockMvc.perform(requestBuilder).andExpect(status().isOk());
+		mockMvc.perform(requestBuilder)
+			.andExpect(statusIsOk())
+			.andExpect(withJsonValue(null));
 		
 		requestBuilder = post("/login/authenticate/verification-code");
 		requestBuilder.param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString());
 		requestBuilder.param("code", ((MockMessageSender)wac.getBean(MessageProxyFactory.class)).findHistory(MockConstants.MOCK_USER_IDENTIFIER).toString());
 		mockMvc.perform(requestBuilder)
-			.andExpect(status().isOk())
-			.andExpect(MockMvcResultMatchers.header().string(Constants.APP_TOKEN_HTTP_HEADER_NAME, ((MockTokenManager)wac.getBean(TokenManager.class)).findToken(MockConstants.MOCK_USER_IDENTIFIER.toString())));
+			.andExpect(statusIsOk())
+			.andExpect(headerContainsTokenForMockUser())
+			.andExpect(withJsonValue("{\"loginSuccess\" : true}"));
 	}
 	
 	@Test
@@ -77,5 +83,30 @@ public class SpringServerSideTest {
 				.andExpect(MockMvcResultMatchers.content().json(
 						new JSONObject().put("resultCode", 0).put("resultValue", new JSONArray()).toString()
 						));
+	}
+	
+	private ResultMatcher headerContainsTokenForMockUser() {
+		return MockMvcResultMatchers.header().string(Constants.APP_TOKEN_HTTP_HEADER_NAME, ((MockTokenManager)wac.getBean(TokenManager.class)).findToken(MockConstants.MOCK_USER_IDENTIFIER.toString()));
+	}
+	
+	private static ResultMatcher statusIsOk() {
+		return status().isOk();
+	}
+	
+	private static ResultMatcher withJsonValue(Object jsonObject) throws JSONException {
+		return MockMvcResultMatchers.content().json(getStandardJsonReturnString(jsonObject));
+	}
+	
+	private static String getStandardJsonReturnString(Object jsonObject) throws JSONException {
+		
+		JSONObject json = new JSONObject();
+		json.put("resultCode", 0);
+		if (jsonObject != null) {
+			if (jsonObject instanceof String)
+				json.put("resultValue", new JSONObject((String)jsonObject));
+			else
+				json.put("resultValue", jsonObject);
+		}
+		return json.toString();
 	}
 }

@@ -1,6 +1,6 @@
 package com.duoshouji.server.internal.note;
 
-interface NoteDto {
+public interface NoteDto {
 
 	long getNoteId();
 

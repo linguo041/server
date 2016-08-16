@@ -1,27 +1,33 @@
-package com.duoshouji.server.internal.user;
+package com.duoshouji.server.internal.core;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
+import com.duoshouji.server.internal.dao.UserNoteDao;
 import com.duoshouji.server.internal.executor.DelegatedVerificationCodeLoginExecutor;
 import com.duoshouji.server.internal.executor.SmsVerificationCodeAuthenticationExecutor;
+import com.duoshouji.server.internal.note.NoteDto;
+import com.duoshouji.server.internal.note.NoteRepository;
+import com.duoshouji.server.internal.user.RegisteredUserDto;
+import com.duoshouji.server.internal.user.UserRepository;
 import com.duoshouji.server.service.executor.VerificationCodeLoginExecutor;
+import com.duoshouji.server.service.note.CommentCollection;
+import com.duoshouji.server.service.note.LikeCollection;
+import com.duoshouji.server.service.note.NoteAlbum;
+import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.user.RegisteredUser;
-import com.duoshouji.server.service.user.RegisteredUserDto;
 import com.duoshouji.server.service.user.UserAlreadyExistsException;
-import com.duoshouji.server.service.user.UserDao;
 import com.duoshouji.server.service.user.UserIdentifier;
-import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.util.MessageProxyFactory;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCodeGenerator;
 
-public class UserOperationManager implements UserRepository {
+public class UserNoteOperationManager implements UserRepository, NoteRepository {
 	
 	private VerificationCodeGenerator codeGenerator;
 	private MessageProxyFactory messageProxyFactory;
-	private UserDao userDao;
+	private UserNoteDao userNoteDao;
 
 	@Required
 	@Autowired
@@ -37,8 +43,8 @@ public class UserOperationManager implements UserRepository {
 
 	@Required
 	@Autowired
-	public void setUserDao(UserDao userDao) {
-		this.userDao = userDao;
+	public void setUserNoteDao(UserNoteDao userNoteDao) {
+		this.userNoteDao = userNoteDao;
 	}
 
 	boolean verifyPassword(OperationDelegatingMobileUser user, Password password) {
@@ -68,7 +74,7 @@ public class UserOperationManager implements UserRepository {
 		}
 		OperationDelegatingMobileUser user = new OperationDelegatingMobileUser(
 				new InMemoryRegisteredUserDto(userId, mobileNumber), this);
-		userDao.addUser(userId, mobileNumber);
+		userNoteDao.addUser(userId, mobileNumber);
 		return user;
 	}
 	
@@ -78,10 +84,38 @@ public class UserOperationManager implements UserRepository {
 	
 	public RegisteredUser findUser(UserIdentifier userId) {
 		RegisteredUser user = null;
-		RegisteredUserDto userDto = userDao.findUser(userId);
+		RegisteredUserDto userDto = userNoteDao.findUser(userId);
 		if (userDto != null) {
 			user = new OperationDelegatingMobileUser(userDto, this); 
 		}
 		return user;
+	}
+	
+	@Override
+	public NoteCollection findNotes() {
+		return new OperationDelegatingNoteCollection(noteDao.findNotes(), this);
+	}
+
+	NoteAlbum getNoteAlbum(OperationDelegatingNote operationDelegatingNote) {
+		return new DtoBasedNoteAlbum(noteDao.findNoteAlbum(operationDelegatingNote.noteDto));
+	}
+
+	RegisteredUser getOwner(OperationDelegatingNote operationDelegatingNote) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	LikeCollection getLiks(OperationDelegatingNote operationDelegatingNote) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	CommentCollection getComments(OperationDelegatingNote operationDelegatingNote) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	OperationDelegatingNote newNote(NoteDto noteDto) {
+		return new OperationDelegatingNote(noteDto, this);
 	}
 }

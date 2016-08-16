@@ -7,8 +7,8 @@ import org.jmock.Mockery;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.duoshouji.server.internal.core.NoteFacadeImpl;
 import com.duoshouji.server.service.note.NoteCollection;
-import com.duoshouji.server.service.note.NoteRepository;
 
 public class NoteFacadeImplTest {
 

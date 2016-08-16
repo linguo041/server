@@ -1,23 +1,24 @@
-package com.duoshouji.server.internal.user;
+package com.duoshouji.server.internal.core;
 
 import com.duoshouji.server.internal.executor.ExecutorHolder;
+import com.duoshouji.server.internal.user.RegisteredUserDto;
 import com.duoshouji.server.service.executor.VerificationCodeLoginExecutor;
 import com.duoshouji.server.service.user.AccountSecurity;
 import com.duoshouji.server.service.user.PasswordNotSetException;
 import com.duoshouji.server.service.user.RegisteredUser;
-import com.duoshouji.server.service.user.RegisteredUserDto;
 import com.duoshouji.server.service.user.UserIdentifier;
+import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 
 public class OperationDelegatingMobileUser implements RegisteredUser, AccountSecurity, ExecutorHolder {
 
-	private final UserOperationManager delegator;
+	private final UserNoteOperationManager delegator;
 	
 	private RegisteredUserDto userDto;
 	private VerificationCodeLoginExecutor executor;
 	
-	public OperationDelegatingMobileUser(RegisteredUserDto userDto, UserOperationManager delegator) {
+	public OperationDelegatingMobileUser(RegisteredUserDto userDto, UserNoteOperationManager delegator) {
 		super();
 		this.userDto = userDto;
 		this.delegator = delegator;
@@ -73,5 +74,10 @@ public class OperationDelegatingMobileUser implements RegisteredUser, AccountSec
 	
 	String getPasswordDigest() {
 		return userDto.getPasswordDigest();
+	}
+
+	@Override
+	public Image getPortrait() {
+		return userDto.getPortrait();
 	}
 }
