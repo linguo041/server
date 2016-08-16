@@ -1,20 +1,19 @@
 package com.duoshouji.server.util;
 
-import java.net.URL;
 
 public class Image {
 	private int width;
 	private int height;
-	private URL url;
+	private String url;
 	
-	public Image(int width, int height, URL url) {
+	public Image(int width, int height, String url) {
 		super();
 		this.width = width;
 		this.height = height;
 		this.url = url;
 	}
 
-	public URL getURL() {
+	public String getURL() {
 		return url;
 	}
 

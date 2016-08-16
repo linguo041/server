@@ -3,7 +3,6 @@ package com.duoshouji.server;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Before;
@@ -14,6 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -62,7 +62,7 @@ public class SpringServerSideTest {
 		
 		requestBuilder = post("/login/authenticate/verification-code");
 		requestBuilder.param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString());
-		requestBuilder.param("code", ((MockMessageSender)wac.getBean(MessageProxyFactory.class)).findHistory(MockConstants.MOCK_USER_IDENTIFIER).toString());
+		requestBuilder.param("code", getMessageSender().findHistory(MockConstants.MOCK_USER_IDENTIFIER).toString());
 		mockMvc.perform(requestBuilder)
 			.andExpect(statusIsOk())
 			.andExpect(headerContainsTokenForMockUser())
@@ -70,23 +70,56 @@ public class SpringServerSideTest {
 	}
 	
 	@Test
-	public void getSquareNotes() throws Exception {
-		MockTokenManager tokenManager = (MockTokenManager) wac.getBean(TokenManager.class);
+	public void setPassword() throws Exception {
+		final String token = loginWithMockUser();
+		mockMvc.perform(post("/message/verification-code").param("purpose", "CHANGE_PASSWORD").header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token));
 		
-		mockMvc.perform(post("/login/authenticate/credential")
-				.param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString())
-				.param("password", MockConstants.MOCK_PASSWORD.toString()));
+		mockMvc.perform(post("/account/" + MockConstants.MOCK_USER_IDENTIFIER + "/settings/security/password")
+			.param("password", "newpassword")
+			.param("code", getMessageSender().findHistory(MockConstants.MOCK_USER_IDENTIFIER).toString())
+			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token))
+			.andExpect(statusIsOk());
+	}
+	
+	@Test
+	public void getSquareNotes() throws Exception {
+		final String token = loginWithMockUser();
+		
+		JSONObject json = new JSONObject();
+		json.put("noteId", MockConstants.MOCK_NOTE_ID);
+		json.put("title", MockConstants.MOCK_NOTE_TITLE);
+		json.put("image", MockConstants.MOCK_NOTE_MAIN_IMAGE.getURL());
+		json.put("imageWidth", MockConstants.MOCK_NOTE_MAIN_IMAGE.getWidth());
+		json.put("imageHeight", MockConstants.MOCK_NOTE_MAIN_IMAGE.getHeight());
+		json.put("portrait", MockConstants.MOCK_USER_PORTRAIT.getURL());
+		json.put("rank", 0);
+		json.put("likeCount", 0);
+		json.put("commentCount", 0);
 		
 		mockMvc.perform(post("/notes")
-				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, tokenManager.findToken(MockConstants.MOCK_USER_IDENTIFIER.toString())))
-				.andExpect(status().isOk())
-				.andExpect(MockMvcResultMatchers.content().json(
-						new JSONObject().put("resultCode", 0).put("resultValue", new JSONArray()).toString()
-						));
+				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token))
+				.andExpect(statusIsOk())
+				.andExpect(withJsonValue(json));
+	}
+	
+	private String loginWithMockUser() throws Exception {
+		MockHttpServletRequestBuilder requestBuilder = post("/login/authenticate/credential");
+		requestBuilder.param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString());
+		requestBuilder.param("password", MockConstants.MOCK_PASSWORD.toString());
+		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+		return result.getResponse().getHeader(Constants.APP_TOKEN_HTTP_HEADER_NAME);
+	}
+	
+	private MockMessageSender getMessageSender() {
+		return (MockMessageSender) wac.getBean(MessageProxyFactory.class);
+	}
+	
+	private MockTokenManager getTokenManager() {
+		return (MockTokenManager) wac.getBean(TokenManager.class);
 	}
 	
 	private ResultMatcher headerContainsTokenForMockUser() {
-		return MockMvcResultMatchers.header().string(Constants.APP_TOKEN_HTTP_HEADER_NAME, ((MockTokenManager)wac.getBean(TokenManager.class)).findToken(MockConstants.MOCK_USER_IDENTIFIER.toString()));
+		return MockMvcResultMatchers.header().string(Constants.APP_TOKEN_HTTP_HEADER_NAME, getTokenManager().findToken(MockConstants.MOCK_USER_IDENTIFIER.toString()));
 	}
 	
 	private static ResultMatcher statusIsOk() {
