@@ -1,6 +1,5 @@
-package com.duoshouji.server.internal.core;
+package com.duoshouji.server.internal.dao;
 
-import com.duoshouji.server.internal.user.RegisteredUserDto;
 import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
@@ -44,7 +43,7 @@ public class InMemoryRegisteredUserDto implements RegisteredUserDto {
 		this.passwordDigest = passwordDigest;
 	}
 
-	void setPasswordSalt(String passwordSalt) {
+	public void setPasswordSalt(String passwordSalt) {
 		this.passwordSalt = passwordSalt;
 	}
 

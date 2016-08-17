@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.duoshouji.server.internal.core.InMemoryRegisteredUserDto;
+import com.duoshouji.server.internal.dao.InMemoryRegisteredUserDto;
+import com.duoshouji.server.internal.dao.RegisteredUserDto;
 import com.duoshouji.server.internal.dao.UserNoteDao;
-import com.duoshouji.server.internal.user.RegisteredUserDto;
 import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.MobileNumber;
 

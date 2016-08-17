@@ -1,6 +1,6 @@
 package com.duoshouji.server.internal.core;
 
-import com.duoshouji.server.internal.note.NoteDto;
+import com.duoshouji.server.internal.dao.NoteDto;
 import com.duoshouji.server.service.note.CommentCollection;
 import com.duoshouji.server.service.note.LikeCollection;
 import com.duoshouji.server.service.note.Note;
@@ -46,7 +46,7 @@ class OperationDelegatingNote implements Note {
 
 	@Override
 	public LikeCollection getLikes() {
-		return operationDelegator.getLiks(this);
+		return operationDelegator.getLikes(this);
 	}
 
 	@Override

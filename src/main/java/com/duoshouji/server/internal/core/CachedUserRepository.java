@@ -2,9 +2,9 @@ package com.duoshouji.server.internal.core;
 
 import java.util.HashMap;
 
-import com.duoshouji.server.internal.user.UserRepository;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserIdentifier;
+import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.util.MobileNumber;
 
 public class CachedUserRepository implements UserRepository {

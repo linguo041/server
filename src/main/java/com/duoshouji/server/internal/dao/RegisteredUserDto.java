@@ -1,4 +1,4 @@
-package com.duoshouji.server.internal.user;
+package com.duoshouji.server.internal.dao;
 
 import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.Image;

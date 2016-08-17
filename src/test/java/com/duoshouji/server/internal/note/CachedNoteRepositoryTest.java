@@ -10,6 +10,7 @@ import org.junit.Test;
 import com.duoshouji.server.MockConstants;
 import com.duoshouji.server.internal.core.CachedNoteRepository;
 import com.duoshouji.server.service.note.NoteCollection;
+import com.duoshouji.server.service.note.NoteRepository;
 
 public class CachedNoteRepositoryTest {
 

@@ -1,13 +1,10 @@
-package com.duoshouji.server.internal.core;
+package com.duoshouji.server.internal.dao;
 
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import com.duoshouji.server.internal.dao.UserNoteDao;
-import com.duoshouji.server.internal.note.NoteCollectionDto;
-import com.duoshouji.server.internal.user.RegisteredUserDto;
 import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.MobileNumber;
 
@@ -41,7 +38,31 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	}
 
 	@Override
-	public NoteCollectionDto findNotes() {
+	public NoteDtoCollection findNotes() {
+		return null;
+	}
+
+	@Override
+	public NoteAlbumDto findNoteAlbum(NoteDto noteDto) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public RegisteredUserDto getOwner(NoteDto noteDto) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public LikeDtoCollection getLikes(NoteDto noteDto) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public CommentDtoCollection getComments(NoteDto noteDto) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

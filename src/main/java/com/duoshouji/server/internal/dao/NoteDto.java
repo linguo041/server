@@ -1,4 +1,4 @@
-package com.duoshouji.server.internal.note;
+package com.duoshouji.server.internal.dao;
 
 public interface NoteDto {
 

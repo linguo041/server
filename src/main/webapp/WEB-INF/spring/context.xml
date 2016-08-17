@@ -50,4 +50,5 @@
 	<beans:bean id="authenticationInterceptor" class="com.duoshouji.server.rest.interceptor.AuthenticationInterceptor">
 	</beans:bean>
 	
+	<beans:bean id="exceptionHandler" class="com.duoshouji.server.rest.RestExceptionHandler"/>
 </beans:beans>

@@ -39,7 +39,7 @@ public class LoginFacadeImplTest {
 		}});
 		
 		LoginFacadeImpl loginFacade  = new LoginFacadeImpl(userFacade);
-		loginFacade.sendVerificationCode(MockConstants.MOCK_MOBILE_NUMBER);
+		loginFacade.sendLoginVerificationCode(MockConstants.MOCK_MOBILE_NUMBER);
 	}
 	
 	@Test
@@ -51,7 +51,7 @@ public class LoginFacadeImplTest {
 		}});
 		
 		LoginFacadeImpl loginFacade  = new LoginFacadeImpl(userFacade);
-		Assert.assertEquals(user, loginFacade.checkVerificationCode(MockConstants.MOCK_MOBILE_NUMBER, MockConstants.MOCK_VERIFICATION_CODE));
+		Assert.assertEquals(user, loginFacade.checkLoginVerificationCode(MockConstants.MOCK_MOBILE_NUMBER, MockConstants.MOCK_VERIFICATION_CODE));
 	}
 	
 	@Test
@@ -64,6 +64,6 @@ public class LoginFacadeImplTest {
 		}});
 		
 		LoginFacadeImpl loginFacade  = new LoginFacadeImpl(userFacade);
-		Assert.assertEquals(user, loginFacade.verifyPassword(MockConstants.MOCK_MOBILE_NUMBER, MockConstants.MOCK_PASSWORD));
+		Assert.assertEquals(user, loginFacade.checkLoginPassword(MockConstants.MOCK_MOBILE_NUMBER, MockConstants.MOCK_PASSWORD));
 	}
 }

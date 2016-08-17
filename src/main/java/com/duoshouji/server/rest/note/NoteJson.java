@@ -1,15 +1,13 @@
 package com.duoshouji.server.rest.note;
 
-import java.net.URL;
-
 public class NoteJson {
 
 	private long noteId;
 	private String title;
-	private URL image;
+	private String image;
 	private int imageWidth;
 	private int imageHeight;
-	private URL portrait;
+	private String portrait;
 	private int rank;
 	private int likeCount;
 	private int commentCount;
@@ -22,7 +20,7 @@ public class NoteJson {
 		return title;
 	}
 
-	public URL getImage() {
+	public String getImage() {
 		return image;
 	}
 
@@ -34,7 +32,7 @@ public class NoteJson {
 		return imageHeight;
 	}
 
-	public URL getPortrait() {
+	public String getPortrait() {
 		return portrait;
 	}
 
@@ -58,7 +56,7 @@ public class NoteJson {
 		this.title = title;
 	}
 
-	void setImage(URL image) {
+	void setImage(String image) {
 		this.image = image;
 	}
 
@@ -70,7 +68,7 @@ public class NoteJson {
 		this.imageHeight = imageHeight;
 	}
 
-	void setPortrait(URL portrait) {
+	void setPortrait(String portrait) {
 		this.portrait = portrait;
 	}
 

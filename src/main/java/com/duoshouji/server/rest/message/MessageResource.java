@@ -1,39 +1,32 @@
 package com.duoshouji.server.rest.message;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.duoshouji.server.service.login.LoginFacade;
+import com.duoshouji.server.rest.StandardJsonResponse;
+import com.duoshouji.server.service.user.UserFacade;
 import com.duoshouji.server.util.MobileNumber;
 
 @RequestMapping("/message")
 @RestController
 public class MessageResource {
 
-	private LoginFacade loginFacade;
+	private UserFacade userFacade;
 	
 	@Autowired
-	public MessageResource(LoginFacade loginFacade) {
+	public MessageResource(UserFacade userFacade) {
 		super();
-		this.loginFacade = loginFacade;
+		this.userFacade = userFacade;
 	}
 
-	@RequestMapping(path = "/verification-code", method = RequestMethod.POST)
-	public ResponseEntity<?> sendVerificationCode(
-		@RequestParam("mobile") String mobileNumber,
-		@RequestParam("purpose") Purpose purpose 
+	@RequestMapping(path = "/verification-code/login", method = RequestMethod.POST)
+	public StandardJsonResponse sendLoginVerificationCode(
+		@RequestParam("mobile") String mobileNumber
 			) {
-		loginFacade.sendVerificationCode(new MobileNumber(mobileNumber));
-		return new ResponseEntity<>(null, null, HttpStatus.OK);
-	}
-	
-	public static enum Purpose {
-		LOGIN,
-		CHANGE_PASSWORD;
+		userFacade.sendLoginVerificationCode(new MobileNumber(mobileNumber));
+		return StandardJsonResponse.emptyResponse();
 	}
 }

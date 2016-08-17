@@ -2,9 +2,9 @@ package com.duoshouji.server.internal.core;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.duoshouji.server.internal.note.NoteRepository;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.NoteFacade;
+import com.duoshouji.server.service.note.NoteRepository;
 
 public class NoteFacadeImpl implements NoteFacade {
 

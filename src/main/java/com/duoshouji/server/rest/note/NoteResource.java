@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.duoshouji.server.rest.StandardJsonResponse;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.NoteFacade;
@@ -25,7 +26,7 @@ public class NoteResource {
 	}
 
 	@RequestMapping(path = "/", method = RequestMethod.GET)
-	public List<NoteJson> getNotes() {
+	public StandardJsonResponse getNotes() {
 		NoteCollection notes = noteFacade.getPushedNotes();
 		List<NoteJson> returnValue = new ArrayList<NoteJson>();
 		for (Note note : notes) {
@@ -41,6 +42,6 @@ public class NoteResource {
 			noteJson.setCommentCount(note.getComments().size());
 			returnValue.add(noteJson);
 		}
-		return returnValue;
+		return StandardJsonResponse.wrapResponse(returnValue);
 	}
 }

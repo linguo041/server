@@ -1,7 +1,5 @@
-package com.duoshouji.server.internal.user;
+package com.duoshouji.server.service.user;
 
-import com.duoshouji.server.service.user.RegisteredUser;
-import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.MobileNumber;
 
 public interface UserRepository {

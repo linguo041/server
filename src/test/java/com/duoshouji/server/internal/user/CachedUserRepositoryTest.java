@@ -11,6 +11,7 @@ import com.duoshouji.server.MockConstants;
 import com.duoshouji.server.internal.core.CachedUserRepository;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserIdentifier;
+import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.util.MobileNumber;
 
 public class CachedUserRepositoryTest {

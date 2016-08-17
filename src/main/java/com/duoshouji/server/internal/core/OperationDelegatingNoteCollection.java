@@ -3,18 +3,18 @@ package com.duoshouji.server.internal.core;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.duoshouji.server.internal.note.NoteCollectionDto;
-import com.duoshouji.server.internal.note.NoteDto;
+import com.duoshouji.server.internal.dao.NoteDto;
+import com.duoshouji.server.internal.dao.NoteDtoCollection;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
 
 public class OperationDelegatingNoteCollection implements NoteCollection {
 
-	private NoteCollectionDto noteCollectionDto;
+	private NoteDtoCollection noteCollectionDto;
 	private UserNoteOperationManager operationDelegator;
 	
 	public OperationDelegatingNoteCollection(
-			NoteCollectionDto noteCollectionDto,
+			NoteDtoCollection noteCollectionDto,
 			UserNoteOperationManager operationDelegator) {
 		super();
 		this.noteCollectionDto = noteCollectionDto;

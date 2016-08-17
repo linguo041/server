@@ -1,9 +1,7 @@
 package com.duoshouji.server.internal.core;
 
+import com.duoshouji.server.internal.dao.RegisteredUserDto;
 import com.duoshouji.server.internal.executor.ExecutorHolder;
-import com.duoshouji.server.internal.user.RegisteredUserDto;
-import com.duoshouji.server.service.executor.VerificationCodeLoginExecutor;
-import com.duoshouji.server.service.user.AccountSecurity;
 import com.duoshouji.server.service.user.PasswordNotSetException;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserIdentifier;
@@ -11,12 +9,11 @@ import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 
-public class OperationDelegatingMobileUser implements RegisteredUser, AccountSecurity, ExecutorHolder {
+public class OperationDelegatingMobileUser implements RegisteredUser, ExecutorHolder {
 
 	private final UserNoteOperationManager delegator;
 	
 	private RegisteredUserDto userDto;
-	private VerificationCodeLoginExecutor executor;
 	
 	public OperationDelegatingMobileUser(RegisteredUserDto userDto, UserNoteOperationManager delegator) {
 		super();
@@ -38,19 +35,6 @@ public class OperationDelegatingMobileUser implements RegisteredUser, AccountSec
 	@Override
 	public UserIdentifier getIdentifier() {
 		return userDto.getUserId();
-	}
-	
-	@Override
-	public AccountSecurity getAccountSecurity() {
-		return this;
-	}
-	
-	@Override
-	public VerificationCodeLoginExecutor processVerificationCodeLogin() {
-		if (executor == null) {
-			executor = delegator.newVerificationCodeLoginExecutor(this);
-		}
-		return executor;
 	}
 	
 	@Override

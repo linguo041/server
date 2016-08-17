@@ -3,6 +3,7 @@ package com.duoshouji.server;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Before;
@@ -53,9 +54,7 @@ public class SpringServerSideTest {
 	@Test
 	public void loginByVerificationCode() throws Exception {
 		MockHttpServletRequestBuilder requestBuilder;
-		requestBuilder = post("/message/verification-code");
-		requestBuilder.param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString());
-		requestBuilder.param("purpose", "LOGIN");
+		requestBuilder = post("/message/verification-code/login").param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString());
 		mockMvc.perform(requestBuilder)
 			.andExpect(statusIsOk())
 			.andExpect(withJsonValue(null));
@@ -85,6 +84,7 @@ public class SpringServerSideTest {
 	public void getSquareNotes() throws Exception {
 		final String token = loginWithMockUser();
 		
+		JSONArray array = new JSONArray();
 		JSONObject json = new JSONObject();
 		json.put("noteId", MockConstants.MOCK_NOTE_ID);
 		json.put("title", MockConstants.MOCK_NOTE_TITLE);
@@ -95,11 +95,12 @@ public class SpringServerSideTest {
 		json.put("rank", 0);
 		json.put("likeCount", 0);
 		json.put("commentCount", 0);
+		array.put(json);
 		
 		mockMvc.perform(post("/notes")
 				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token))
 				.andExpect(statusIsOk())
-				.andExpect(withJsonValue(json));
+				.andExpect(withJsonValue(array));
 	}
 	
 	private String loginWithMockUser() throws Exception {

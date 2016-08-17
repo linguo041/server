@@ -3,43 +3,25 @@ package com.duoshouji.server.internal.core;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 
+import com.duoshouji.server.internal.dao.InMemoryRegisteredUserDto;
+import com.duoshouji.server.internal.dao.NoteDto;
+import com.duoshouji.server.internal.dao.RegisteredUserDto;
 import com.duoshouji.server.internal.dao.UserNoteDao;
-import com.duoshouji.server.internal.executor.DelegatedVerificationCodeLoginExecutor;
-import com.duoshouji.server.internal.executor.SmsVerificationCodeAuthenticationExecutor;
-import com.duoshouji.server.internal.note.NoteDto;
-import com.duoshouji.server.internal.note.NoteRepository;
-import com.duoshouji.server.internal.user.RegisteredUserDto;
-import com.duoshouji.server.internal.user.UserRepository;
-import com.duoshouji.server.service.executor.VerificationCodeLoginExecutor;
 import com.duoshouji.server.service.note.CommentCollection;
 import com.duoshouji.server.service.note.LikeCollection;
 import com.duoshouji.server.service.note.NoteAlbum;
 import com.duoshouji.server.service.note.NoteCollection;
+import com.duoshouji.server.service.note.NoteRepository;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserAlreadyExistsException;
 import com.duoshouji.server.service.user.UserIdentifier;
-import com.duoshouji.server.util.MessageProxyFactory;
+import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
-import com.duoshouji.server.util.VerificationCodeGenerator;
 
 public class UserNoteOperationManager implements UserRepository, NoteRepository {
 	
-	private VerificationCodeGenerator codeGenerator;
-	private MessageProxyFactory messageProxyFactory;
 	private UserNoteDao userNoteDao;
-
-	@Required
-	@Autowired
-	public void setCodeGenerator(VerificationCodeGenerator codeGenerator) {
-		this.codeGenerator = codeGenerator;
-	}
-	
-	@Required
-	@Autowired
-	public void setMessageProxyFactory(MessageProxyFactory messageProxyFactory) {
-		this.messageProxyFactory = messageProxyFactory;
-	}
 
 	@Required
 	@Autowired
@@ -49,12 +31,6 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 
 	boolean verifyPassword(OperationDelegatingMobileUser user, Password password) {
 		return user.getPasswordDigest().equals(password.toString());
-	}
-
-	VerificationCodeLoginExecutor newVerificationCodeLoginExecutor(
-			OperationDelegatingMobileUser user) {
-		return new DelegatedVerificationCodeLoginExecutor(
-				new SmsVerificationCodeAuthenticationExecutor(messageProxyFactory.getMessageProxy(user), codeGenerator), user);
 	}
 
 	public void setPassword(OperationDelegatingMobileUser user, Password password) {
@@ -93,26 +69,35 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 	
 	@Override
 	public NoteCollection findNotes() {
-		return new OperationDelegatingNoteCollection(noteDao.findNotes(), this);
+		return new OperationDelegatingNoteCollection(userNoteDao.findNotes(), this);
 	}
 
 	NoteAlbum getNoteAlbum(OperationDelegatingNote operationDelegatingNote) {
-		return new DtoBasedNoteAlbum(noteDao.findNoteAlbum(operationDelegatingNote.noteDto));
+		return new DtoBasedNoteAlbum(userNoteDao.findNoteAlbum(operationDelegatingNote.noteDto));
 	}
 
 	RegisteredUser getOwner(OperationDelegatingNote operationDelegatingNote) {
-		// TODO Auto-generated method stub
-		return null;
+		return new OperationDelegatingMobileUser(userNoteDao.getOwner(operationDelegatingNote.noteDto), this);
 	}
 
-	LikeCollection getLiks(OperationDelegatingNote operationDelegatingNote) {
-		// TODO Auto-generated method stub
-		return null;
+	LikeCollection getLikes(OperationDelegatingNote operationDelegatingNote) {
+		final int size = userNoteDao.getLikes(operationDelegatingNote.noteDto).size();
+		return new LikeCollection() {
+			@Override
+			public int size() {
+				return size;
+			}
+		};
 	}
 
 	CommentCollection getComments(OperationDelegatingNote operationDelegatingNote) {
-		// TODO Auto-generated method stub
-		return null;
+		final int size = userNoteDao.getComments(operationDelegatingNote.noteDto).size();
+		return new CommentCollection() {
+			@Override
+			public int size() {
+				return size;
+			}
+		};
 	}
 
 	OperationDelegatingNote newNote(NoteDto noteDto) {
