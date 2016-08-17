@@ -26,7 +26,7 @@ public class LoginResource {
 	}
 
 	@RequestMapping(path = "/verification-code", method = RequestMethod.POST)
-	public StandardJsonResponse authenticateVerificationCode(
+	public boolean authenticateVerificationCode(
 		@RequestParam("mobile") String mobileNumber,
 		@RequestParam("code") String verificationCode
 			) {

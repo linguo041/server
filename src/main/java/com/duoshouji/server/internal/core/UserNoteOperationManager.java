@@ -1,7 +1,7 @@
 package com.duoshouji.server.internal.core;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Required;
+import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.internal.dao.InMemoryRegisteredUserDto;
 import com.duoshouji.server.internal.dao.NoteDto;
@@ -19,13 +19,14 @@ import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 
+@Service
 public class UserNoteOperationManager implements UserRepository, NoteRepository {
 	
 	private UserNoteDao userNoteDao;
 
-	@Required
 	@Autowired
-	public void setUserNoteDao(UserNoteDao userNoteDao) {
+	public UserNoteOperationManager(UserNoteDao userNoteDao) {
+		super();
 		this.userNoteDao = userNoteDao;
 	}
 

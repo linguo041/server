@@ -19,8 +19,10 @@ public class UserFacadeImpl implements UserFacade {
 	private MultiStepProcessSupport processSupport;
 	
 	@Autowired
-	public UserFacadeImpl(UserRepository userRepository) {
+	public UserFacadeImpl(UserRepository userRepository, MultiStepProcessSupport processSupport) {
+		super();
 		this.userRepository = userRepository;
+		this.processSupport = processSupport;
 	}
 
 	@Override
