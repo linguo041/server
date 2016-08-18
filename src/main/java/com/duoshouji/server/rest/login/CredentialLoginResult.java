@@ -1,13 +1,16 @@
 package com.duoshouji.server.rest.login;
 
-import com.duoshouji.server.service.user.UserIdentifier;
 
 public class CredentialLoginResult extends LoginResult {
 
 	private int loginResultCode;
 
-	public CredentialLoginResult(UserIdentifier userId, int loginResultCode) {
-		super(userId);
+	public CredentialLoginResult(int loginResultCode) {
+		this(null, loginResultCode);
+	}
+
+	public CredentialLoginResult(String token, int loginResultCode) {
+		super(token);
 		this.loginResultCode = loginResultCode;
 	}
 

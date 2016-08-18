@@ -4,7 +4,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.duoshouji.server.rest.Constants;
@@ -33,15 +32,5 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 			}
 		}
 		return returnValue;
-	}
-
-	@Override
-	public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-			ModelAndView modelAndView) throws Exception {
-		super.postHandle(request, response, handler, modelAndView);
-		if (request.getRequestURI().startsWith("/login/authenticate")) {
-			final UserIdentifier userId = new UserIdentifier(request.getParameter("mobile"));
-			response.addHeader(Constants.APP_TOKEN_HTTP_HEADER_NAME, tokenManager.newToken(userId));
-		}
 	}
 }

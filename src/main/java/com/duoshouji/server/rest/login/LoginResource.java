@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.duoshouji.server.rest.StandardJsonResponse;
 import com.duoshouji.server.service.user.PasswordNotSetException;
+import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserFacade;
+import com.duoshouji.server.session.TokenManager;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
@@ -18,26 +20,29 @@ import com.duoshouji.server.util.VerificationCode;
 public class LoginResource {
 	
 	private UserFacade userFacade;
+	private TokenManager tokenManager;
 	
 	@Autowired
-	private LoginResource(UserFacade loginFacade) {
+	public LoginResource(UserFacade userFacade, TokenManager tokenManager) {
 		super();
-		this.userFacade = loginFacade;
+		this.userFacade = userFacade;
+		this.tokenManager = tokenManager;
 	}
 
 	@RequestMapping(path = "/verification-code", method = RequestMethod.POST)
-	public boolean authenticateVerificationCode(
+	public StandardJsonResponse authenticateVerificationCode(
 		@RequestParam("mobile") String mobileNumber,
 		@RequestParam("code") String verificationCode
 			) {
 		final MobileNumber mobile = new MobileNumber(mobileNumber);
-		final boolean success = userFacade.checkLoginVerificationCode(mobile, VerificationCode.valueOf(verificationCode));
-		return StandardJsonResponse.wrapResponse(new Object(){
-			@SuppressWarnings("unused")
-			public boolean getLoginSuccess() {
-				return success;
-			}
-		});
+		final RegisteredUser loginUser = userFacade.checkLoginVerificationCode(mobile, VerificationCode.valueOf(verificationCode));
+		VerificationCodeLoginResult result;
+		if (loginUser != null) {
+			result = new VerificationCodeLoginResult(tokenManager.newToken(loginUser.getIdentifier()), true);
+		} else {
+			result = new VerificationCodeLoginResult(false);
+		}
+		return StandardJsonResponse.wrapResponse(result);
 	}
 	
 	@RequestMapping(path = "/credential", method = RequestMethod.POST)
@@ -46,20 +51,17 @@ public class LoginResource {
 		@RequestParam("password") String password
 			) {
 		final MobileNumber mobile = new MobileNumber(mobileNumber);
-		int result = 0;
+		CredentialLoginResult result;
+		final RegisteredUser loginUser = userFacade.checkLoginPassword(mobile, Password.valueOf(password));
 		try {
-			if (!userFacade.checkLoginPassword(mobile, Password.valueOf(password))) {
-				result = 2;
+			if (loginUser != null) {
+				result = new CredentialLoginResult(tokenManager.newToken(loginUser.getIdentifier()), 0);
+			} else {
+				result = new CredentialLoginResult(2);
 			}
 		} catch (PasswordNotSetException ex) {
-			result = 1;
+			result = new CredentialLoginResult(1);
 		}
-		final int finalResult = result;
-		return StandardJsonResponse.wrapResponse(new Object(){
-			@SuppressWarnings("unused")
-			public int getLoginResultCode() {
-				return finalResult;
-			}
-		});
+		return StandardJsonResponse.wrapResponse(result);
 	}
 }

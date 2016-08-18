@@ -20,15 +20,14 @@
 		</mvc:message-converters>
 	</mvc:annotation-driven>
 	
-    <beans:bean id="handlerMapping"
-            class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping">
-        <beans:property name="interceptors">
-            <beans:list>
-                <beans:ref bean="authenticationInterceptor"/>
-            </beans:list>
-        </beans:property>
-    </beans:bean>
-    <beans:bean id="authenticationInterceptor" class="com.duoshouji.server.rest.interceptor.AuthenticationInterceptor"/>
+	<mvc:interceptors>    
+	    <mvc:interceptor>
+	        <mvc:mapping path="/**"/>
+	        
+	        <beans:bean class="com.duoshouji.server.rest.interceptor.AuthenticationInterceptor"/>  
+	    </mvc:interceptor>  
+	</mvc:interceptors>  
+	
     <beans:bean id="mockMessageSender" class="com.duoshouji.server.MockMessageSender"/>
     <beans:bean id="mockMysqlDao" class="com.duoshouji.server.MockMysqlDao"/>
     <beans:bean id="mockTokenManager" class="com.duoshouji.server.MockTokenManager"/>

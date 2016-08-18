@@ -1,14 +1,16 @@
 package com.duoshouji.server.rest.login;
 
-import com.duoshouji.server.service.user.UserIdentifier;
 
 public class VerificationCodeLoginResult extends LoginResult {
 
 	private boolean loginSuccess;
 
-	public VerificationCodeLoginResult(UserIdentifier userId,
-			boolean loginSuccess) {
-		super(userId);
+	public VerificationCodeLoginResult(boolean loginSuccess) {
+		this(null, loginSuccess);
+	}
+
+	public VerificationCodeLoginResult(String token, boolean loginSuccess) {
+		super(token);
 		this.loginSuccess = loginSuccess;
 	}
 

@@ -37,17 +37,25 @@ public class UserFacadeImpl implements UserFacade {
 	}
 
 	@Override
-	public boolean checkLoginVerificationCode(MobileNumber mobileNumber, VerificationCode verificationCode) {
+	public RegisteredUser checkLoginVerificationCode(MobileNumber mobileNumber, VerificationCode verificationCode) {
 		final RegisteredUser user = getUser(mobileNumber);
-		return processSupport
+		if (processSupport
 			.getVerificationCodeLoginExecutor(user)
-			.authenticate(verificationCode);
+			.authenticate(verificationCode)) {
+			return user;
+		} else {
+			return null;
+		}
 	}
 
 	@Override
-	public boolean checkLoginPassword(MobileNumber mobileNumber, Password password) {
+	public RegisteredUser checkLoginPassword(MobileNumber mobileNumber, Password password) {
 		RegisteredUser user = getUser(mobileNumber);
-		return user.verifyPassword(password);
+		if (user.verifyPassword(password)) {
+			return user;
+		} else {
+			return null;
+		}
 
 	}
 	

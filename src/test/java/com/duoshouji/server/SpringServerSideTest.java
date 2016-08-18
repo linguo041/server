@@ -41,18 +41,17 @@ public class SpringServerSideTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
     }
     
-	
+	@Test
 	public void loginByUserNameAndPassword() throws Exception {
 		MockHttpServletRequestBuilder requestBuilder = post("/login/authenticate/credential");
 		requestBuilder.param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString());
 		requestBuilder.param("password", MockConstants.MOCK_PASSWORD.toString());
 		mockMvc.perform(requestBuilder)
 			.andExpect(statusIsOk())
-			.andExpect(headerContainsTokenForMockUser())
-			.andExpect(withJsonValue("{\"loginResultCode\" : 0}"));
+			.andExpect(withJsonValue("{\"loginResultCode\" : 0, \"token\" : \""+ getTokenForMockUser() +"\"}"));
 	}
 	
-	
+	@Test
 	public void loginByVerificationCode() throws Exception {
 		MockHttpServletRequestBuilder requestBuilder;
 		requestBuilder = post("/message/verification-code/login").param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString());
@@ -65,8 +64,7 @@ public class SpringServerSideTest {
 		requestBuilder.param("code", getMessageSender().findHistory(MockConstants.MOCK_USER_IDENTIFIER).toString());
 		mockMvc.perform(requestBuilder)
 			.andExpect(statusIsOk())
-			.andExpect(headerContainsTokenForMockUser())
-			.andExpect(withJsonValue("{\"loginSuccess\" : true}"));
+			.andExpect(withJsonValue("{\"loginSuccess\" : true, \"token\" : \""+ getTokenForMockUser() +"\"}"));
 	}
 	
 	@Test
@@ -108,8 +106,8 @@ public class SpringServerSideTest {
 		return (MockTokenManager) wac.getBean(TokenManager.class);
 	}
 	
-	private ResultMatcher headerContainsTokenForMockUser() {
-		return MockMvcResultMatchers.header().string(Constants.APP_TOKEN_HTTP_HEADER_NAME, getTokenManager().findToken(MockConstants.MOCK_USER_IDENTIFIER.toString()));
+	private String getTokenForMockUser() {
+		return getTokenManager().findToken(MockConstants.MOCK_USER_IDENTIFIER.toString());
 	}
 	
 	private static ResultMatcher statusIsOk() {

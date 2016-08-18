@@ -1,17 +1,20 @@
 package com.duoshouji.server.rest.login;
 
-import com.duoshouji.server.service.user.UserIdentifier;
 
 public abstract class LoginResult {
 
-	private UserIdentifier userId;
+	private String token;
 
-	public LoginResult(UserIdentifier userId) {
+	public LoginResult(String token) {
 		super();
-		this.userId = userId;
+		this.token = token;
 	}
 
-	public UserIdentifier getUserId() {
-		return userId;
+	public String getToken() {
+		return token;
+	}
+	
+	void setToken(String token) {
+		this.token = token;
 	}
 }

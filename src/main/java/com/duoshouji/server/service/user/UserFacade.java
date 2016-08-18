@@ -8,8 +8,8 @@ public interface UserFacade {
 	
 	void sendLoginVerificationCode(MobileNumber accountId);
 	
-	boolean checkLoginVerificationCode(MobileNumber accountId, VerificationCode verificationCode);
+	RegisteredUser checkLoginVerificationCode(MobileNumber accountId, VerificationCode verificationCode);
 	
-	boolean checkLoginPassword(MobileNumber accountId, Password mockPassword);
+	RegisteredUser checkLoginPassword(MobileNumber accountId, Password mockPassword);
 
 }
