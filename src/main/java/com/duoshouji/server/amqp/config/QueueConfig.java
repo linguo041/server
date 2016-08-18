@@ -1,7 +1,6 @@
 package com.duoshouji.server.amqp.config;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 public class QueueConfig {
