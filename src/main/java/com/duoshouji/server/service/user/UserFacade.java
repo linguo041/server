@@ -12,4 +12,6 @@ public interface UserFacade {
 	
 	RegisteredUser checkLoginPassword(MobileNumber accountId, Password mockPassword);
 
+	RegisteredUser findUser(UserIdentifier userId);
+
 }

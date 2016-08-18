@@ -1,5 +1,7 @@
 package com.duoshouji.server.internal.core;
 
+import java.util.Iterator;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +11,7 @@ import com.duoshouji.server.internal.dao.RegisteredUserDto;
 import com.duoshouji.server.internal.dao.UserNoteDao;
 import com.duoshouji.server.service.note.CommentCollection;
 import com.duoshouji.server.service.note.LikeCollection;
+import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteAlbum;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.NoteRepository;
@@ -101,7 +104,16 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 		};
 	}
 
-	OperationDelegatingNote newNote(NoteDto noteDto) {
+	private OperationDelegatingNote newNote(NoteDto noteDto) {
 		return new OperationDelegatingNote(noteDto, this);
+	}
+
+	Iterator<Note> findNotes(long cutoff) {
+		return null;
+	}
+
+	Iterator<Note> findNotes(long cutoff, int startIndex, int endIndex) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

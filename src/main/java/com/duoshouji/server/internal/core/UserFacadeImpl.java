@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.duoshouji.server.service.executor.MultiStepProcessSupport;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserFacade;
+import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.service.user.UserNotExistsException;
 import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.util.MobileNumber;
@@ -63,6 +64,15 @@ public class UserFacadeImpl implements UserFacade {
 		RegisteredUser user = userRepository.findUser(mobileNumber);
 		if (user == null) {
 			throw new UserNotExistsException("Mobile: " + mobileNumber);
+		}
+		return user;
+	}
+
+	@Override
+	public RegisteredUser findUser(UserIdentifier userId) {
+		RegisteredUser user = userRepository.findUser(userId);
+		if (user == null) {
+			throw new UserNotExistsException("UserId: " + userId);
 		}
 		return user;
 	}

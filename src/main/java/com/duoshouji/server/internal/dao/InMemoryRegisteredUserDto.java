@@ -51,4 +51,8 @@ public class InMemoryRegisteredUserDto implements RegisteredUserDto {
 	public Image getPortrait() {
 		return portrait;
 	}
+	
+	public void setPortrait(Image portrait) {
+		this.portrait = portrait;
+	}
 }

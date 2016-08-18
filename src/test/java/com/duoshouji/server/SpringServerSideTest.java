@@ -1,7 +1,7 @@
 package com.duoshouji.server;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.codehaus.jettison.json.JSONArray;
@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.duoshouji.server.internal.dao.UserNoteDao;
 import com.duoshouji.server.rest.Constants;
 import com.duoshouji.server.session.TokenManager;
 import com.duoshouji.server.util.MessageProxyFactory;
@@ -67,27 +68,52 @@ public class SpringServerSideTest {
 			.andExpect(withJsonValue("{\"loginSuccess\" : true, \"token\" : \""+ getTokenForMockUser() +"\"}"));
 	}
 	
+	private JSONArray buildSquareNoteReturn(int... noteIds) throws JSONException {
+		JSONArray array = new JSONArray();
+		for (int noteId : noteIds) {
+			JSONObject json = new JSONObject();
+			json.put("noteId", noteId);
+			json.put("title", MockConstants.MOCK_NOTE_TITLE);
+			json.put("image", MockConstants.MOCK_NOTE_MAIN_IMAGE.getURL());
+			json.put("imageWidth", MockConstants.MOCK_NOTE_MAIN_IMAGE.getWidth());
+			json.put("imageHeight", MockConstants.MOCK_NOTE_MAIN_IMAGE.getHeight());
+			json.put("portrait", MockConstants.MOCK_USER_PORTRAIT.getURL());
+			json.put("rank", 0);
+			json.put("likeCount", 0);
+			json.put("commentCount", 0);
+			array.put(json);
+		}
+		return array;
+	}
+	
 	@Test
 	public void getSquareNotes() throws Exception {
 		final String token = loginWithMockUser();
 		
-		JSONArray array = new JSONArray();
-		JSONObject json = new JSONObject();
-		json.put("noteId", MockConstants.MOCK_NOTE_ID);
-		json.put("title", MockConstants.MOCK_NOTE_TITLE);
-		json.put("image", MockConstants.MOCK_NOTE_MAIN_IMAGE.getURL());
-		json.put("imageWidth", MockConstants.MOCK_NOTE_MAIN_IMAGE.getWidth());
-		json.put("imageHeight", MockConstants.MOCK_NOTE_MAIN_IMAGE.getHeight());
-		json.put("portrait", MockConstants.MOCK_USER_PORTRAIT.getURL());
-		json.put("rank", 0);
-		json.put("likeCount", 0);
-		json.put("commentCount", 0);
-		array.put(json);
-		
 		mockMvc.perform(get("/notes")
+				.param("loadedSize", Integer.toString(0))
+				.param("pageSize", Integer.toString(2))
 				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token))
 				.andExpect(statusIsOk())
-				.andExpect(withJsonValue(array));
+				.andExpect(withJsonValue(buildSquareNoteReturn()));
+		
+		getDao().addNoteForMockUser();
+		getDao().addNoteForMockUser();
+		getDao().addNoteForMockUser();
+		
+		mockMvc.perform(get("/notes")
+				.param("loadedSize", Integer.toString(0))
+				.param("pageSize", Integer.toString(2))
+				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token))
+				.andExpect(statusIsOk())
+				.andExpect(withJsonValue(buildSquareNoteReturn(0,1)));
+		
+		mockMvc.perform(get("/notes")
+				.param("loadedSize", Integer.toString(2))
+				.param("pageSize", Integer.toString(2))
+				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token))
+				.andExpect(statusIsOk())
+				.andExpect(withJsonValue(buildSquareNoteReturn(2)));
 	}
 	
 	private String loginWithMockUser() throws Exception {
@@ -95,7 +121,9 @@ public class SpringServerSideTest {
 		requestBuilder.param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString());
 		requestBuilder.param("password", MockConstants.MOCK_PASSWORD.toString());
 		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
-		return result.getResponse().getHeader(Constants.APP_TOKEN_HTTP_HEADER_NAME);
+		JSONObject loginResult = new JSONObject(result.getResponse().getContentAsString());
+		loginResult = loginResult.getJSONObject("resultValues");
+		return loginResult.getString("token");
 	}
 	
 	private MockMessageSender getMessageSender() {
@@ -104,6 +132,10 @@ public class SpringServerSideTest {
 	
 	private MockTokenManager getTokenManager() {
 		return (MockTokenManager) wac.getBean(TokenManager.class);
+	}
+	
+	private MockMysqlDao getDao() {
+		return (MockMysqlDao) wac.getBean(UserNoteDao.class);
 	}
 	
 	private String getTokenForMockUser() {

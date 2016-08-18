@@ -36,11 +36,15 @@ public class MockMysqlDao implements UserNoteDao {
 				MockConstants.MOCK_USER_IDENTIFIER
 				, MockConstants.MOCK_MOBILE_NUMBER);
 		userDto.setPasswordDigest(MockConstants.MOCK_PASSWORD.toString());
-		InnerNoteDto noteDto = new InnerNoteDto(
-				MockConstants.MOCK_NOTE_ID, MockConstants.MOCK_NOTE_TITLE, 0);
-		noteDto.userDto = userDto;
-		noteDto.noteAlbumDto = new InMemoryNoteAlbumDto(MockConstants.MOCK_NOTE_MAIN_IMAGE);
+		userDto.setPortrait(MockConstants.MOCK_USER_PORTRAIT);
 		userDtos.add(userDto);
+	}
+	
+	public void addNoteForMockUser() {
+		InnerNoteDto noteDto = new InnerNoteDto(
+				noteDtos.size(), MockConstants.MOCK_NOTE_TITLE, 0);
+		noteDto.userDto = userDtos.get(0);
+		noteDto.noteAlbumDto = new InMemoryNoteAlbumDto(MockConstants.MOCK_NOTE_MAIN_IMAGE);
 		noteDtos.add(noteDto);
 	}
 	
