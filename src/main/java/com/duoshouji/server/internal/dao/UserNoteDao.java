@@ -9,13 +9,15 @@ public interface UserNoteDao {
 
 	void addUser(UserIdentifier userId, MobileNumber mobileNumber);
 
-	NoteDtoCollection findNotes();
-
 	NoteAlbumDto findNoteAlbum(NoteDto noteDto);
 
-	RegisteredUserDto getOwner(NoteDto noteDto);
+	RegisteredUserDto findOwner(NoteDto noteDto);
 
-	LikeDtoCollection getLikes(NoteDto noteDto);
+	LikeDtoCollection findLikes(NoteDto noteDto);
 
-	CommentDtoCollection getComments(NoteDto noteDto);
+	CommentDtoCollection findComments(NoteDto noteDto);
+	
+	NoteDtoCollection findNotes(long cutoff);
+
+	NoteDtoCollection findNotes(long cutoff, int startIndex, int endIndex);
 }

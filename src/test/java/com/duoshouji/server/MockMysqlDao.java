@@ -64,22 +64,17 @@ public class MockMysqlDao implements UserNoteDao {
 	}
 
 	@Override
-	public NoteDtoCollection findNotes() {
-		return new InMemoryNoteDtoCollection();
-	}
-
-	@Override
 	public NoteAlbumDto findNoteAlbum(NoteDto noteDto) {
 		return ((InnerNoteDto)noteDto).noteAlbumDto;
 	}
 
 	@Override
-	public RegisteredUserDto getOwner(NoteDto noteDto) {
+	public RegisteredUserDto findOwner(NoteDto noteDto) {
 		return ((InnerNoteDto)noteDto).userDto;
 	}
 
 	@Override
-	public LikeDtoCollection getLikes(NoteDto noteDto) {
+	public LikeDtoCollection findLikes(NoteDto noteDto) {
 		return new LikeDtoCollection() {
 			@Override
 			public int size() {
@@ -89,7 +84,7 @@ public class MockMysqlDao implements UserNoteDao {
 	}
 
 	@Override
-	public CommentDtoCollection getComments(NoteDto noteDto) {
+	public CommentDtoCollection findComments(NoteDto noteDto) {
 		return new CommentDtoCollection() {
 			@Override
 			public int size() {
@@ -114,5 +109,17 @@ public class MockMysqlDao implements UserNoteDao {
 			return noteDtos.iterator();
 		}
 		
+	}
+
+	@Override
+	public NoteDtoCollection findNotes(long cutoff) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public NoteDtoCollection findNotes(long cutoff, int startIndex, int endIndex) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

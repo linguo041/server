@@ -49,19 +49,19 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	}
 
 	@Override
-	public RegisteredUserDto getOwner(NoteDto noteDto) {
+	public RegisteredUserDto findOwner(NoteDto noteDto) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public LikeDtoCollection getLikes(NoteDto noteDto) {
+	public LikeDtoCollection findLikes(NoteDto noteDto) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public CommentDtoCollection getComments(NoteDto noteDto) {
+	public CommentDtoCollection findComments(NoteDto noteDto) {
 		// TODO Auto-generated method stub
 		return null;
 	}

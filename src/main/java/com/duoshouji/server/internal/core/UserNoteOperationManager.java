@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.internal.dao.InMemoryRegisteredUserDto;
 import com.duoshouji.server.internal.dao.NoteDto;
+import com.duoshouji.server.internal.dao.NoteDtoCollection;
 import com.duoshouji.server.internal.dao.RegisteredUserDto;
 import com.duoshouji.server.internal.dao.UserNoteDao;
 import com.duoshouji.server.service.note.CommentCollection;
@@ -73,7 +74,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 	
 	@Override
 	public NoteCollection findNotes() {
-		return new OperationDelegatingNoteCollection(userNoteDao.findNotes(), this);
+		return new OperationDelegatingNoteCollection(this, System.currentTimeMillis());
 	}
 
 	NoteAlbum getNoteAlbum(OperationDelegatingNote operationDelegatingNote) {
@@ -81,11 +82,11 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 	}
 
 	RegisteredUser getOwner(OperationDelegatingNote operationDelegatingNote) {
-		return new OperationDelegatingMobileUser(userNoteDao.getOwner(operationDelegatingNote.noteDto), this);
+		return new OperationDelegatingMobileUser(userNoteDao.findOwner(operationDelegatingNote.noteDto), this);
 	}
 
 	LikeCollection getLikes(OperationDelegatingNote operationDelegatingNote) {
-		final int size = userNoteDao.getLikes(operationDelegatingNote.noteDto).size();
+		final int size = userNoteDao.findLikes(operationDelegatingNote.noteDto).size();
 		return new LikeCollection() {
 			@Override
 			public int size() {
@@ -95,7 +96,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 	}
 
 	CommentCollection getComments(OperationDelegatingNote operationDelegatingNote) {
-		final int size = userNoteDao.getComments(operationDelegatingNote.noteDto).size();
+		final int size = userNoteDao.findComments(operationDelegatingNote.noteDto).size();
 		return new CommentCollection() {
 			@Override
 			public int size() {
@@ -109,11 +110,29 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 	}
 
 	Iterator<Note> findNotes(long cutoff) {
-		return null;
+		return new InnerNoteIterator(userNoteDao.findNotes(cutoff));
 	}
 
 	Iterator<Note> findNotes(long cutoff, int startIndex, int endIndex) {
-		// TODO Auto-generated method stub
-		return null;
+		return new InnerNoteIterator(userNoteDao.findNotes(cutoff, startIndex, endIndex));
+	}
+	
+	private class InnerNoteIterator implements Iterator<Note> {
+		Iterator<NoteDto> noteDtoIte;
+		
+		InnerNoteIterator(NoteDtoCollection noteDtos) {
+			this.noteDtoIte = noteDtos.iterator();
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return noteDtoIte.hasNext();
+		}
+
+		@Override
+		public Note next() {
+			return newNote(noteDtoIte.next());
+		}
+		
 	}
 }
