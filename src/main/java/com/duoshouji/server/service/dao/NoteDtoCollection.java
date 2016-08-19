@@ -1,4 +1,4 @@
-package com.duoshouji.server.internal.dao;
+package com.duoshouji.server.service.dao;
 
 public interface NoteDtoCollection extends Iterable<NoteDto> {
 

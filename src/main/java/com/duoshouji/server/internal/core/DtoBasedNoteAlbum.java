@@ -1,6 +1,6 @@
 package com.duoshouji.server.internal.core;
 
-import com.duoshouji.server.internal.dao.NoteAlbumDto;
+import com.duoshouji.server.service.dao.NoteAlbumDto;
 import com.duoshouji.server.service.note.NoteAlbum;
 import com.duoshouji.server.util.Image;
 

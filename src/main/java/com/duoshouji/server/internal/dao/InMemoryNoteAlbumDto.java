@@ -1,5 +1,6 @@
 package com.duoshouji.server.internal.dao;
 
+import com.duoshouji.server.service.dao.NoteAlbumDto;
 import com.duoshouji.server.util.Image;
 
 public class InMemoryNoteAlbumDto implements NoteAlbumDto {

@@ -1,5 +1,6 @@
 package com.duoshouji.server.internal.dao;
 
+import com.duoshouji.server.service.dao.RegisteredUserDto;
 import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;

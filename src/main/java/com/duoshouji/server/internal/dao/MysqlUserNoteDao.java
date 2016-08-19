@@ -5,6 +5,13 @@ import java.util.Map;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.duoshouji.server.service.dao.CommentDtoCollection;
+import com.duoshouji.server.service.dao.LikeDtoCollection;
+import com.duoshouji.server.service.dao.NoteAlbumDto;
+import com.duoshouji.server.service.dao.NoteDto;
+import com.duoshouji.server.service.dao.NoteDtoCollection;
+import com.duoshouji.server.service.dao.RegisteredUserDto;
+import com.duoshouji.server.service.dao.UserNoteDao;
 import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.MobileNumber;
 
@@ -38,19 +45,12 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	}
 
 	@Override
-	public NoteDtoCollection findNotes() {
-		return null;
-	}
-
-	@Override
 	public NoteAlbumDto findNoteAlbum(NoteDto noteDto) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public RegisteredUserDto findOwner(NoteDto noteDto) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -62,6 +62,19 @@ public class MysqlUserNoteDao implements UserNoteDao {
 
 	@Override
 	public CommentDtoCollection findComments(NoteDto noteDto) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public NoteDtoCollection findNotes(long cutoff) {
+		List<Map<String, Object>> notes = mysqlDataSource.queryForList(
+				"select ");
+		return null;
+	}
+
+	@Override
+	public NoteDtoCollection findNotes(long cutoff, int startIndex, int endIndex) {
 		// TODO Auto-generated method stub
 		return null;
 	}

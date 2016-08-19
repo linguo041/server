@@ -1,5 +1,7 @@
 package com.duoshouji.server.internal.dao;
 
+import com.duoshouji.server.service.dao.NoteDto;
+
 public class InMemoryNoteDto implements NoteDto {
 
 	private final long noteId;

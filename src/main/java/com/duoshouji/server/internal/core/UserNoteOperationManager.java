@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.internal.dao.InMemoryRegisteredUserDto;
-import com.duoshouji.server.internal.dao.NoteDto;
-import com.duoshouji.server.internal.dao.NoteDtoCollection;
-import com.duoshouji.server.internal.dao.RegisteredUserDto;
-import com.duoshouji.server.internal.dao.UserNoteDao;
+import com.duoshouji.server.service.dao.NoteDto;
+import com.duoshouji.server.service.dao.NoteDtoCollection;
+import com.duoshouji.server.service.dao.RegisteredUserDto;
+import com.duoshouji.server.service.dao.UserNoteDao;
 import com.duoshouji.server.service.note.CommentCollection;
 import com.duoshouji.server.service.note.LikeCollection;
 import com.duoshouji.server.service.note.Note;

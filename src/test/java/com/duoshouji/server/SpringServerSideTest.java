@@ -22,8 +22,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.duoshouji.server.internal.dao.UserNoteDao;
 import com.duoshouji.server.rest.Constants;
+import com.duoshouji.server.service.dao.UserNoteDao;
 import com.duoshouji.server.session.TokenManager;
 import com.duoshouji.server.util.MessageProxyFactory;
 
@@ -102,7 +102,7 @@ public class SpringServerSideTest {
 		getDao().addNoteForMockUser();
 		
 		mockMvc.perform(get("/notes")
-				.param("loadedSize", Integer.toString(0))
+				.param("loadedSize", Integer.toString(-1))
 				.param("pageSize", Integer.toString(2))
 				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token))
 				.andExpect(statusIsOk())

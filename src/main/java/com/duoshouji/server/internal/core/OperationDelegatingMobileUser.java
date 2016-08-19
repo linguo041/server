@@ -1,6 +1,6 @@
 package com.duoshouji.server.internal.core;
 
-import com.duoshouji.server.internal.dao.RegisteredUserDto;
+import com.duoshouji.server.service.dao.RegisteredUserDto;
 import com.duoshouji.server.service.user.PasswordNotSetException;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserIdentifier;

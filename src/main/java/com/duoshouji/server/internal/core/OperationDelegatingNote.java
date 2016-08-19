@@ -1,6 +1,6 @@
 package com.duoshouji.server.internal.core;
 
-import com.duoshouji.server.internal.dao.NoteDto;
+import com.duoshouji.server.service.dao.NoteDto;
 import com.duoshouji.server.service.note.CommentCollection;
 import com.duoshouji.server.service.note.LikeCollection;
 import com.duoshouji.server.service.note.Note;
