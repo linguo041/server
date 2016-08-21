@@ -4,13 +4,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.InputStream;
+
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.codehaus.plexus.util.IOUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -74,10 +78,10 @@ public class SpringServerSideTest {
 			JSONObject json = new JSONObject();
 			json.put("noteId", noteId);
 			json.put("title", MockConstants.MOCK_NOTE_TITLE);
-			json.put("image", MockConstants.MOCK_NOTE_MAIN_IMAGE.getURL());
+			json.put("image", MockConstants.MOCK_NOTE_MAIN_IMAGE.getUrl());
 			json.put("imageWidth", MockConstants.MOCK_NOTE_MAIN_IMAGE.getWidth());
 			json.put("imageHeight", MockConstants.MOCK_NOTE_MAIN_IMAGE.getHeight());
-			json.put("portrait", MockConstants.MOCK_USER_PORTRAIT.getURL());
+			json.put("portrait", MockConstants.MOCK_USER_PORTRAIT.getUrl());
 			json.put("rank", 0);
 			json.put("likeCount", 0);
 			json.put("commentCount", 0);
@@ -114,6 +118,39 @@ public class SpringServerSideTest {
 				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token))
 				.andExpect(statusIsOk())
 				.andExpect(withJsonValue(buildSquareNoteReturn(2)));
+	}
+	
+	@Test
+	public void resetPassword() throws Exception {
+		final String token = loginWithMockUser();
+		
+		MockHttpServletRequestBuilder requestBuilder;
+		requestBuilder = post("/message/verification-code/reset-password").header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
+		mockMvc.perform(requestBuilder);
+		
+		requestBuilder =
+			post("/accounts/"+MockConstants.MOCK_USER_IDENTIFIER+"/settings/security/password")
+			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
+			.param("code", getMessageSender().findHistory(MockConstants.MOCK_USER_IDENTIFIER).toString())
+			.param("password", MockConstants.MOCK_PASSWORD.toString());
+		mockMvc.perform(requestBuilder)
+			.andExpect(statusIsOk())
+			.andExpect(withJsonValue("{\"passwordUpdateResultCode\" : 0}"));
+	}
+	
+	public void uploadUserPortrait() throws Exception {
+		final String token = loginWithMockUser();
+		
+		InputStream in = getClass().getClassLoader().getResourceAsStream("/portrait.gif");
+		byte[] imageBytes = IOUtil.toByteArray(in);
+		in.close();
+		
+		mockMvc.perform(
+				post("/accounts/"+MockConstants.MOCK_USER_IDENTIFIER.toString()+"/settings/profile/portrait")
+				.contentType(MediaType.IMAGE_GIF)
+				.content(imageBytes)
+				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token))
+				.andExpect(statusIsOk());
 	}
 	
 	private String loginWithMockUser() throws Exception {

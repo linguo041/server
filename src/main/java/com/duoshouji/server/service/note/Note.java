@@ -1,6 +1,7 @@
 package com.duoshouji.server.service.note;
 
 import com.duoshouji.server.service.user.RegisteredUser;
+import com.duoshouji.server.util.Image;
 
 public interface Note {
 
@@ -8,13 +9,18 @@ public interface Note {
 	
 	String getTitle();
 	
-	NoteAlbum getNoteAlbum();
+	Image getMainImage();
 	
 	RegisteredUser getOwner();
 	
 	int getRank();
 	
-	LikeCollection getLikes();
+	int getLikeCount();
 	
-	CommentCollection getComments();
+	int getCommentCount();
+
+	int getTransactionCount();
+	
+	long getPublishedTime();
+
 }

@@ -1,6 +1,7 @@
 package com.duoshouji.server.internal.core;
 
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,56 +21,52 @@ import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserAlreadyExistsException;
 import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.service.user.UserRepository;
+import com.duoshouji.server.util.MessageProxyFactory;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
+import com.duoshouji.server.util.UserMessageProxy;
 
 @Service
 public class UserNoteOperationManager implements UserRepository, NoteRepository {
 	
 	private UserNoteDao userNoteDao;
+	private MessageProxyFactory messageProxyFactory;
 
 	@Autowired
-	public UserNoteOperationManager(UserNoteDao userNoteDao) {
+	private UserNoteOperationManager(UserNoteDao userNoteDao,
+			MessageProxyFactory messageProxyFactory) {
 		super();
 		this.userNoteDao = userNoteDao;
+		this.messageProxyFactory = messageProxyFactory;
 	}
 
 	boolean verifyPassword(OperationDelegatingMobileUser user, Password password) {
 		return user.getPasswordDigest().equals(password.toString());
 	}
 
-	public void setPassword(OperationDelegatingMobileUser user, Password password) {
-		user.setPasswordDigest(password.toString());
-	}
-
 	@Override
 	public RegisteredUser findUser(MobileNumber mobileNumber) {
-		return findUser(new UserIdentifier(mobileNumber));
-	}
-	
-	@Override
-	public RegisteredUser createUser(MobileNumber mobileNumber) {
-		final UserIdentifier userId = new UserIdentifier(mobileNumber);
-		if (containsUser(userId)) {
-			throw new UserAlreadyExistsException("User already exists in system, user id: " + userId);
-		}
-		OperationDelegatingMobileUser user = new OperationDelegatingMobileUser(
-				new InMemoryRegisteredUserDto(userId, mobileNumber), this);
-		userNoteDao.addUser(userId, mobileNumber);
-		return user;
-	}
-	
-	private boolean containsUser(UserIdentifier userId) {
-		return findUser(userId) != null;
-	}
-	
-	public RegisteredUser findUser(UserIdentifier userId) {
 		RegisteredUser user = null;
 		RegisteredUserDto userDto = userNoteDao.findUser(userId);
 		if (userDto != null) {
 			user = new OperationDelegatingMobileUser(userDto, this); 
 		}
 		return user;
+	}
+	
+	@Override
+	public RegisteredUser createUser(MobileNumber mobileNumber) {
+		if (containsUser(mobileNumber)) {
+			throw new UserAlreadyExistsException("User already exists in system, user id: " + userId);
+		}
+		OperationDelegatingMobileUser user = new OperationDelegatingMobileUser(
+				new InMemoryRegisteredUserDto(userId, mobileNumber), this);
+		userNoteDao.addUser(mobileNumber);
+		return user;
+	}
+	
+	private boolean containsUser(MobileNumber mobileNumber) {
+		return findUser(mobileNumber) != null;
 	}
 	
 	@Override
@@ -134,5 +131,35 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 			return newNote(noteDtoIte.next());
 		}
 		
+	}
+
+	@Override
+	public RegisteredUser getUser(String token) {
+		RegisteredUser user = null;
+		RegisteredUserDto userDto = userNoteDao.findUser(token);
+		if (userDto != null) {
+			user = new OperationDelegatingMobileUser(userDto, this); 
+		}
+		return user;
+
+	}
+
+	UserMessageProxy getMessageProxy(
+			OperationDelegatingMobileUser user) {
+		return messageProxyFactory.getMessageProxy(user);
+	}
+
+	void logout(OperationDelegatingMobileUser user) {
+		userNoteDao.removeToken(user.getIdentifier());
+	}
+
+	String login(OperationDelegatingMobileUser user) {
+		final String token = UUID.randomUUID().toString();
+		userNoteDao.saveToken(user.getIdentifier(), token);
+		return token;
+	}
+
+	void setNickname(OperationDelegatingMobileUser user, String nickname) {
+		userNoteDao.saveUserProfile(user.getIdentifier(), nickname);
 	}
 }

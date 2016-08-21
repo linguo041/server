@@ -13,6 +13,12 @@ public final class StandardJsonResponse {
 		this.resultValues = resultValues;
 	}
 	
+	private StandardJsonResponse(String resultErrorMessage, Object resultValues) {
+		this.resultCode = ResultCode.ERROR;
+		this.resultErrorMessage = resultErrorMessage;
+		this.resultValues = resultValues;
+	}	
+	
 	public StandardJsonResponse() {
 		resultCode = ResultCode.SUCCESS;
 	}
@@ -25,6 +31,10 @@ public final class StandardJsonResponse {
 		return new StandardJsonResponse(resultValues);
 	}
 
+	public static StandardJsonResponse wrapResponse(Exception ex, Object resultValues) {
+		return new StandardJsonResponse(ex.getMessage(), resultValues);
+	}	
+	
 	public int getResultCode() {
 		return resultCode;
 	}

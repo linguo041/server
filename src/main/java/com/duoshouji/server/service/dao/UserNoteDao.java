@@ -5,9 +5,9 @@ import com.duoshouji.server.util.MobileNumber;
 
 public interface UserNoteDao {
 
-	RegisteredUserDto findUser(UserIdentifier userId);
+	RegisteredUserDto findUser(MobileNumber mobileNumber);
 
-	void addUser(UserIdentifier userId, MobileNumber mobileNumber);
+	void addUser(MobileNumber mobileNumber);
 
 	NoteAlbumDto findNoteAlbum(NoteDto noteDto);
 
@@ -20,4 +20,12 @@ public interface UserNoteDao {
 	NoteDtoCollection findNotes(long cutoff);
 
 	NoteDtoCollection findNotes(long cutoff, int startIndex, int endIndex);
+
+	RegisteredUserDto findUser(String token);
+
+	void removeToken(UserIdentifier userId);
+
+	void saveToken(UserIdentifier userId, String token);
+
+	void saveUserProfile(UserIdentifier userId, String nickname);
 }

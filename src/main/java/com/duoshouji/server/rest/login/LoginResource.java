@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.duoshouji.server.rest.StandardJsonResponse;
 import com.duoshouji.server.service.user.PasswordNotSetException;
-import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserFacade;
-import com.duoshouji.server.session.TokenManager;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
@@ -20,13 +18,11 @@ import com.duoshouji.server.util.VerificationCode;
 public class LoginResource {
 	
 	private UserFacade userFacade;
-	private TokenManager tokenManager;
 	
 	@Autowired
-	public LoginResource(UserFacade userFacade, TokenManager tokenManager) {
+	public LoginResource(UserFacade userFacade) {
 		super();
 		this.userFacade = userFacade;
-		this.tokenManager = tokenManager;
 	}
 
 	@RequestMapping(path = "/verification-code", method = RequestMethod.POST)
@@ -35,10 +31,10 @@ public class LoginResource {
 		@RequestParam("code") String verificationCode
 			) {
 		final MobileNumber mobile = new MobileNumber(mobileNumber);
-		final RegisteredUser loginUser = userFacade.checkLoginVerificationCode(mobile, VerificationCode.valueOf(verificationCode));
+		final String token = userFacade.verificationCodeLogin(mobile, VerificationCode.valueOf(verificationCode));
 		VerificationCodeLoginResult result;
-		if (loginUser != null) {
-			result = new VerificationCodeLoginResult(tokenManager.newToken(loginUser.getIdentifier()), true);
+		if (token != null) {
+			result = new VerificationCodeLoginResult(token, true);
 		} else {
 			result = new VerificationCodeLoginResult(false);
 		}
@@ -52,10 +48,10 @@ public class LoginResource {
 			) {
 		final MobileNumber mobile = new MobileNumber(mobileNumber);
 		CredentialLoginResult result;
-		final RegisteredUser loginUser = userFacade.checkLoginPassword(mobile, Password.valueOf(password));
+		final String token = userFacade.passwordLogin(mobile, Password.valueOf(password));
 		try {
-			if (loginUser != null) {
-				result = new CredentialLoginResult(tokenManager.newToken(loginUser.getIdentifier()), 0);
+			if (token != null) {
+				result = new CredentialLoginResult(token, 0);
 			} else {
 				result = new CredentialLoginResult(2);
 			}

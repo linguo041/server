@@ -7,12 +7,13 @@ import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
+import com.duoshouji.server.util.UserMessageProxy;
 
 public class OperationDelegatingMobileUser implements RegisteredUser {
 
 	private final UserNoteOperationManager delegator;
 	
-	private RegisteredUserDto userDto;
+	RegisteredUserDto userDto;
 	
 	public OperationDelegatingMobileUser(RegisteredUserDto userDto, UserNoteOperationManager delegator) {
 		super();
@@ -74,5 +75,29 @@ public class OperationDelegatingMobileUser implements RegisteredUser {
 			return false;
 		RegisteredUser other = (RegisteredUser) obj;
 		return getIdentifier().equals(other.getIdentifier());
+	}
+
+	@Override
+	public UserMessageProxy getMessageProxy() {
+		return delegator.getMessageProxy(this);
+	}
+
+	@Override
+	public void logout() {
+		delegator.logout(this);
+	}
+
+	@Override
+	public String login() {
+		return delegator.login(this);
+	}
+
+	@Override
+	public void setNickname(String nickname) {
+		delegator.setNickname(this, nickname);
+	}
+	
+	void setDtoNickname(String nickname) {
+		
 	}
 }

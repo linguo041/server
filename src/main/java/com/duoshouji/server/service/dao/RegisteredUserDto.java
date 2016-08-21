@@ -13,8 +13,6 @@ public interface RegisteredUserDto {
 	String getPasswordDigest();
 
 	String getPasswordSalt();
-
-	void setPasswordDigest(String passwordDigest);
 	
 	Image getPortrait();
 

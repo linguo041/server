@@ -30,22 +30,22 @@ public class CachedUserRepositoryTest {
 	@Test
 	public void findUserFromDelegator() {
 		mockery.checking(new Expectations(){{
-			oneOf(delegator).findUser(MockConstants.MOCK_USER_IDENTIFIER); will(returnValue(user));
+			oneOf(delegator).getUser(MockConstants.MOCK_USER_IDENTIFIER); will(returnValue(user));
 			oneOf(user).getIdentifier(); will(returnValue(MockConstants.MOCK_USER_IDENTIFIER));
 		}});
 		CachedUserRepository userRepository = new CachedUserRepository(delegator);
-		Assert.assertEquals(user, userRepository.findUser(MockConstants.MOCK_MOBILE_NUMBER));
+		Assert.assertEquals(user, userRepository.getUser(MockConstants.MOCK_MOBILE_NUMBER));
 	}
 	
 	@Test
 	public void findUserFromCache() {
 		mockery.checking(new Expectations(){{
-			oneOf(delegator).findUser(MockConstants.MOCK_USER_IDENTIFIER); will(returnValue(user));
+			oneOf(delegator).getUser(MockConstants.MOCK_USER_IDENTIFIER); will(returnValue(user));
 			oneOf(user).getIdentifier(); will(returnValue(MockConstants.MOCK_USER_IDENTIFIER));
 		}});
 		CachedUserRepository userRepository = new CachedUserRepository(delegator);
-		Assert.assertEquals(user, userRepository.findUser(MockConstants.MOCK_MOBILE_NUMBER));
-		Assert.assertEquals(user, userRepository.findUser(MockConstants.MOCK_MOBILE_NUMBER));
+		Assert.assertEquals(user, userRepository.getUser(MockConstants.MOCK_MOBILE_NUMBER));
+		Assert.assertEquals(user, userRepository.getUser(MockConstants.MOCK_MOBILE_NUMBER));
 	}
 	
 	@Test
@@ -60,12 +60,12 @@ public class CachedUserRepositoryTest {
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void throwExceptionForNullInput1() {
-		new CachedUserRepository(delegator).findUser((MobileNumber)null);
+		new CachedUserRepository(delegator).getUser((MobileNumber)null);
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void throwExceptionForNullInput2() {
-		new CachedUserRepository(delegator).findUser((UserIdentifier)null);
+		new CachedUserRepository(delegator).getUser((UserIdentifier)null);
 	}
 
 }

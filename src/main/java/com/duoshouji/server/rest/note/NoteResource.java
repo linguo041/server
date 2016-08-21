@@ -30,7 +30,7 @@ public class NoteResource {
 
 	@RequestMapping(path = "/notes", method = RequestMethod.GET)
 	public StandardJsonResponse getNotes(
-			@RequestAttribute(name=Constants.USER_REQUEST_ATTRIBUTE) RegisteredUser user,
+			@RequestAttribute(name=Constants.USER_ID_ATTRIBUTE) RegisteredUser user,
 			@RequestParam("loadedSize") int loadedSize,
 			@RequestParam("pageSize") int pageSize
 			) {
@@ -53,10 +53,10 @@ public class NoteResource {
 		NoteJson noteJson = new NoteJson();
 		noteJson.setNoteId(note.getNoteId());
 		noteJson.setTitle(note.getTitle());
-		noteJson.setImage(note.getNoteAlbum().getMainImage().getURL());
+		noteJson.setImage(note.getNoteAlbum().getMainImage().getUrl());
 		noteJson.setImageWidth(note.getNoteAlbum().getMainImage().getWidth());
 		noteJson.setImageHeight(note.getNoteAlbum().getMainImage().getHeight());
-		noteJson.setPortrait(note.getOwner().getPortrait().getURL());
+		noteJson.setPortrait(note.getOwner().getPortrait().getUrl());
 		noteJson.setRank(note.getRank());
 		noteJson.setLikeCount(note.getLikes().size());
 		noteJson.setCommentCount(note.getComments().size());

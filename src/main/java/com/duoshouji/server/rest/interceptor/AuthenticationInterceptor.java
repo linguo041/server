@@ -31,8 +31,8 @@ public class AuthenticationInterceptor extends HandlerInterceptorAdapter {
 		final String token = request.getHeader(Constants.APP_TOKEN_HTTP_HEADER_NAME);
 		if (token != null) {
 			final UserIdentifier userId = tokenManager.getUserIdentifier(token);
-			final RegisteredUser user = userFacade.findUser(userId);
-			request.setAttribute(Constants.USER_REQUEST_ATTRIBUTE, user);
+			final RegisteredUser user = userFacade.getUser(userId);
+			request.setAttribute(Constants.USER_ID_ATTRIBUTE, user);
 		}
 		return returnValue;
 	}
