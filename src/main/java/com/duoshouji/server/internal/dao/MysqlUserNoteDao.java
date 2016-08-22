@@ -1,18 +1,22 @@
 package com.duoshouji.server.internal.dao;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.ResultSetExtractor;
 
-import com.duoshouji.server.service.dao.CommentDtoCollection;
-import com.duoshouji.server.service.dao.LikeDtoCollection;
-import com.duoshouji.server.service.dao.NoteAlbumDto;
 import com.duoshouji.server.service.dao.NoteDto;
-import com.duoshouji.server.service.dao.NoteDtoCollection;
 import com.duoshouji.server.service.dao.RegisteredUserDto;
 import com.duoshouji.server.service.dao.UserNoteDao;
-import com.duoshouji.server.service.user.UserIdentifier;
+import com.duoshouji.server.service.note.NoteFilter;
+import com.duoshouji.server.service.note.NotePublishAttributes;
+import com.duoshouji.server.util.Image;
+import com.duoshouji.server.util.IndexRange;
 import com.duoshouji.server.util.MobileNumber;
 
 public class MysqlUserNoteDao implements UserNoteDao {
@@ -22,61 +26,100 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	public MysqlUserNoteDao(JdbcTemplate mysqlDataSource) {
 		this.mysqlDataSource = mysqlDataSource;
 	}
+
+	@Override
+	public RegisteredUserDto findUser(MobileNumber mobileNumber) {
+		return queryUser("select * from duoshouji.v_user where mobile = " + mobileNumber);
+	}
+
+	@Override
+	public RegisteredUserDto findUser(String token) {
+		return queryUser("select * from duoshouji.v_user where token = '" + token + "'");
+	}
 	
-	@Override
-	public RegisteredUserDto findUser(UserIdentifier userId) {
-		final List<Map<String, Object>> result = mysqlDataSource.queryForList(
-				"select id, mobile, password, password_salt from user where id = " + userId);
-		InMemoryRegisteredUserDto user = null;
-		if (!result.isEmpty()) {
-			final Map<String, Object> row = result.get(0);
-			user = new InMemoryRegisteredUserDto(userId, new MobileNumber(row.get("mobile").toString()));
-			user.setPasswordDigest((String) row.get("password"));
-			user.setPasswordSalt((String) row.get("password_salt"));
-		}
-		return user;
+	private RegisteredUserDto queryUser(String sql) {
+		return mysqlDataSource.query(sql
+				, new ResultSetExtractor<RegisteredUserDto>(){
+					@Override
+					public RegisteredUserDto extractData(ResultSet rs)
+						throws SQLException, DataAccessException {
+						RegisteredUserDto returnValue = null;
+						if (rs.next()) {
+							returnValue = new RegisteredUserDto();
+							returnValue.mobileNumber = new MobileNumber(Long.toString(rs.getLong("mobile")));
+							returnValue.nickname = rs.getString("user_name");
+							returnValue.passwordDigest = rs.getString("password");
+							returnValue.portrait = new Image(rs.getInt("avatar_width"), rs.getInt("avatar_height"), rs.getString("avatar_url"));
+						}
+						return returnValue;
+				}
+		});
 	}
 
 	@Override
-	public void addUser(UserIdentifier userId, MobileNumber mobileNumber) {
-		mysqlDataSource.update("insert into user (id, mobile) values (?, ?)"
-				, Long.valueOf(userId.toString())
-				, Long.valueOf(mobileNumber.toString()));
-	}
-
-	@Override
-	public NoteAlbumDto findNoteAlbum(NoteDto noteDto) {
+	public List<NoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter) {
 		return null;
 	}
 
 	@Override
-	public RegisteredUserDto findOwner(NoteDto noteDto) {
-		return null;
+	public void addUser(final MobileNumber mobileNumber) {
+		mysqlDataSource.update("insert into duoshouji.user (mobile) values(?)"
+				, new PreparedStatementSetter(){
+					@Override
+					public void setValues(PreparedStatement ps)
+							throws SQLException {
+						ps.setLong(1, Long.valueOf(mobileNumber.toString()));
+					}
+		});
 	}
 
 	@Override
-	public LikeDtoCollection findLikes(NoteDto noteDto) {
-		// TODO Auto-generated method stub
-		return null;
+	public void removeToken(MobileNumber mobileNumber) {
+		mysqlDataSource.update("update duoshouji.user_wechat_login set token = null where user_id in (select id from duoshouji.user where mobile = "+mobileNumber+")");
 	}
 
 	@Override
-	public CommentDtoCollection findComments(NoteDto noteDto) {
-		// TODO Auto-generated method stub
-		return null;
+	public void saveToken(final MobileNumber mobileNumber, final String token) {
+		mysqlDataSource.update("update duoshouji.user_wechat_login set token = ? where user_id in (select id from duoshouji.user where mobile = ?)"
+				,new PreparedStatementSetter(){
+					@Override
+					public void setValues(PreparedStatement ps)
+							throws SQLException {
+						ps.setString(1, token);
+						ps.setLong(2, Long.valueOf(mobileNumber.toString()));
+					}
+				});
 	}
 
 	@Override
-	public NoteDtoCollection findNotes(long cutoff) {
-		List<Map<String, Object>> notes = mysqlDataSource.queryForList(
-				"select ");
-		return null;
+	public void saveUserProfile(final MobileNumber mobileNumber, final String nickname) {
+		mysqlDataSource.update("update duoshouji.user set user_name = ? where mobile = ?)"
+				,new PreparedStatementSetter(){
+					@Override
+					public void setValues(PreparedStatement ps)
+							throws SQLException {
+						ps.setString(1, nickname);
+						ps.setLong(2, Long.valueOf(mobileNumber.toString()));
+					}
+				});		
 	}
 
 	@Override
-	public NoteDtoCollection findNotes(long cutoff, int startIndex, int endIndex) {
-		// TODO Auto-generated method stub
-		return null;
+	public void savePasswordDigest(final MobileNumber mobileNumber, final String passwordDigest) {
+		mysqlDataSource.update("update duoshouji.user set password = ? where mobile = ?)"
+				,new PreparedStatementSetter(){
+					@Override
+					public void setValues(PreparedStatement ps)
+							throws SQLException {
+						ps.setString(1, passwordDigest);
+						ps.setLong(2, Long.valueOf(mobileNumber.toString()));
+					}
+				});	
 	}
 
+	@Override
+	public long createNote(MobileNumber mobileNumber,
+			NotePublishAttributes noteAttributes) {
+		return 0;
+	}
 }

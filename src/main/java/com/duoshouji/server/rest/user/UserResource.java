@@ -11,10 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.duoshouji.server.rest.Constants;
 import com.duoshouji.server.rest.StandardJsonResponse;
+import com.duoshouji.server.service.DuoShouJiFacade;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.user.NoteBuilder;
-import com.duoshouji.server.service.user.UserFacade;
+import com.duoshouji.server.service.user.PasswordNotSetException;
+import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
 import com.duoshouji.server.util.WrongPasswordFormatException;
@@ -22,7 +24,104 @@ import com.duoshouji.server.util.WrongPasswordFormatException;
 @RestController
 public class UserResource {
 
-	private UserFacade userFacade;
+	private DuoShouJiFacade userFacade;
+
+	@RequestMapping(path = "/login/authenticate/verification-code", method = RequestMethod.POST)
+	public StandardJsonResponse authenticateVerificationCode(
+		@RequestParam("mobile") String mobileNumber,
+		@RequestParam("code") String verificationCode
+			) {
+		final MobileNumber mobile = new MobileNumber(mobileNumber);
+		final String token = userFacade.verificationCodeLogin(mobile, VerificationCode.valueOf(verificationCode));
+		VerificationCodeLoginResult result;
+		if (token != null) {
+			result = new VerificationCodeLoginResult(token, true);
+		} else {
+			result = new VerificationCodeLoginResult(false);
+		}
+		return StandardJsonResponse.wrapResponse(result);
+	}
+	
+	@RequestMapping(path = "/login/authenticate/credential", method = RequestMethod.POST)
+	public StandardJsonResponse authenticateCredential(
+		@RequestParam("mobile") String mobileNumber,
+		@RequestParam("password") String password
+			) {
+		final MobileNumber mobile = new MobileNumber(mobileNumber);
+		CredentialLoginResult result;
+		final String token = userFacade.passwordLogin(mobile, Password.valueOf(password));
+		try {
+			if (token != null) {
+				result = new CredentialLoginResult(token, 0);
+			} else {
+				result = new CredentialLoginResult(2);
+			}
+		} catch (PasswordNotSetException ex) {
+			result = new CredentialLoginResult(1);
+		}
+		return StandardJsonResponse.wrapResponse(result);
+	}
+	
+	private static abstract class LoginResult {
+
+		private String token;
+
+		public LoginResult(String token) {
+			super();
+			this.token = token;
+		}
+
+		public String getToken() {
+			return token;
+		}
+		
+		void setToken(String token) {
+			this.token = token;
+		}
+	}
+	
+	public static class VerificationCodeLoginResult extends LoginResult {
+
+		private boolean loginSuccess;
+
+		public VerificationCodeLoginResult(boolean loginSuccess) {
+			this(null, loginSuccess);
+		}
+
+		public VerificationCodeLoginResult(String token, boolean loginSuccess) {
+			super(token);
+			this.loginSuccess = loginSuccess;
+		}
+
+		public boolean isLoginSuccess() {
+			return loginSuccess;
+		}
+	}
+	
+	public static class CredentialLoginResult extends LoginResult {
+
+		private int loginResultCode;
+
+		public CredentialLoginResult(int loginResultCode) {
+			this(null, loginResultCode);
+		}
+
+		public CredentialLoginResult(String token, int loginResultCode) {
+			super(token);
+			this.loginResultCode = loginResultCode;
+		}
+
+		public int getLoginResultCode() {
+			return loginResultCode;
+		}
+
+	}
+	@RequestMapping(path = "/accounts/${account-id}/logout", method = RequestMethod.POST)
+	public StandardJsonResponse logout(
+			@RequestHeader(name=Constants.APP_TOKEN_HTTP_HEADER_NAME) String token) {
+		userFacade.logout(token);
+		return StandardJsonResponse.emptyResponse();
+	}
 	
 	@RequestMapping(path = "/accounts/${account-id}/settings/security/password", method = RequestMethod.POST)
 	public StandardJsonResponse resetPassword(
@@ -67,7 +166,7 @@ public class UserResource {
 		return StandardJsonResponse.emptyResponse();
 	}
 	
-	@RequestMapping(path = "/account/${account-id}/notes/note", method = RequestMethod.POST)
+	@RequestMapping(path = "/accounts/${account-id}/notes/note", method = RequestMethod.POST)
 	public StandardJsonResponse publishNote(
 			@RequestHeader(name=Constants.APP_TOKEN_HTTP_HEADER_NAME) String token,
 			@RequestParam("tag") String tag,
@@ -93,7 +192,7 @@ public class UserResource {
 		}
 	}
 	
-	@RequestMapping(path = "/account/${account-id}/notes", method = RequestMethod.POST)
+	@RequestMapping(path = "/accounts/${account-id}/notes", method = RequestMethod.POST)
 	public StandardJsonResponse getUserPublishedNotes(
 			@RequestHeader(name=Constants.APP_TOKEN_HTTP_HEADER_NAME) String token
 			) {

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,34 +12,33 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.duoshouji.server.rest.Constants;
 import com.duoshouji.server.rest.StandardJsonResponse;
+import com.duoshouji.server.service.DuoShouJiFacade;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
-import com.duoshouji.server.service.note.NoteFacade;
-import com.duoshouji.server.service.user.RegisteredUser;
 
 @RestController
 public class NoteResource {
 	
-	private NoteFacade noteFacade;
+	private DuoShouJiFacade noteFacade;
 	
 	@Autowired
-	public NoteResource(NoteFacade noteFacade) {
+	private NoteResource(DuoShouJiFacade noteFacade) {
 		super();
 		this.noteFacade = noteFacade;
 	}
 
 	@RequestMapping(path = "/notes", method = RequestMethod.GET)
 	public StandardJsonResponse getNotes(
-			@RequestAttribute(name=Constants.USER_ID_ATTRIBUTE) RegisteredUser user,
+			@RequestHeader(name=Constants.APP_TOKEN_HTTP_HEADER_NAME) String token,
 			@RequestParam("loadedSize") int loadedSize,
 			@RequestParam("pageSize") int pageSize
 			) {
 		NoteCollection notes;
 		if (loadedSize < 0) {
-			notes = noteFacade.pushSquareNotes(user);
+			notes = noteFacade.pushSquareNotes(token);
 			loadedSize = 0;
 		} else {
-			notes = noteFacade.getPushedSquareNotes(user);
+			notes = noteFacade.getPushedSquareNotes(token);
 		}
 		notes = notes.subCollection(loadedSize, loadedSize + pageSize);
 		List<NoteJson> returnValue = new ArrayList<NoteJson>();

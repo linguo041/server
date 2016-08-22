@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.internal.core.OperationDelegatingMobileUser;
-import com.duoshouji.server.service.executor.SecureAccessFacade;
-import com.duoshouji.server.service.executor.SecureChecker;
 import com.duoshouji.server.service.user.RegisteredUser;
+import com.duoshouji.server.service.verify.SecureAccessFacade;
+import com.duoshouji.server.service.verify.SecureChecker;
 import com.duoshouji.server.util.VerificationCode;
 import com.duoshouji.server.util.VerificationCodeGenerator;
 

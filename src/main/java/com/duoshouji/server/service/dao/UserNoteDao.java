@@ -17,11 +17,11 @@ public interface UserNoteDao {
 
 	void addUser(MobileNumber mobileNumber);
 	
-	void removeToken(MobileNumber userId);
+	void removeToken(MobileNumber mobileNumber);
 
-	void saveToken(MobileNumber userId, String token);
+	void saveToken(MobileNumber mobileNumber, String token);
 
-	void saveUserProfile(MobileNumber userId, String nickname);
+	void saveUserProfile(MobileNumber mobileNumber, String nickname);
 
 	void savePasswordDigest(MobileNumber mobileNumber, String passwordDigest);
 

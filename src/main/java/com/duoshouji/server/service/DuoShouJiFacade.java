@@ -1,11 +1,12 @@
-package com.duoshouji.server.service.user;
+package com.duoshouji.server.service;
 
 import com.duoshouji.server.service.note.NoteCollection;
+import com.duoshouji.server.service.user.NoteBuilder;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
 
-public interface UserFacade {
+public interface DuoShouJiFacade {
 	
 	void sendLoginVerificationCode(MobileNumber accountId);
 	
@@ -22,4 +23,11 @@ public interface UserFacade {
 	NoteBuilder newNotePublisher(String userToken);
 
 	NoteCollection getUserPublishedNotes(String userToken);
+
+	void logout(String userToken);
+	
+	NoteCollection pushSquareNotes(String userToken);
+
+	NoteCollection getPushedSquareNotes(String userToken);
+
 }

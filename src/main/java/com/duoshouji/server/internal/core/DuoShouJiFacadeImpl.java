@@ -3,31 +3,36 @@ package com.duoshouji.server.internal.core;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.duoshouji.server.service.executor.SecureAccessFacade;
-import com.duoshouji.server.service.executor.SecureChecker;
+import com.duoshouji.server.service.DuoShouJiFacade;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.NotePublishAttributes;
+import com.duoshouji.server.service.note.NoteRepository;
 import com.duoshouji.server.service.user.NoteBuilder;
 import com.duoshouji.server.service.user.RegisteredUser;
-import com.duoshouji.server.service.user.UserFacade;
 import com.duoshouji.server.service.user.UserNotExistsException;
 import com.duoshouji.server.service.user.UserRepository;
+import com.duoshouji.server.service.verify.SecureAccessFacade;
+import com.duoshouji.server.service.verify.SecureChecker;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
 
 @Service
-public class UserFacadeImpl implements UserFacade {
-
+public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
+	
+	private NoteRepository noteRepository;
 	private UserRepository userRepository;
+	private NoteCollectionSnapshots snapshots;
 	private SecureAccessFacade secureAccessFacade;
 	
 	@Autowired
-	private UserFacadeImpl(UserRepository userRepository,
-			SecureAccessFacade secureAccessFacade) {
+	private DuoShouJiFacadeImpl(UserRepository userRepository,
+			SecureAccessFacade secureAccessFacade, NoteRepository noteRepository) {
 		super();
 		this.userRepository = userRepository;
 		this.secureAccessFacade = secureAccessFacade;
+		this.noteRepository = noteRepository;
+		snapshots = new NoteCollectionSnapshots();
 	}
 
 	@Override
@@ -102,6 +107,32 @@ public class UserFacadeImpl implements UserFacade {
 		return userRepository.getUser(userToken).getPublishedNotes();
 	}
 	
+	@Override
+	public void logout(String userToken) {
+		userRepository.getUser(userToken).logout();
+	}
+	
+	@Override
+	public NoteCollection pushSquareNotes(String userToken) {
+		return pushSquareNotes(userRepository.getUser(userToken));
+	}
+	
+	@Override
+	public NoteCollection getPushedSquareNotes(String userToken) {
+		final RegisteredUser user = userRepository.getUser(userToken);
+		NoteCollection notes = snapshots.getSnapshot(user);
+		if (notes == null) {
+			notes = pushSquareNotes(user);
+		}
+		return notes;
+	}
+	
+	private NoteCollection pushSquareNotes(RegisteredUser user) {
+		NoteCollection notes = noteRepository.findNotes();
+		snapshots.putSnapshot(user, notes);
+		return notes;
+	}
+	
 	private class InnerNoteBuilder implements NoteBuilder {
 		
 		private RegisteredUser user;
@@ -134,6 +165,5 @@ public class UserFacadeImpl implements UserFacade {
 			}
 			return noteId;
 		}
-		
 	}
 }

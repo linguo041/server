@@ -1,4 +1,4 @@
-package com.duoshouji.server.service.executor;
+package com.duoshouji.server.service.verify;
 
 import com.duoshouji.server.util.VerificationCode;
 

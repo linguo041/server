@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.duoshouji.server.MockConstants;
-import com.duoshouji.server.internal.core.UserFacadeImpl;
+import com.duoshouji.server.internal.core.DuoShouJiFacadeImpl;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserRepository;
 
@@ -31,7 +31,7 @@ public class UserFacadeImplTest {
 			oneOf(userRepository).findUser(MockConstants.MOCK_MOBILE_NUMBER); will(returnValue(user));
 		}});
 		
-		UserFacadeImpl userFacade = new UserFacadeImpl(userRepository);
+		DuoShouJiFacadeImpl userFacade = new DuoShouJiFacadeImpl(userRepository);
 		Assert.assertEquals(user, userFacade.getUser(MockConstants.MOCK_MOBILE_NUMBER));
 	}
 	
@@ -42,7 +42,7 @@ public class UserFacadeImplTest {
 			oneOf(userRepository).createUser(MockConstants.MOCK_MOBILE_NUMBER); will(returnValue(user));
 		}});
 		
-		UserFacadeImpl userFacade = new UserFacadeImpl(userRepository);
+		DuoShouJiFacadeImpl userFacade = new DuoShouJiFacadeImpl(userRepository);
 		Assert.assertEquals(user, userFacade.getUser(MockConstants.MOCK_MOBILE_NUMBER));
 
 	}
