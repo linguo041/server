@@ -1,11 +1,15 @@
 package com.duoshouji.server.service.dao;
 
-public interface NoteDto {
+import com.duoshouji.server.util.Image;
 
-	long getNoteId();
-
-	String getTitle();
-
-	int getRank();
-
+public class NoteDto {
+	public long noteId;
+	public String title;
+	public int rank;
+	public Image mainImage;
+	public BasicUserDto owner;
+	public long publishedTime;
+	public int likeCount;
+	public int commentCount;
+	public int transactionCount;
 }

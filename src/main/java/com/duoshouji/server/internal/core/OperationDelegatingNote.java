@@ -1,16 +1,14 @@
 package com.duoshouji.server.internal.core;
 
 import com.duoshouji.server.service.dao.NoteDto;
-import com.duoshouji.server.service.note.CommentCollection;
-import com.duoshouji.server.service.note.LikeCollection;
 import com.duoshouji.server.service.note.Note;
-import com.duoshouji.server.service.note.NoteAlbum;
-import com.duoshouji.server.service.user.RegisteredUser;
+import com.duoshouji.server.service.user.BasicUserAttributes;
+import com.duoshouji.server.util.Image;
 
 class OperationDelegatingNote implements Note {
 
-	NoteDto noteDto;
 	private UserNoteOperationManager operationDelegator;
+	NoteDto noteDto;
 	
 	public OperationDelegatingNote(NoteDto noteDto,
 			UserNoteOperationManager operationDelegator) {
@@ -21,36 +19,46 @@ class OperationDelegatingNote implements Note {
 
 	@Override
 	public long getNoteId() {
-		return noteDto.getNoteId();
+		return noteDto.noteId;
 	}
 
 	@Override
 	public String getTitle() {
-		return noteDto.getTitle();
+		return noteDto.title;
 	}
 
 	@Override
-	public NoteAlbum getNoteAlbum() {
-		return operationDelegator.getNoteAlbum(this);
-	}
-
-	@Override
-	public RegisteredUser getOwner() {
+	public BasicUserAttributes getOwner() {
 		return operationDelegator.getOwner(this);
 	}
 
 	@Override
 	public int getRank() {
-		return noteDto.getRank();
+		return noteDto.rank;
 	}
 
 	@Override
-	public LikeCollection getLikes() {
-		return operationDelegator.getLikes(this);
+	public Image getMainImage() {
+		return noteDto.mainImage;
 	}
 
 	@Override
-	public CommentCollection getComments() {
-		return operationDelegator.getComments(this);
+	public int getLikeCount() {
+		return noteDto.likeCount;
+	}
+
+	@Override
+	public int getCommentCount() {
+		return noteDto.commentCount;
+	}
+
+	@Override
+	public int getTransactionCount() {
+		return noteDto.transactionCount;
+	}
+
+	@Override
+	public long getPublishedTime() {
+		return noteDto.publishedTime;
 	}
 }

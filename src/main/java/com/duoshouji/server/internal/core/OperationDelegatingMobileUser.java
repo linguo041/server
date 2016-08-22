@@ -1,23 +1,20 @@
 package com.duoshouji.server.internal.core;
 
-import com.duoshouji.server.service.dao.RegisteredUserDto;
+import com.duoshouji.server.service.note.NoteCollection;
+import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.user.PasswordNotSetException;
 import com.duoshouji.server.service.user.RegisteredUser;
-import com.duoshouji.server.service.user.UserIdentifier;
-import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
-public class OperationDelegatingMobileUser implements RegisteredUser {
+public class OperationDelegatingMobileUser extends InMemoryBasicUserAttributes implements RegisteredUser {
 
 	private final UserNoteOperationManager delegator;
+	String passwordDigest;
 	
-	RegisteredUserDto userDto;
-	
-	public OperationDelegatingMobileUser(RegisteredUserDto userDto, UserNoteOperationManager delegator) {
-		super();
-		this.userDto = userDto;
+	public OperationDelegatingMobileUser(MobileNumber mobile, UserNoteOperationManager delegator) {
+		super(mobile);
 		this.delegator = delegator;
 	}
 	
@@ -30,39 +27,12 @@ public class OperationDelegatingMobileUser implements RegisteredUser {
 	}
 	@Override
 	public boolean hasPassword() {
-		return userDto.getPasswordDigest() != null;
-	}
-	@Override
-	public UserIdentifier getIdentifier() {
-		return userDto.getUserId();
+		return passwordDigest != null;
 	}
 	
-	@Override
-	public void setPassword(Password password) {
-		delegator.setPassword(this, password);
-	}
-	
-	@Override
-	public MobileNumber getMobileNumber() {
-		return userDto.getMobileNumber();
-	}
-	
-	void setPasswordDigest(String passwordDigest) {
-		userDto.setPasswordDigest(passwordDigest);
-	}
-	
-	String getPasswordDigest() {
-		return userDto.getPasswordDigest();
-	}
-
-	@Override
-	public Image getPortrait() {
-		return userDto.getPortrait();
-	}
-
 	@Override
 	public int hashCode() {
-		return getIdentifier().hashCode();
+		return getMobileNumber().hashCode();
 	}
 
 	@Override
@@ -74,7 +44,7 @@ public class OperationDelegatingMobileUser implements RegisteredUser {
 		if (!(obj instanceof RegisteredUser))
 			return false;
 		RegisteredUser other = (RegisteredUser) obj;
-		return getIdentifier().equals(other.getIdentifier());
+		return getMobileNumber().equals(other.getMobileNumber());
 	}
 
 	@Override
@@ -93,11 +63,24 @@ public class OperationDelegatingMobileUser implements RegisteredUser {
 	}
 
 	@Override
+	public void setPassword(Password password) {
+		delegator.setPassword(this, password);
+	}
+	
+	@Override
 	public void setNickname(String nickname) {
 		delegator.setNickname(this, nickname);
 	}
-	
-	void setDtoNickname(String nickname) {
-		
+
+	@Override
+	public NoteCollection getPublishedNotes() {
+		return delegator.getPublishedNotes(this);
 	}
+
+	@Override
+	public long publishNote(NotePublishAttributes notePublishAttributes) {
+		return delegator.publishNote(notePublishAttributes, this);
+	}
+
 }
+

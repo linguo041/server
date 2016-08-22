@@ -53,13 +53,13 @@ public class NoteResource {
 		NoteJson noteJson = new NoteJson();
 		noteJson.setNoteId(note.getNoteId());
 		noteJson.setTitle(note.getTitle());
-		noteJson.setImage(note.getNoteAlbum().getMainImage().getUrl());
-		noteJson.setImageWidth(note.getNoteAlbum().getMainImage().getWidth());
-		noteJson.setImageHeight(note.getNoteAlbum().getMainImage().getHeight());
+		noteJson.setImage(note.getMainImage().getUrl());
+		noteJson.setImageWidth(note.getMainImage().getWidth());
+		noteJson.setImageHeight(note.getMainImage().getHeight());
 		noteJson.setPortrait(note.getOwner().getPortrait().getUrl());
 		noteJson.setRank(note.getRank());
-		noteJson.setLikeCount(note.getLikes().size());
-		noteJson.setCommentCount(note.getComments().size());
+		noteJson.setLikeCount(note.getLikeCount());
+		noteJson.setCommentCount(note.getCommentCount());
 		return noteJson;
 	}
 }

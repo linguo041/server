@@ -5,6 +5,8 @@ import java.util.Iterator;
 
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
+import com.duoshouji.server.service.note.NoteFilter;
+import com.duoshouji.server.util.IndexRange;
 
 public class OperationDelegatingNoteCollection implements NoteCollection {
 
@@ -23,18 +25,20 @@ public class OperationDelegatingNoteCollection implements NoteCollection {
 		
 			};
 	
-	private long cutoff;
-	private UserNoteOperationManager operationDelegator;
+	private final long cutoff;
+	private final UserNoteOperationManager operationDelegator;
+	private NoteFilter filter;
 	
-	public OperationDelegatingNoteCollection(UserNoteOperationManager operationDelegator, long cutoff) {
+	public OperationDelegatingNoteCollection(UserNoteOperationManager operationDelegator, long cutoff, NoteFilter filter) {
 		super();
 		this.operationDelegator = operationDelegator;
 		this.cutoff = cutoff;
+		this.filter = filter;
 	}
 
 	@Override
 	public Iterator<Note> iterator() {
-		return operationDelegator.findNotes(cutoff);
+		return operationDelegator.findNotes(cutoff, null, filter);
 	}
 
 	@Override
@@ -59,7 +63,7 @@ public class OperationDelegatingNoteCollection implements NoteCollection {
 
 		@Override
 		public Iterator<Note> iterator() {
-			return operationDelegator.findNotes(cutoff, startIndex, endIndex);
+			return operationDelegator.findNotes(cutoff, new IndexRange(startIndex, endIndex), filter);
 		}
 
 		@Override
