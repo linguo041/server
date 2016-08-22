@@ -9,12 +9,13 @@ import org.springframework.context.annotation.Configuration;
 
 import com.duoshouji.server.amqp.config.AmqpConfig;
 import com.duoshouji.server.amqp.config.QueueConfig;
-import com.duoshouji.server.amqp.config.SimpleConsumerConfig;
+import com.duoshouji.server.amqp.config.QueueConfigFactory;
 import com.duoshouji.server.amqp.consume.ConsumerContainer;
 import com.duoshouji.server.amqp.consume.ConsumerContainerFactory;
 import com.duoshouji.server.amqp.consume.SimpleConsumer;
 import com.duoshouji.server.amqp.produce.Producer;
 import com.duoshouji.server.amqp.produce.ProducerFactory;
+import com.google.common.collect.Lists;
 
 /**
  * Created by roy.guo on 7/18/16.
@@ -45,6 +46,7 @@ public class AMQPConfiguration {
         return new RabbitAdmin(connectionFactory());
     }
     
+    // producer
     @Bean
     public ProducerFactory producerFactory () {
     	ProducerFactory producerFactory = new ProducerFactory();
@@ -54,7 +56,12 @@ public class AMQPConfiguration {
     
     @Bean
     public Producer<String> createSimpleProducer() {
-    	return producerFactory().create();
+    	return producerFactory().create(QueueConfigFactory.loadSimpleQueueConfig());
+    }
+    
+    @Bean
+    public Producer<String> createNoteChangeProducer() {
+    	return producerFactory().create(QueueConfigFactory.loadNodeChangeQueueConfig());
     }
     
     // consumer
@@ -63,16 +70,14 @@ public class AMQPConfiguration {
     	return new ConsumerContainerFactory(connectionFactory(), rabbitAdmin());
     }
     
-    @Bean SimpleConsumer simpleConsumer () {
+    @Bean
+    SimpleConsumer simpleConsumer () {
     	return new SimpleConsumer();
     }
     
-    @Bean ConsumerContainer createSimpleConsumerContainer () {
-    	return consumerContainerFactory().createConsumerContainer(
-    			new QueueConfig(SimpleConsumerConfig.EXCHANGE_NAME,
-    					SimpleConsumerConfig.QUEUE_NAME,
-    					"",
-    					SimpleConsumerConfig.CONSUMER_NUM,
-    					SimpleConsumerConfig.CONSUMER_AUTO_START), simpleConsumer());
+    @Bean
+    ConsumerContainer createSimpleConsumerContainer () {
+    	return consumerContainerFactory().createConsumerContainer(QueueConfigFactory.loadSimpleQueueConfig(),
+    			simpleConsumer());
     }
 }

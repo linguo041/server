@@ -20,6 +20,6 @@ public class UserResource {
 	public void setPassword(
 			@RequestAttribute("user") UserIdentifier userId,
 			@RequestParam("password") String password) {
-		userFacade.changePassword(userId, Password.valueOf(password));
+//		userFacade.changePassword(userId, Password.valueOf(password));
 	}
 }

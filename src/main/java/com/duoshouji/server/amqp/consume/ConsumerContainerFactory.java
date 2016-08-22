@@ -4,17 +4,11 @@ import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 
+import com.duoshouji.server.amqp.config.MessageQueueManager;
 import com.duoshouji.server.amqp.config.QueueConfig;
 
-import lombok.Getter;
+public class ConsumerContainerFactory extends MessageQueueManager{
 
-public class ConsumerContainerFactory {
-	
-	@Getter
-	private ConnectionFactory connectionFactory;
-	
-	@Getter
-	private RabbitAdmin rabbitAdmin;
 	
 	public ConsumerContainerFactory (ConnectionFactory connectionFactory, RabbitAdmin rabbitAdmin) {
 		this.connectionFactory = connectionFactory;
@@ -22,19 +16,15 @@ public class ConsumerContainerFactory {
 	}
 
 	public ConsumerContainer createConsumerContainer(QueueConfig param, MessageListener consumer) {
-		declare(param);
+		super.declare(param);
 		
 		ConsumerContainer container = new ConsumerContainer(connectionFactory);
-		container.setQueueNames(param.getQueueName());
+		container.setQueueNames(param.getQueueNames().toArray(new String[param.getQueueNames().size()]));
 		container.setChannelTransacted(param.isChannelTrasacted());
 		container.setConcurrentConsumers(param.getConsumerNum());
 		container.setDefaultRequeueRejected(param.isRequestRejected());
 		container.setMessageListener(consumer);
 		container.setAutoStartup(param.isAutoStart());
 		return container;
-	}
-	
-	private void declare (QueueConfig param) {
-		
 	}
 }

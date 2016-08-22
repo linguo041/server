@@ -7,6 +7,7 @@ import com.duoshouji.server.service.user.PasswordNotSetException;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.RegisteredUserDto;
 import com.duoshouji.server.service.user.UserIdentifier;
+import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 
@@ -73,5 +74,11 @@ public class OperationDelegatingMobileUser implements RegisteredUser, AccountSec
 	
 	String getPasswordDigest() {
 		return userDto.getPasswordDigest();
+	}
+
+	@Override
+	public Image getPortrait() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

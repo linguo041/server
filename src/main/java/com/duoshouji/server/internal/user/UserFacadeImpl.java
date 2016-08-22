@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserFacade;
+import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.util.MobileNumber;
 
@@ -25,6 +26,12 @@ public class UserFacadeImpl implements UserFacade {
 			user = userRepository.createUser(mobileNumber);
 		}
 		return user;
+	}
+
+	@Override
+	public RegisteredUser getUser(UserIdentifier userId) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
