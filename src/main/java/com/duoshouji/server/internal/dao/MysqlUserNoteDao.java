@@ -9,7 +9,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.RowMapper;
 
+import com.duoshouji.server.service.dao.BasicUserDto;
 import com.duoshouji.server.service.dao.NoteDto;
 import com.duoshouji.server.service.dao.RegisteredUserDto;
 import com.duoshouji.server.service.dao.UserNoteDao;
@@ -58,7 +60,37 @@ public class MysqlUserNoteDao implements UserNoteDao {
 
 	@Override
 	public List<NoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter) {
-		return null;
+		StringBuilder sqlBuilder = new StringBuilder("select * from duoshouji.v_square_notes where create_time < " + cutoff);
+		if (filter != null) {
+			sqlBuilder.append(" and mobile = ");
+			sqlBuilder.append(filter.getOwnerId().toString());
+		}
+		sqlBuilder.append(" order by create_time desc");
+		List<NoteDto> returnValue = mysqlDataSource.query(sqlBuilder.toString()
+				, new RowMapper<NoteDto>(){
+					@Override
+					public NoteDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+						NoteDto noteDto = new NoteDto();
+						noteDto.commentCount = rs.getInt("comment_number");
+						noteDto.likeCount = rs.getInt("like_number");
+						noteDto.mainImage = new Image(rs.getInt("image1_width"), rs.getInt("image1_height"), rs.getString("image1"));
+						noteDto.noteId = rs.getLong("id");
+						noteDto.publishedTime = rs.getLong("create_time");
+						noteDto.rank = (int)rs.getFloat("rank");
+						noteDto.title = rs.getString("title");
+						noteDto.transactionCount = rs.getInt("order_number");
+						BasicUserDto userDto = new BasicUserDto();
+						userDto.mobileNumber = new MobileNumber(Long.toString(rs.getLong("mobile")));
+						userDto.nickname = rs.getString("user_name");
+						userDto.portrait = new Image(rs.getInt("avatar_width"), rs.getInt("avatar_height"), rs.getString("avatar_url"));
+						noteDto.owner = userDto;
+						return noteDto;
+					}
+				});
+		if (range != null) {
+			returnValue = returnValue.subList(range.getStartIndex(), range.getEndIndex());
+		}
+		return returnValue;
 	}
 
 	@Override
@@ -154,9 +186,5 @@ public class MysqlUserNoteDao implements UserNoteDao {
 					}
 					
 				}).longValue();
-	}
-	
-	private static class NoteCollector {
-		
 	}
 }
