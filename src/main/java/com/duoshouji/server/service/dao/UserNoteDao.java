@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
+import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;
 import com.duoshouji.server.util.MobileNumber;
 
@@ -26,4 +27,8 @@ public interface UserNoteDao {
 	void savePasswordDigest(MobileNumber mobileNumber, String passwordDigest);
 
 	long createNote(MobileNumber mobileNumber, NotePublishAttributes noteAttributes);
+
+	void savePortrait(MobileNumber mobileNumber, Image portrait);
+
+	void saveNoteImage(long noteId, Image noteImage);
 }

@@ -153,6 +153,17 @@ public class SpringServerSideTest {
 				.andExpect(statusIsOk());
 	}
 	
+	@Test
+	public void duoShouJiEnd2EndTest() {
+		firstLogin();
+		setPassword();
+		logout();
+		credentialLogin();
+		setNickname();
+		addNotes(1);
+		addNotes(2);
+	}
+	
 	private String loginWithMockUser() throws Exception {
 		MockHttpServletRequestBuilder requestBuilder = post("/login/authenticate/credential");
 		requestBuilder.param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString());

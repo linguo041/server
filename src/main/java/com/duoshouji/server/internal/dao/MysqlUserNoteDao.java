@@ -95,12 +95,13 @@ public class MysqlUserNoteDao implements UserNoteDao {
 
 	@Override
 	public void addUser(final MobileNumber mobileNumber) {
-		mysqlDataSource.update("insert into duoshouji.user (mobile) values(?)"
+		mysqlDataSource.update("insert into duoshouji.user (mobile, user_name) values(?, ?)"
 				, new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
 							throws SQLException {
 						ps.setLong(1, Long.valueOf(mobileNumber.toString()));
+						ps.setString(2, mobileNumber.toString());
 					}
 		});
 	}
@@ -186,5 +187,37 @@ public class MysqlUserNoteDao implements UserNoteDao {
 					}
 					
 				}).longValue();
+	}
+
+	@Override
+	public void savePortrait(final MobileNumber mobileNumber, final Image portrait) {
+		mysqlDataSource.update(
+				"update duoshouji.user set avatar_url = ?, avatar_width = ?, avatar_height = ? where mobile = ?"
+				,new PreparedStatementSetter(){
+					@Override
+					public void setValues(PreparedStatement ps)
+							throws SQLException {
+						ps.setString(1, portrait.getUrl());
+						ps.setInt(2, portrait.getWidth());
+						ps.setInt(3, portrait.getHeight());
+						ps.setLong(4, Long.valueOf(mobileNumber.toString()));
+					}
+				});
+	}
+
+	@Override
+	public void saveNoteImage(final long noteId, final Image noteImage) {
+		mysqlDataSource.update(
+				"update duoshouji.note set image1 = ?, image1_width = ?, image1_height = ? where id = ?"
+				,new PreparedStatementSetter(){
+					@Override
+					public void setValues(PreparedStatement ps)
+							throws SQLException {
+						ps.setString(1, noteImage.getUrl());
+						ps.setInt(2, noteImage.getWidth());
+						ps.setInt(3, noteImage.getHeight());
+						ps.setLong(4, noteId);
+					}
+				});		
 	}
 }
