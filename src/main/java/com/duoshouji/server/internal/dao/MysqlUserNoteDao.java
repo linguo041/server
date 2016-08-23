@@ -119,7 +119,44 @@ public class MysqlUserNoteDao implements UserNoteDao {
 
 	@Override
 	public long createNote(MobileNumber mobileNumber,
-			NotePublishAttributes noteAttributes) {
-		return 0;
+			final NotePublishAttributes noteAttributes) {
+		final long userId = getUserId(mobileNumber);
+		mysqlDataSource.update("insert into duoshouji.note (title, content, create_time) values(?,?,?))"
+				,new PreparedStatementSetter(){
+					@Override
+					public void setValues(PreparedStatement ps)
+							throws SQLException {
+						ps.setString(1, noteAttributes.getTitle());
+						ps.setString(2, noteAttributes.getContent());
+						ps.setLong(3, System.currentTimeMillis());
+					}
+				});
+		
+		return mysqlDataSource.query("select max(id) note_id from duoshouji.note where user_id = " + userId
+				, new ResultSetExtractor<Long>(){
+					@Override
+					public Long extractData(ResultSet rs) throws SQLException,
+							DataAccessException {
+						rs.next();
+						return rs.getLong("note_id");
+					}
+				});
+	}
+	
+	private long getUserId(MobileNumber mobileNumber) {
+		return mysqlDataSource.query("select id from duoshouji.user where mobile = " + mobileNumber
+				, new ResultSetExtractor<Long>(){
+					@Override
+					public Long extractData(ResultSet rs) throws SQLException,
+							DataAccessException {
+						rs.next();
+						return rs.getLong("id");
+					}
+					
+				}).longValue();
+	}
+	
+	private static class NoteCollector {
+		
 	}
 }
