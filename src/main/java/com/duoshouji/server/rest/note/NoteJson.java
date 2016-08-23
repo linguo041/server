@@ -1,19 +1,16 @@
 package com.duoshouji.server.rest.note;
 
-import java.math.BigDecimal;
-import java.net.URL;
-
 public class NoteJson {
 
 	private long noteId;
 	private String title;
-	private URL image;
-	private URL portrait;
+	private String image;
+	private int imageWidth;
+	private int imageHeight;
+	private String portrait;
 	private int rank;
 	private int likeCount;
 	private int commentCount;
-	private BigDecimal listPrice;
-	private BigDecimal discountPrice;
 
 	public long getNoteId() {
 		return noteId;
@@ -23,11 +20,19 @@ public class NoteJson {
 		return title;
 	}
 
-	public URL getImage() {
+	public String getImage() {
 		return image;
 	}
 
-	public URL getPortrait() {
+	public int getImageWidth() {
+		return imageWidth;
+	}
+
+	public int getImageHeight() {
+		return imageHeight;
+	}
+
+	public String getPortrait() {
 		return portrait;
 	}
 
@@ -43,14 +48,6 @@ public class NoteJson {
 		return commentCount;
 	}
 
-	public BigDecimal getListPrice() {
-		return listPrice;
-	}
-
-	public BigDecimal getDiscountPrice() {
-		return discountPrice;
-	}
-
 	void setNoteId(long noteId) {
 		this.noteId = noteId;
 	}
@@ -59,11 +56,19 @@ public class NoteJson {
 		this.title = title;
 	}
 
-	void setImage(URL image) {
+	void setImage(String image) {
 		this.image = image;
 	}
 
-	void setPortrait(URL portrait) {
+	void setImageWidth(int imageWidth) {
+		this.imageWidth = imageWidth;
+	}
+
+	void setImageHeight(int imageHeight) {
+		this.imageHeight = imageHeight;
+	}
+
+	void setPortrait(String portrait) {
 		this.portrait = portrait;
 	}
 
@@ -77,14 +82,6 @@ public class NoteJson {
 
 	void setCommentCount(int commentCount) {
 		this.commentCount = commentCount;
-	}
-
-	void setListPrice(BigDecimal listPrice) {
-		this.listPrice = listPrice;
-	}
-
-	void setDiscountPrice(BigDecimal discountPrice) {
-		this.discountPrice = discountPrice;
 	}
 
 }

@@ -6,9 +6,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.duoshouji.server.internal.executor.SmsVerificationCodeAuthenticationExecutor;
-import com.duoshouji.server.service.executor.VerificationCodeAuthenticationExecutor;
-import com.duoshouji.server.service.executor.VerificationCodeAuthenticationExecutor.State;
+import com.duoshouji.server.service.verify.SmsVerificationCodeAuthenticationExecutor;
+import com.duoshouji.server.service.verify.VerificationCodeAuthenticationExecutor;
+import com.duoshouji.server.service.verify.VerificationCodeAuthenticationExecutor.State;
 import com.duoshouji.server.util.UserMessageProxy;
 import com.duoshouji.server.util.VerificationCode;
 import com.duoshouji.server.util.VerificationCodeGenerator;

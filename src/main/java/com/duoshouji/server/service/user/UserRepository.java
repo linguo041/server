@@ -5,8 +5,8 @@ import com.duoshouji.server.util.MobileNumber;
 public interface UserRepository {
 
 	RegisteredUser findUser(MobileNumber mobileNumber);
-
-	RegisteredUser findUser(UserIdentifier userId);
+	
+	RegisteredUser getUser(String token);
 	
 	RegisteredUser createUser(MobileNumber mobileNumber);
 

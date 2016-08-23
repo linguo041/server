@@ -6,17 +6,17 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.duoshouji.server.MockConstants;
-import com.duoshouji.server.service.executor.VerificationCodeLoginExecutor;
+import com.duoshouji.server.service.DuoShouJiFacade;
 import com.duoshouji.server.service.user.AccountSecurity;
 import com.duoshouji.server.service.user.RegisteredUser;
-import com.duoshouji.server.service.user.UserFacade;
+import com.duoshouji.server.service.verify.VerificationCodeLoginExecutor;
 
 import junit.framework.Assert;
 
 public class LoginFacadeImplTest {
 	
 	private Mockery mockery;
-	private UserFacade userFacade;
+	private DuoShouJiFacade userFacade;
 	private RegisteredUser user;
 	private VerificationCodeLoginExecutor loginExecutor;
 	private AccountSecurity accountSecurity;
@@ -24,7 +24,7 @@ public class LoginFacadeImplTest {
 	@Before
 	public void setup() {
 		mockery = new Mockery();
-		userFacade = mockery.mock(UserFacade.class);
+		userFacade = mockery.mock(DuoShouJiFacade.class);
 		user = mockery.mock(RegisteredUser.class);
 		loginExecutor = mockery.mock(VerificationCodeLoginExecutor.class);
 		accountSecurity = mockery.mock(AccountSecurity.class);
@@ -39,7 +39,7 @@ public class LoginFacadeImplTest {
 		}});
 		
 		LoginFacadeImpl loginFacade  = new LoginFacadeImpl(userFacade);
-		loginFacade.sendVerificationCode(MockConstants.MOCK_MOBILE_NUMBER);
+		loginFacade.sendLoginVerificationCode(MockConstants.MOCK_MOBILE_NUMBER);
 	}
 	
 	@Test
@@ -51,7 +51,7 @@ public class LoginFacadeImplTest {
 		}});
 		
 		LoginFacadeImpl loginFacade  = new LoginFacadeImpl(userFacade);
-		Assert.assertEquals(user, loginFacade.checkVerificationCode(MockConstants.MOCK_MOBILE_NUMBER, MockConstants.MOCK_VERIFICATION_CODE));
+		Assert.assertEquals(user, loginFacade.verificationCodeLogin(MockConstants.MOCK_MOBILE_NUMBER, MockConstants.MOCK_VERIFICATION_CODE));
 	}
 	
 	@Test
@@ -64,6 +64,6 @@ public class LoginFacadeImplTest {
 		}});
 		
 		LoginFacadeImpl loginFacade  = new LoginFacadeImpl(userFacade);
-		Assert.assertEquals(user, loginFacade.verifyPassword(MockConstants.MOCK_MOBILE_NUMBER, MockConstants.MOCK_PASSWORD));
+		Assert.assertEquals(user, loginFacade.passwordLogin(MockConstants.MOCK_MOBILE_NUMBER, MockConstants.MOCK_PASSWORD));
 	}
 }
