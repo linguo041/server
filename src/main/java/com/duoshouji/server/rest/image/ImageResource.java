@@ -46,7 +46,7 @@ public class ImageResource {
 	@RequestMapping(path = "/notes/${note-id}/images/main-image", method = RequestMethod.POST)
 	public void uploadNoteImage(
 			@RequestParam("image") MultipartFile image,
-			@RequestParam("note-id") long noteId
+			@PathVariable("note-id") long noteId
 			) throws IOException {
 		if (!image.isEmpty()) {
 			BufferedImage swingImage = toSwingImage(image);

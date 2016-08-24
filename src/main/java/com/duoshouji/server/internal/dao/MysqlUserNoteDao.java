@@ -5,11 +5,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.dao.BasicUserDto;
 import com.duoshouji.server.service.dao.NoteDto;
@@ -21,10 +23,12 @@ import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;
 import com.duoshouji.server.util.MobileNumber;
 
+@Service
 public class MysqlUserNoteDao implements UserNoteDao {
 
 	private JdbcTemplate mysqlDataSource;
 
+	@Autowired
 	public MysqlUserNoteDao(JdbcTemplate mysqlDataSource) {
 		this.mysqlDataSource = mysqlDataSource;
 	}

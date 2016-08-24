@@ -144,11 +144,6 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		}
 
 		@Override
-		public void setTag(String tag) {
-			valueHolder.setTag(tag);
-		}
-
-		@Override
 		public void setTitle(String title) {
 			valueHolder.setTitle(title);
 		}

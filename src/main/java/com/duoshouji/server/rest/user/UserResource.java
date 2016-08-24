@@ -3,6 +3,7 @@ package com.duoshouji.server.rest.user;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -25,6 +26,11 @@ import com.duoshouji.server.util.WrongPasswordFormatException;
 public class UserResource {
 
 	private DuoShouJiFacade userFacade;
+
+	@Autowired
+	private UserResource(DuoShouJiFacade userFacade) {
+		this.userFacade = userFacade;
+	}
 
 	@RequestMapping(path = "/login/authenticate/verification-code", method = RequestMethod.POST)
 	public StandardJsonResponse authenticateVerificationCode(
@@ -169,12 +175,10 @@ public class UserResource {
 	@RequestMapping(path = "/accounts/${account-id}/notes/note", method = RequestMethod.POST)
 	public StandardJsonResponse publishNote(
 			@RequestHeader(name=Constants.APP_TOKEN_HTTP_HEADER_NAME) String token,
-			@RequestParam("tag") String tag,
 			@RequestParam("title") String title,
 			@RequestParam("content") String content
 			) {
 		NoteBuilder publisher = userFacade.newNotePublisher(token);
-		publisher.setTag(tag);
 		publisher.setTitle(title);
 		publisher.setContent(content);
 		return StandardJsonResponse.wrapResponse(new PublishNoteResult(publisher.publishNote()));

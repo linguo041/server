@@ -1,20 +1,21 @@
 package com.duoshouji.server;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.codehaus.plexus.util.IOUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -27,8 +28,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.duoshouji.server.rest.Constants;
-import com.duoshouji.server.service.dao.UserNoteDao;
-import com.duoshouji.server.session.TokenManager;
 import com.duoshouji.server.util.MessageProxyFactory;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -38,11 +37,12 @@ public class SpringServerSideTest {
 	
     @Autowired
     private WebApplicationContext wac;
-
+    private int noteCount;
     private MockMvc mockMvc;
 
     @Before
     public void setup() {
+    	this.noteCount = 0;
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
     }
     
@@ -59,32 +59,75 @@ public class SpringServerSideTest {
     	return getTokenFromLoginResult(mockMvc.perform(requestBuilder).andReturn());
     }
     
-    @Test
-    public void resetPassword() throws Exception {
-    	final String token = loginWithMockUser();
-    	
-    	MockHttpServletRequestBuilder requestBuilder;
-    	requestBuilder = post("/message/verification-code/reset-password").header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
-    	mockMvc.perform(requestBuilder);
-    	
-    	requestBuilder =
-    			post("/accounts/"+MockConstants.MOCK_USER_IDENTIFIER+"/settings/security/password")
-    			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
-    			.param("code", getMessageSender().findHistory(MockConstants.MOCK_USER_IDENTIFIER).toString())
-    			.param("password", MockConstants.MOCK_PASSWORD.toString());
-    	mockMvc.perform(requestBuilder)
+    public void setPassword(String userToken) throws Exception {    	
+    	mockMvc.perform(post("/message/verification-code/reset-password")
+    			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken));
+     	mockMvc.perform(
+       			post("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER.toString()+"/settings/security/password")
+    			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken)
+    			.param("code", getLastVerificationCodeForMockUser())
+    			.param("password", MockConstants.MOCK_PASSWORD.toString())
+    	)
     	.andExpect(statusIsOk())
     	.andExpect(withJsonValue("{\"passwordUpdateResultCode\" : 0}"));
     }
     
-	@Test
-	public void loginByUserNameAndPassword() throws Exception {
-		MockHttpServletRequestBuilder requestBuilder = post("/login/authenticate/credential");
-		requestBuilder.param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString());
-		requestBuilder.param("password", MockConstants.MOCK_PASSWORD.toString());
-		mockMvc.perform(requestBuilder)
-			.andExpect(statusIsOk())
-			.andExpect(withJsonValue("{\"loginResultCode\" : 0, \"token\" : \""+ getTokenForMockUser() +"\"}"));
+    public void logout(String userToken) throws Exception {
+    	mockMvc.perform(
+    			post("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER.toString()+"/logout")
+    			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken))
+    			.andExpect(statusIsOk());
+    }
+    
+	public String credentialLogin() throws Exception {
+		return getTokenFromLoginResult(
+			mockMvc.perform(
+				post("/login/authenticate/credential")
+				.param("mobile", MockConstants.MOCK_MOBILE_NUMBER.toString())
+				.param("password", MockConstants.MOCK_PASSWORD.toString())				
+			).andReturn()
+		);
+	}
+	
+	public void setNickname(String userToken) throws Exception {
+		mockMvc.perform(
+				post("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER.toString()+"/settings/profile")
+				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken)
+				.param("nickname", MockConstants.MOCK_NICKNAME)				
+			).andExpect(statusIsOk());
+	}
+	
+	public void uploadUserPortrait(String userToken) throws Exception {		
+		mockMvc.perform(
+				fileUpload("/accounts/${account-id}/settings/profile/protrait", MockConstants.MOCK_MOBILE_NUMBER.toString())
+				.file(new MockMultipartFile("image", getImageBytes("portrait.gif")))
+			);
+	}
+	
+	public void addNotes(int noteCount, String userToken) throws Exception {
+		for (int i = 0; i < noteCount; ++i) {
+			long noteId = getNoteIdFromReturnValue(mockMvc.perform(post("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER+"/notes/note")
+				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken)
+				.param("title", "title" + this.noteCount)
+				.param("content", "content" + this.noteCount)
+			).andReturn());
+	
+			mockMvc.perform(
+				fileUpload("/notes/${note-id}/images/main-image", noteId)
+				.file(new MockMultipartFile("image", getImageBytes("note.gif")))
+			);
+			this.noteCount++;
+		}
+	}
+	
+	private long getNoteIdFromReturnValue(MvcResult returnValue) throws Exception {
+		JSONObject loginResult = new JSONObject(returnValue.getResponse().getContentAsString());
+		loginResult = loginResult.getJSONObject("resultValues");
+		return loginResult.getLong("noteId");
+	}
+	
+	private InputStream getImageBytes(String imageName) throws IOException {
+		return getClass().getClassLoader().getResourceAsStream(imageName);
 	}
 	
 	private JSONArray buildSquareNoteReturn(int... noteIds) throws JSONException {
@@ -105,88 +148,47 @@ public class SpringServerSideTest {
 		return array;
 	}
 	
-	@Test
-	public void getSquareNotes() throws Exception {
-		final String token = loginWithMockUser();
+	public void getSquareNotes(String userToken) throws Exception {
 		
 		mockMvc.perform(get("/notes")
 				.param("loadedSize", Integer.toString(0))
 				.param("pageSize", Integer.toString(2))
-				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token))
+				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken))
 				.andExpect(statusIsOk())
 				.andExpect(withJsonValue(buildSquareNoteReturn()));
-		
-		getDao().addNoteForMockUser();
-		getDao().addNoteForMockUser();
-		getDao().addNoteForMockUser();
 		
 		mockMvc.perform(get("/notes")
 				.param("loadedSize", Integer.toString(-1))
 				.param("pageSize", Integer.toString(2))
-				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token))
+				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken))
 				.andExpect(statusIsOk())
 				.andExpect(withJsonValue(buildSquareNoteReturn(0,1)));
 		
 		mockMvc.perform(get("/notes")
 				.param("loadedSize", Integer.toString(2))
 				.param("pageSize", Integer.toString(2))
-				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token))
+				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken))
 				.andExpect(statusIsOk())
 				.andExpect(withJsonValue(buildSquareNoteReturn(2)));
 	}
 	
-	public void uploadUserPortrait() throws Exception {
-		final String token = loginWithMockUser();
-		
-		InputStream in = getClass().getClassLoader().getResourceAsStream("/portrait.gif");
-		byte[] imageBytes = IOUtil.toByteArray(in);
-		in.close();
-		
-		mockMvc.perform(
-				post("/accounts/"+MockConstants.MOCK_USER_IDENTIFIER.toString()+"/settings/profile/portrait")
-				.contentType(MediaType.IMAGE_GIF)
-				.content(imageBytes)
-				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token))
-				.andExpect(statusIsOk());
-	}
-	
 	@Test
-	public void duoShouJiEnd2EndTest() {
-		firstLogin();
-		setPassword();
-		logout();
-		credentialLogin();
-		setNickname();
-		addNotes(1);
-		addNotes(2);
+	public void duoShouJiEnd2EndTest() throws Exception {
+		String userToken = firstLogin();
+		setPassword(userToken);
+		logout(userToken);
+		userToken = credentialLogin();
+		setNickname(userToken);
+		uploadUserPortrait(userToken);
+		addNotes(1, userToken);
+		addNotes(2, userToken);
+		logout(userToken);
 	}
-	
-	private String loginWithMockUser() throws Exception {
-		MockHttpServletRequestBuilder requestBuilder = post("/login/authenticate/credential");
-		requestBuilder.param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString());
-		requestBuilder.param("password", MockConstants.MOCK_PASSWORD.toString());
-		MvcResult result = mockMvc.perform(requestBuilder).andReturn();
+
+	private String getTokenFromLoginResult(MvcResult result) throws Exception {
 		JSONObject loginResult = new JSONObject(result.getResponse().getContentAsString());
 		loginResult = loginResult.getJSONObject("resultValues");
 		return loginResult.getString("token");
-	}
-	
-	private String getTokenFromLoginResult(MvcResult result) {
-		JSONObject loginResult = new JSONObject(result.getResponse().getContentAsString());
-		loginResult = loginResult.getJSONObject("resultValues");
-		return loginResult.getString("token");
-	}
-	
-	private MockTokenManager getTokenManager() {
-		return (MockTokenManager) wac.getBean(TokenManager.class);
-	}
-	
-	private MockMysqlDao getDao() {
-		return (MockMysqlDao) wac.getBean(UserNoteDao.class);
-	}
-	
-	private String getTokenForMockUser() {
-		return getTokenManager().findToken(MockConstants.MOCK_USER_IDENTIFIER.toString());
 	}
 	
 	private String getLastVerificationCodeForMockUser() {
