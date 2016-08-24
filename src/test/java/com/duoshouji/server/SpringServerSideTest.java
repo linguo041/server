@@ -46,6 +46,37 @@ public class SpringServerSideTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
     }
     
+    public String firstLogin() throws Exception {
+    	MockHttpServletRequestBuilder requestBuilder;
+    	requestBuilder = post("/message/verification-code/login").param("mobile", MockConstants.MOCK_MOBILE_NUMBER.toString());
+    	mockMvc.perform(requestBuilder)
+    	.andExpect(statusIsOk())
+    	.andExpect(withJsonValue(null));
+    	
+    	requestBuilder = post("/login/authenticate/verification-code");
+    	requestBuilder.param("mobile", MockConstants.MOCK_MOBILE_NUMBER.toString());
+    	requestBuilder.param("code", getLastVerificationCodeForMockUser());
+    	return getTokenFromLoginResult(mockMvc.perform(requestBuilder).andReturn());
+    }
+    
+    @Test
+    public void resetPassword() throws Exception {
+    	final String token = loginWithMockUser();
+    	
+    	MockHttpServletRequestBuilder requestBuilder;
+    	requestBuilder = post("/message/verification-code/reset-password").header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
+    	mockMvc.perform(requestBuilder);
+    	
+    	requestBuilder =
+    			post("/accounts/"+MockConstants.MOCK_USER_IDENTIFIER+"/settings/security/password")
+    			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
+    			.param("code", getMessageSender().findHistory(MockConstants.MOCK_USER_IDENTIFIER).toString())
+    			.param("password", MockConstants.MOCK_PASSWORD.toString());
+    	mockMvc.perform(requestBuilder)
+    	.andExpect(statusIsOk())
+    	.andExpect(withJsonValue("{\"passwordUpdateResultCode\" : 0}"));
+    }
+    
 	@Test
 	public void loginByUserNameAndPassword() throws Exception {
 		MockHttpServletRequestBuilder requestBuilder = post("/login/authenticate/credential");
@@ -54,22 +85,6 @@ public class SpringServerSideTest {
 		mockMvc.perform(requestBuilder)
 			.andExpect(statusIsOk())
 			.andExpect(withJsonValue("{\"loginResultCode\" : 0, \"token\" : \""+ getTokenForMockUser() +"\"}"));
-	}
-	
-	@Test
-	public void loginByVerificationCode() throws Exception {
-		MockHttpServletRequestBuilder requestBuilder;
-		requestBuilder = post("/message/verification-code/login").param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString());
-		mockMvc.perform(requestBuilder)
-			.andExpect(statusIsOk())
-			.andExpect(withJsonValue(null));
-		
-		requestBuilder = post("/login/authenticate/verification-code");
-		requestBuilder.param("mobile", MockConstants.MOCK_USER_IDENTIFIER.toString());
-		requestBuilder.param("code", getMessageSender().findHistory(MockConstants.MOCK_USER_IDENTIFIER).toString());
-		mockMvc.perform(requestBuilder)
-			.andExpect(statusIsOk())
-			.andExpect(withJsonValue("{\"loginSuccess\" : true, \"token\" : \""+ getTokenForMockUser() +"\"}"));
 	}
 	
 	private JSONArray buildSquareNoteReturn(int... noteIds) throws JSONException {
@@ -120,24 +135,6 @@ public class SpringServerSideTest {
 				.andExpect(withJsonValue(buildSquareNoteReturn(2)));
 	}
 	
-	@Test
-	public void resetPassword() throws Exception {
-		final String token = loginWithMockUser();
-		
-		MockHttpServletRequestBuilder requestBuilder;
-		requestBuilder = post("/message/verification-code/reset-password").header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
-		mockMvc.perform(requestBuilder);
-		
-		requestBuilder =
-			post("/accounts/"+MockConstants.MOCK_USER_IDENTIFIER+"/settings/security/password")
-			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
-			.param("code", getMessageSender().findHistory(MockConstants.MOCK_USER_IDENTIFIER).toString())
-			.param("password", MockConstants.MOCK_PASSWORD.toString());
-		mockMvc.perform(requestBuilder)
-			.andExpect(statusIsOk())
-			.andExpect(withJsonValue("{\"passwordUpdateResultCode\" : 0}"));
-	}
-	
 	public void uploadUserPortrait() throws Exception {
 		final String token = loginWithMockUser();
 		
@@ -174,8 +171,10 @@ public class SpringServerSideTest {
 		return loginResult.getString("token");
 	}
 	
-	private MockMessageSender getMessageSender() {
-		return (MockMessageSender) wac.getBean(MessageProxyFactory.class);
+	private String getTokenFromLoginResult(MvcResult result) {
+		JSONObject loginResult = new JSONObject(result.getResponse().getContentAsString());
+		loginResult = loginResult.getJSONObject("resultValues");
+		return loginResult.getString("token");
 	}
 	
 	private MockTokenManager getTokenManager() {
@@ -188,6 +187,10 @@ public class SpringServerSideTest {
 	
 	private String getTokenForMockUser() {
 		return getTokenManager().findToken(MockConstants.MOCK_USER_IDENTIFIER.toString());
+	}
+	
+	private String getLastVerificationCodeForMockUser() {
+		return ((MockMessageSender) wac.getBean(MessageProxyFactory.class)).findHistory(MockConstants.MOCK_MOBILE_NUMBER).toString();
 	}
 	
 	private static ResultMatcher statusIsOk() {
