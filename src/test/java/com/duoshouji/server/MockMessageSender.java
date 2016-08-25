@@ -5,36 +5,37 @@ import java.util.HashMap;
 import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.user.RegisteredUser;
-import com.duoshouji.server.service.user.UserIdentifier;
 import com.duoshouji.server.util.MessageProxyFactory;
+import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.UserMessageProxy;
 import com.duoshouji.server.util.VerificationCode;
 
 @Service
 public class MockMessageSender implements MessageProxyFactory {
 	
-	private HashMap<UserIdentifier, VerificationCode> history = new HashMap<UserIdentifier, VerificationCode>();
+	private HashMap<MobileNumber, Proxy> proxies = new HashMap<MobileNumber, Proxy>();
 	
 	@Override
 	public UserMessageProxy getMessageProxy(RegisteredUser user) {
-		return new Proxy(user);
+		final MobileNumber mobile = user.getMobileNumber();
+		Proxy proxy = proxies.get(mobile);
+		if (proxy == null) {
+			proxy = new Proxy();
+			proxies.put(mobile, proxy);
+		}
+		return proxy;
 	}
 
-	VerificationCode findHistory(UserIdentifier userId) {
-		return history.get(userId);
+	VerificationCode findHistory(MobileNumber mobileNumber) {
+		return proxies.get(mobileNumber).lastCode;
 	}
 	
 	private class Proxy implements UserMessageProxy {
-		private RegisteredUser user;
-		
-		private Proxy(RegisteredUser user) {
-			super();
-			this.user = user;
-		}
+		private VerificationCode lastCode;
 
 		@Override
 		public void sendVerificationCode(VerificationCode verificationCode) {
-			history.put(user.getIdentifier(), verificationCode);
+			lastCode = verificationCode;
 		}
 	}
 }
