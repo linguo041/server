@@ -11,6 +11,7 @@ import java.io.InputStream;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -97,11 +98,11 @@ public class SpringServerSideTest {
 			).andExpect(statusIsOk());
 	}
 	
-	public void uploadUserPortrait(String userToken) throws Exception {		
+	public void uploadUserPortrait(String userToken) throws Exception {
 		mockMvc.perform(
-				fileUpload("/accounts/${account-id}/settings/profile/protrait", MockConstants.MOCK_MOBILE_NUMBER.toString())
-				.file(new MockMultipartFile("image", getImageBytes("portrait.gif")))
-			);
+			fileUpload("/accounts/${account-id}/settings/profile/protrait", MockConstants.MOCK_MOBILE_NUMBER.toString())
+			.file(new MockMultipartFile("image", getImageBytes("portrait.gif")))
+		);
 	}
 	
 	public void addNotes(int noteCount, String userToken) throws Exception {
@@ -130,46 +131,24 @@ public class SpringServerSideTest {
 		return getClass().getClassLoader().getResourceAsStream(imageName);
 	}
 	
-	private JSONArray buildSquareNoteReturn(int... noteIds) throws JSONException {
-		JSONArray array = new JSONArray();
-		for (int noteId : noteIds) {
-			JSONObject json = new JSONObject();
-			json.put("noteId", noteId);
-			json.put("title", MockConstants.MOCK_NOTE_TITLE);
-			json.put("image", MockConstants.MOCK_NOTE_MAIN_IMAGE.getUrl());
-			json.put("imageWidth", MockConstants.MOCK_NOTE_MAIN_IMAGE.getWidth());
-			json.put("imageHeight", MockConstants.MOCK_NOTE_MAIN_IMAGE.getHeight());
-			json.put("portrait", MockConstants.MOCK_USER_PORTRAIT.getUrl());
-			json.put("rank", 0);
-			json.put("likeCount", 0);
-			json.put("commentCount", 0);
-			array.put(json);
+	private void checkNoteReturn(String userToken, int loaded, int pageSize, int toIndex, int count) throws Exception {
+		JSONObject resultJson = new JSONObject(mockMvc.perform(get("/notes")
+				.param("loadedSize", Integer.toString(loaded))
+				.param("pageSize", Integer.toString(pageSize))
+				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken))
+				.andExpect(statusIsOk())
+				.andReturn().getResponse().getContentAsString());
+		JSONArray array = resultJson.getJSONArray("resultValues");
+		Assert.assertEquals(count, array.length());
+		for (int i = 0; i < count; ++i) {
+			JSONObject json = array.getJSONObject(i);
+			Assert.assertEquals("title" + Integer.toString(toIndex - i), json.getString("title"));
+			Assert.assertEquals(1024, json.getInt("imageWidth"));
+			Assert.assertEquals(768, json.getInt("imageHeight"));
+			final int imageSize = mockMvc.perform(get(json.getString("image")))
+					.andReturn().getResponse().getContentAsByteArray().length;
+			Assert.assertEquals(228162, imageSize);
 		}
-		return array;
-	}
-	
-	public void getSquareNotes(String userToken) throws Exception {
-		
-		mockMvc.perform(get("/notes")
-				.param("loadedSize", Integer.toString(0))
-				.param("pageSize", Integer.toString(2))
-				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken))
-				.andExpect(statusIsOk())
-				.andExpect(withJsonValue(buildSquareNoteReturn()));
-		
-		mockMvc.perform(get("/notes")
-				.param("loadedSize", Integer.toString(-1))
-				.param("pageSize", Integer.toString(2))
-				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken))
-				.andExpect(statusIsOk())
-				.andExpect(withJsonValue(buildSquareNoteReturn(0,1)));
-		
-		mockMvc.perform(get("/notes")
-				.param("loadedSize", Integer.toString(2))
-				.param("pageSize", Integer.toString(2))
-				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken))
-				.andExpect(statusIsOk())
-				.andExpect(withJsonValue(buildSquareNoteReturn(2)));
 	}
 	
 	@Test
@@ -181,7 +160,11 @@ public class SpringServerSideTest {
 		setNickname(userToken);
 		uploadUserPortrait(userToken);
 		addNotes(1, userToken);
+		checkNoteReturn(userToken, -1, 2, 0, 1);
 		addNotes(2, userToken);
+		checkNoteReturn(userToken, 1, 2, 1, 0);
+		checkNoteReturn(userToken, -1, 2, 2, 2);
+		checkNoteReturn(userToken, 2, 2, 0, 1);
 		logout(userToken);
 	}
 

@@ -70,7 +70,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 		if (containsUser(mobileNumber)) {
 			throw new UserAlreadyExistsException("User already exists in system, mobile: " + mobileNumber);
 		}
-		userNoteDao.addUser(mobileNumber);
+		userNoteDao.createUser(mobileNumber);
 		return new OperationDelegatingMobileUser(mobileNumber, this);
 	}
 	

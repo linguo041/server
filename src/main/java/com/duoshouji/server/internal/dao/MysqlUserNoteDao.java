@@ -92,13 +92,15 @@ public class MysqlUserNoteDao implements UserNoteDao {
 					}
 				});
 		if (range != null) {
-			returnValue = returnValue.subList(range.getStartIndex(), range.getEndIndex());
+			returnValue = returnValue.subList(
+					Math.max(range.getStartIndex(), 0)
+					, Math.min(range.getEndIndex(), returnValue.size()));
 		}
 		return returnValue;
 	}
 
 	@Override
-	public void addUser(final MobileNumber mobileNumber) {
+	public void createUser(final MobileNumber mobileNumber) {
 		mysqlDataSource.update("insert into duoshouji.user (mobile, user_name) values(?, ?)"
 				, new PreparedStatementSetter(){
 					@Override
@@ -112,12 +114,12 @@ public class MysqlUserNoteDao implements UserNoteDao {
 
 	@Override
 	public void removeToken(MobileNumber mobileNumber) {
-		mysqlDataSource.update("update duoshouji.user_wechat_login set token = null where user_id in (select id from duoshouji.user where mobile = "+mobileNumber+")");
+		mysqlDataSource.update("update duoshouji.user set token = null where mobile = "+mobileNumber);
 	}
 
 	@Override
 	public void saveToken(final MobileNumber mobileNumber, final String token) {
-		mysqlDataSource.update("update duoshouji.user_wechat_login set token = ? where user_id in (select id from duoshouji.user where mobile = ?)"
+		mysqlDataSource.update("update duoshouji.user set token = ? where mobile = ?"
 				,new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
@@ -130,7 +132,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 
 	@Override
 	public void saveUserProfile(final MobileNumber mobileNumber, final String nickname) {
-		mysqlDataSource.update("update duoshouji.user set user_name = ? where mobile = ?)"
+		mysqlDataSource.update("update duoshouji.user set user_name = ? where mobile = ?"
 				,new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
@@ -143,7 +145,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 
 	@Override
 	public void savePasswordDigest(final MobileNumber mobileNumber, final String passwordDigest) {
-		mysqlDataSource.update("update duoshouji.user set password = ? where mobile = ?)"
+		mysqlDataSource.update("update duoshouji.user set password = ? where mobile = ?"
 				,new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
@@ -158,14 +160,17 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	public long createNote(MobileNumber mobileNumber,
 			final NotePublishAttributes noteAttributes) {
 		final long userId = getUserId(mobileNumber);
-		mysqlDataSource.update("insert into duoshouji.note (title, content, create_time) values(?,?,?))"
+		final long time = System.currentTimeMillis();
+		mysqlDataSource.update("insert into duoshouji.note (title, content, create_time, user_id, last_update_time) values(?,?,?,?,?)"
 				,new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
 							throws SQLException {
 						ps.setString(1, noteAttributes.getTitle());
 						ps.setString(2, noteAttributes.getContent());
-						ps.setLong(3, System.currentTimeMillis());
+						ps.setLong(3, time);
+						ps.setInt(4, (int)userId);
+						ps.setLong(5, time);
 					}
 				});
 		

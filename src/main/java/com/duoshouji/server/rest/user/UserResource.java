@@ -122,14 +122,14 @@ public class UserResource {
 		}
 
 	}
-	@RequestMapping(path = "/accounts/${account-id}/logout", method = RequestMethod.POST)
+	@RequestMapping(path = "/accounts/{account-id}/logout", method = RequestMethod.POST)
 	public StandardJsonResponse logout(
 			@RequestHeader(name=Constants.APP_TOKEN_HTTP_HEADER_NAME) String token) {
 		userFacade.logout(token);
 		return StandardJsonResponse.emptyResponse();
 	}
 	
-	@RequestMapping(path = "/accounts/${account-id}/settings/security/password", method = RequestMethod.POST)
+	@RequestMapping(path = "/accounts/{account-id}/settings/security/password", method = RequestMethod.POST)
 	public StandardJsonResponse resetPassword(
 			@RequestHeader(name=Constants.APP_TOKEN_HTTP_HEADER_NAME) String token,
 			@RequestParam("code") String code,
@@ -163,7 +163,7 @@ public class UserResource {
 		}
 	}
 	
-	@RequestMapping(path = "/accounts/${account-id}/settings/profile", method = RequestMethod.POST)
+	@RequestMapping(path = "/accounts/{account-id}/settings/profile", method = RequestMethod.POST)
 	public StandardJsonResponse updateProfile(
 			@RequestHeader(name=Constants.APP_TOKEN_HTTP_HEADER_NAME) String token,
 			@RequestParam("nickname") String nickname
@@ -172,7 +172,7 @@ public class UserResource {
 		return StandardJsonResponse.emptyResponse();
 	}
 	
-	@RequestMapping(path = "/accounts/${account-id}/notes/note", method = RequestMethod.POST)
+	@RequestMapping(path = "/accounts/{account-id}/notes/note", method = RequestMethod.POST)
 	public StandardJsonResponse publishNote(
 			@RequestHeader(name=Constants.APP_TOKEN_HTTP_HEADER_NAME) String token,
 			@RequestParam("title") String title,
@@ -196,7 +196,7 @@ public class UserResource {
 		}
 	}
 	
-	@RequestMapping(path = "/accounts/${account-id}/notes", method = RequestMethod.POST)
+	@RequestMapping(path = "/accounts/{account-id}/notes", method = RequestMethod.POST)
 	public StandardJsonResponse getUserPublishedNotes(
 			@RequestHeader(name=Constants.APP_TOKEN_HTTP_HEADER_NAME) String token
 			) {

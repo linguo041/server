@@ -16,7 +16,7 @@ public interface UserNoteDao {
 
 	List<NoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter);
 
-	void addUser(MobileNumber mobileNumber);
+	void createUser(MobileNumber mobileNumber);
 	
 	void removeToken(MobileNumber mobileNumber);
 
