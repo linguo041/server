@@ -44,11 +44,6 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 		return get(userNoteDao.findUser(mobileNumber));
 	}
 	
-	@Override
-	public RegisteredUser getUser(String token) {
-		return get(userNoteDao.findUser(token));
-	}
-	
 	private OperationDelegatingMobileUser get(RegisteredUserDto userDto) {
 		OperationDelegatingMobileUser user = null;
 		if (userDto != null) {

@@ -12,8 +12,6 @@ public interface UserNoteDao {
 
 	RegisteredUserDto findUser(MobileNumber mobileNumber);
 	
-	RegisteredUserDto findUser(String token);
-
 	List<NoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter);
 
 	void createUser(MobileNumber mobileNumber);

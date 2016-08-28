@@ -34,7 +34,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		this.noteRepository = noteRepository;
 		snapshots = new NoteCollectionSnapshots();
 	}
-
+	
 	@Override
 	public void sendLoginVerificationCode(MobileNumber mobileNumber) {
 		RegisteredUser user = userRepository.findUser(mobileNumber);
@@ -45,25 +45,16 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	}
 
 	@Override
-	public String verificationCodeLogin(MobileNumber mobileNumber, VerificationCode verificationCode) {
+	public boolean verificationCodeLogin(MobileNumber mobileNumber, VerificationCode verificationCode) {
 		final RegisteredUser user = getUser(mobileNumber);
 		SecureChecker checker = secureAccessFacade.getSecureChecker(user);
-		if (checker.verify(verificationCode)) {
-			return user.login();
-		} else {
-			return null;
-		}
+		return checker.verify(verificationCode);
 	}
 
 	@Override
-	public String passwordLogin(MobileNumber mobileNumber, Password password) {
+	public boolean passwordLogin(MobileNumber mobileNumber, Password password) {
 		final RegisteredUser user = getUser(mobileNumber);
-		if (user.verifyPassword(password)) {
-			return user.login();
-		} else {
-			return null;
-		}
-
+		return user.verifyPassword(password);
 	}
 	
 	private RegisteredUser getUser(MobileNumber mobileNumber) {
@@ -75,9 +66,9 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	}
 
 	@Override
-	public boolean resetPassword(String userToken, VerificationCode verificationCode,
+	public boolean resetPassword(MobileNumber accountId, VerificationCode verificationCode,
 			Password password) {
-		final RegisteredUser user = userRepository.getUser(userToken);
+		final RegisteredUser user = getUser(accountId);
 		boolean isSuccess = false;
 		if (secureAccessFacade.getSecureChecker(user).verify(verificationCode)) {
 			user.setPassword(password);
@@ -87,39 +78,39 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	}
 
 	@Override
-	public void sendResetPasswordVerificationCode(String userToken) {
-		final RegisteredUser user = userRepository.getUser(userToken);
+	public void sendResetPasswordVerificationCode(MobileNumber accountId) {
+		final RegisteredUser user = getUser(accountId);
 		secureAccessFacade.getSecureChecker(user).sendVerificationCode();
 	}
 
 	@Override
-	public void updateNickname(String userToken, String nickname) {
-		userRepository.getUser(userToken).setNickname(nickname);		
+	public void updateNickname(MobileNumber accountId, String nickname) {
+		getUser(accountId).setNickname(nickname);		
 	}
 
 	@Override
-	public NoteBuilder newNotePublisher(String userToken) {
-		return new InnerNoteBuilder(userRepository.getUser(userToken));
+	public NoteBuilder newNotePublisher(MobileNumber accountId) {
+		return new InnerNoteBuilder(getUser(accountId));
 	}
 
 	@Override
-	public NoteCollection getUserPublishedNotes(String userToken) {
-		return userRepository.getUser(userToken).getPublishedNotes();
+	public NoteCollection getUserPublishedNotes(MobileNumber accountId) {
+		return getUser(accountId).getPublishedNotes();
 	}
 	
 	@Override
-	public void logout(String userToken) {
-		userRepository.getUser(userToken).logout();
+	public void logout(MobileNumber accountId) {
+		getUser(accountId).logout();
 	}
 	
 	@Override
-	public NoteCollection pushSquareNotes(String userToken) {
-		return pushSquareNotes(userRepository.getUser(userToken));
+	public NoteCollection pushSquareNotes(MobileNumber accountId) {
+		return pushSquareNotes(getUser(accountId));
 	}
 	
 	@Override
-	public NoteCollection getPushedSquareNotes(String userToken) {
-		final RegisteredUser user = userRepository.getUser(userToken);
+	public NoteCollection getPushedSquareNotes(MobileNumber accountId) {
+		final RegisteredUser user = getUser(accountId);
 		NoteCollection notes = snapshots.getSnapshot(user);
 		if (notes == null) {
 			notes = pushSquareNotes(user);
