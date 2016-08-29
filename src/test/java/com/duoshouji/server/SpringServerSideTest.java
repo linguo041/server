@@ -68,8 +68,7 @@ public class SpringServerSideTest {
     			.param("code", getLastVerificationCodeForMockUser())
     			.param("password", MockConstants.MOCK_PASSWORD.toString())
     	)
-    	.andExpect(statusIsOk())
-    	.andExpect(withJsonValue("{\"passwordUpdateResultCode\" : 0}"));
+    	.andExpect(statusIsOk());
     }
     
     public void logout(String userToken) throws Exception {

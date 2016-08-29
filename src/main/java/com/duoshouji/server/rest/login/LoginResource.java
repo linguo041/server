@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.duoshouji.server.rest.StandardJsonResponse;
 import com.duoshouji.server.service.DuoShouJiFacade;
 import com.duoshouji.server.service.auth.UserTokenService;
 import com.duoshouji.server.service.user.PasswordNotSetException;
@@ -29,15 +28,14 @@ public class LoginResource {
 	}
 
 	@RequestMapping(path = "/accounts/{account-id}/message/verification-code/login", method = RequestMethod.POST)
-	public StandardJsonResponse sendLoginVerificationCode(
+	public void sendLoginVerificationCode(
 		@PathVariable("account-id") MobileNumber mobileNumber
 			) {
 		douShouJiFacade.sendLoginVerificationCode(mobileNumber);
-		return StandardJsonResponse.emptyResponse();
 	}
 	
 	@RequestMapping(path = "/accounts/{account-id}/login/verification-code", method = RequestMethod.POST)
-	public StandardJsonResponse authenticateVerificationCode(
+	public VerificationCodeLoginResult authenticateVerificationCode(
 		@PathVariable("account-id") MobileNumber mobileNumber,
 		@RequestParam("code") String verificationCode
 			) {
@@ -48,11 +46,11 @@ public class LoginResource {
 		} else {
 			result = new VerificationCodeLoginResult(false);
 		}
-		return StandardJsonResponse.wrapResponse(result);
+		return result;
 	}
 	
 	@RequestMapping(path = "/accounts/{account-id}/login/credential", method = RequestMethod.POST)
-	public StandardJsonResponse authenticateCredential(
+	public CredentialLoginResult authenticateCredential(
 		@RequestParam("mobile") MobileNumber mobileNumber,
 		@RequestParam("password") String password
 			) {
@@ -67,7 +65,7 @@ public class LoginResource {
 		} catch (PasswordNotSetException ex) {
 			result = new CredentialLoginResult(1);
 		}
-		return StandardJsonResponse.wrapResponse(result);
+		return result;
 	}
 	
 	private static abstract class LoginResult {

@@ -13,10 +13,9 @@ public final class StandardJsonResponse {
 		this.resultValues = resultValues;
 	}
 	
-	private StandardJsonResponse(String resultErrorMessage, Object resultValues) {
+	private StandardJsonResponse(Exception e) {
 		this.resultCode = ResultCode.ERROR;
-		this.resultErrorMessage = resultErrorMessage;
-		this.resultValues = resultValues;
+		this.resultErrorMessage = e.getMessage();
 	}	
 	
 	public StandardJsonResponse() {
@@ -31,8 +30,8 @@ public final class StandardJsonResponse {
 		return new StandardJsonResponse(resultValues);
 	}
 
-	public static StandardJsonResponse wrapResponse(Exception ex, Object resultValues) {
-		return new StandardJsonResponse(ex.getMessage(), resultValues);
+	public static StandardJsonResponse wrapResponse(Exception ex) {
+		return new StandardJsonResponse(ex);
 	}	
 	
 	public int getResultCode() {

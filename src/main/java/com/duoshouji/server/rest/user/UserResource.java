@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.duoshouji.server.rest.Constants;
-import com.duoshouji.server.rest.StandardJsonResponse;
 import com.duoshouji.server.service.DuoShouJiFacade;
 import com.duoshouji.server.service.auth.UnauthenticatedUserException;
 import com.duoshouji.server.service.auth.UserTokenService;
@@ -24,7 +23,7 @@ import com.duoshouji.server.service.user.NoteBuilder;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
-import com.duoshouji.server.util.WrongPasswordFormatException;
+import com.duoshouji.server.util.VerificationCodeNotMatchException;
 
 @RestController
 @RequestMapping(path = "/accounts/{account-id}")
@@ -51,65 +50,41 @@ public class UserResource {
 	}
 	
 	@RequestMapping(path = "/logout", method = RequestMethod.POST)
-	public StandardJsonResponse logout(
+	public void logout(
 			@PathVariable("account-id") MobileNumber mobileNumber) {
 		duoShouJiFacade.logout(mobileNumber);
-		return StandardJsonResponse.emptyResponse();
 	}
 	
 	@RequestMapping(path = "/message/verification-code/reset-password", method = RequestMethod.POST)
-	public StandardJsonResponse sendResetPasswordVerificationCode(
+	public void sendResetPasswordVerificationCode(
 			@PathVariable("account-id") MobileNumber mobileNumber
 			) {
 		duoShouJiFacade.sendResetPasswordVerificationCode(mobileNumber);
-		return StandardJsonResponse.emptyResponse();
 	}
 	
 	@RequestMapping(path = "/settings/security/password", method = RequestMethod.POST)
-	public StandardJsonResponse resetPassword(
+	public void resetPassword(
 			@PathVariable("account-id") MobileNumber mobileNumber,
 			@RequestParam("code") String code,
 			@RequestParam("password") String password
 			) {
-		StandardJsonResponse response;
-		try {
-			Password acceptedPassword = Password.valueOf(password);
-			boolean success = duoShouJiFacade.resetPassword(mobileNumber, VerificationCode.valueOf(code), acceptedPassword);
-			if (success) {
-				response = StandardJsonResponse.wrapResponse(new PasswordResetResult(0));
-			} else {
-				response = StandardJsonResponse.wrapResponse(new PasswordResetResult(1));
-			}
-		} catch (WrongPasswordFormatException e) {
-			response = StandardJsonResponse.wrapResponse(e, new PasswordResetResult(2));
-		}
-		return response;
-	}
-	
-	public static class PasswordResetResult {
-		int passwordUpdateResultCode;
-
-		private PasswordResetResult(int passwordUpdateResultCode) {
-			super();
-			this.passwordUpdateResultCode = passwordUpdateResultCode;
-		}
-
-		public int getPasswordUpdateResultCode() {
-			return passwordUpdateResultCode;
+		Password acceptedPassword = Password.valueOf(password);
+		boolean success = duoShouJiFacade.resetPassword(mobileNumber, VerificationCode.valueOf(code), acceptedPassword);
+		if (!success) {
+			throw new VerificationCodeNotMatchException();
 		}
 	}
 	
 	@RequestMapping(path = "/settings/profile", method = RequestMethod.POST)
-	public StandardJsonResponse updateProfile(
+	public void updateProfile(
 			@PathVariable("account-id") MobileNumber mobileNumber,
 			@RequestParam("nickname") String nickname
 			) {
 		duoShouJiFacade.updateNickname(mobileNumber, nickname);
-		return StandardJsonResponse.emptyResponse();
 	}
 	
 	@RequestMapping(path = "/notes", method = RequestMethod.POST)
-	public StandardJsonResponse publishNote(
+	public PublishNoteResult publishNote(
 			@PathVariable("account-id") MobileNumber mobileNumber,
 			@RequestParam("title") String title,
 			@RequestParam("content") String content
@@ -117,9 +92,9 @@ public class UserResource {
 		NoteBuilder publisher = duoShouJiFacade.newNotePublisher(mobileNumber);
 		publisher.setTitle(title);
 		publisher.setContent(content);
-		return StandardJsonResponse.wrapResponse(new PublishNoteResult(publisher.publishNote()));
+		return new PublishNoteResult(publisher.publishNote());
 	}
-
+	
 	public static class PublishNoteResult {
 		private long noteId;
 
@@ -131,9 +106,9 @@ public class UserResource {
 			return noteId;
 		}
 	}
-	
+		
 	@RequestMapping(path = "/notes", method = RequestMethod.GET)
-	public StandardJsonResponse getPublishedNotes(
+	public List<PublishedNote> getPublishedNotes(
 			@PathVariable("account-id") MobileNumber mobileNumber
 			) {
 		NoteCollection notes = duoShouJiFacade.getUserPublishedNotes(mobileNumber);
@@ -151,7 +126,7 @@ public class UserResource {
 			pn.transactionCount = note.getTransactionCount();
 			returnValue.add(pn);
 		}
-		return StandardJsonResponse.wrapResponse(returnValue);
+		return returnValue;
 	}
 	
 	public static class PublishedNote {
@@ -195,7 +170,7 @@ public class UserResource {
 	}
 	
 	@RequestMapping(path = "/pushed/notes", method = RequestMethod.GET)
-	public StandardJsonResponse getNotes(
+	public List<NoteJson> getNotes(
 			@PathVariable("account-id") MobileNumber mobileNumber,
 			@RequestParam("loadedSize") int loadedSize,
 			@RequestParam("pageSize") int pageSize
@@ -212,7 +187,7 @@ public class UserResource {
 		for (Note note : notes) {
 			returnValue.add(convert(note));
 		}
-		return StandardJsonResponse.wrapResponse(returnValue);
+		return returnValue;
 	}
 	
 	private NoteJson convert(Note note) {
