@@ -19,12 +19,14 @@ import com.duoshouji.server.service.dao.RegisteredUserDto;
 import com.duoshouji.server.service.dao.UserNoteDao;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
+import com.duoshouji.server.service.note.Tag;
+import com.duoshouji.server.service.note.TagRepository;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;
 import com.duoshouji.server.util.MobileNumber;
 
 @Service
-public class MysqlUserNoteDao implements UserNoteDao {
+public class MysqlUserNoteDao implements UserNoteDao, TagRepository {
 
 	private JdbcTemplate mysqlDataSource;
 
@@ -223,5 +225,19 @@ public class MysqlUserNoteDao implements UserNoteDao {
 						ps.setLong(4, noteId);
 					}
 				});		
+	}
+
+	@Override
+	public List<Tag> listTags() {
+		return mysqlDataSource.query(
+				"select id, name from duoshouji.tag order by sort_order"
+				, new RowMapper<Tag>() {
+
+					@Override
+					public Tag mapRow(ResultSet rs, int rowNum) throws SQLException {
+						return new Tag(rs.getLong("id"), rs.getString("name"));
+					}
+					
+				});
 	}
 }

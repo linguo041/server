@@ -75,7 +75,16 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 	
 	@Override
 	public NoteCollection findNotes() {
-		return new OperationDelegatingNoteCollection(this, System.currentTimeMillis(), null);
+		return findNotes(-1l);
+	}
+
+	@Override
+	public NoteCollection findNotes(long tagId) {
+		NoteFilter noteFilter = null;
+		if (tagId >= 0) {
+			noteFilter.
+		}
+		return new OperationDelegatingNoteCollection(this, System.currentTimeMillis(), noteFilter);
 	}
 
 	private OperationDelegatingNote newNote(NoteDto noteDto) {

@@ -1,4 +1,4 @@
-package com.duoshouji.server.rest.user;
+package com.duoshouji.server.rest.controller;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.duoshouji.server.rest.Constants;
 import com.duoshouji.server.service.DuoShouJiFacade;
+import com.duoshouji.server.service.DuoShouJiFacade.SquareNoteRequester;
 import com.duoshouji.server.service.auth.UnauthenticatedUserException;
 import com.duoshouji.server.service.auth.UserTokenService;
 import com.duoshouji.server.service.note.Note;
@@ -170,17 +171,20 @@ public class UserResource {
 	}
 	
 	@RequestMapping(path = "/pushed/notes", method = RequestMethod.GET)
-	public List<NoteJson> getNotes(
+	public List<NoteJson> getPushedNotes(
 			@PathVariable("account-id") MobileNumber mobileNumber,
+			@RequestParam("tagId") long tagId,
 			@RequestParam("loadedSize") int loadedSize,
 			@RequestParam("pageSize") int pageSize
 			) {
+		SquareNoteRequester requester = duoShouJiFacade.newSquareNoteRequester(mobileNumber);
+		requester.setTagId(tagId);
 		NoteCollection notes;
 		if (loadedSize < 0) {
-			notes = duoShouJiFacade.pushSquareNotes(mobileNumber);
+			notes = requester.pushSquareNotes();
 			loadedSize = 0;
 		} else {
-			notes = duoShouJiFacade.getPushedSquareNotes(mobileNumber);
+			notes = requester.getPushedSquareNotes();
 		}
 		notes = notes.subCollection(loadedSize, loadedSize + pageSize);
 		List<NoteJson> returnValue = new ArrayList<NoteJson>();
