@@ -10,24 +10,24 @@ public interface DuoShouJiFacade {
 	
 	void sendLoginVerificationCode(MobileNumber accountId);
 	
-	String verificationCodeLogin(MobileNumber accountId, VerificationCode verificationCode);
+	boolean verificationCodeLogin(MobileNumber accountId, VerificationCode verificationCode);
 	
-	String passwordLogin(MobileNumber accountId, Password mockPassword);
+	boolean passwordLogin(MobileNumber accountId, Password mockPassword);
 
-	boolean resetPassword(String userToken, VerificationCode code, Password password);
+	boolean resetPassword(MobileNumber accountId, VerificationCode code, Password password);
 
-	void sendResetPasswordVerificationCode(String userToken);
+	void sendResetPasswordVerificationCode(MobileNumber accountId);
 
-	void updateNickname(String userToken, String nickname);
+	void updateNickname(MobileNumber accountId, String nickname);
 
-	NoteBuilder newNotePublisher(String userToken);
+	NoteBuilder newNotePublisher(MobileNumber accountId);
 
-	NoteCollection getUserPublishedNotes(String userToken);
+	NoteCollection getUserPublishedNotes(MobileNumber accountId);
 
-	void logout(String userToken);
+	void logout(MobileNumber accountId);
 	
-	NoteCollection pushSquareNotes(String userToken);
+	NoteCollection pushSquareNotes(MobileNumber accountId);
 
-	NoteCollection getPushedSquareNotes(String userToken);
+	NoteCollection getPushedSquareNotes(MobileNumber accountId);
 
 }

@@ -32,7 +32,7 @@ public class ImageResource {
 		this.imageStore = imageStore;
 	}
 
-	@RequestMapping(path = "/accounts/${account-id}/settings/profile/protrait", method = RequestMethod.POST)
+	@RequestMapping(path = "/accounts/{account-id}/settings/profile/protrait", method = RequestMethod.POST)
 	public void uploadPortrait(
 			@RequestParam("image") MultipartFile image,
 			@PathVariable("account-id") String accountId) throws IOException {
@@ -43,7 +43,7 @@ public class ImageResource {
 		}
 	}
 	
-	@RequestMapping(path = "/notes/${note-id}/images/main-image", method = RequestMethod.POST)
+	@RequestMapping(path = "/notes/{note-id}/images/main-image", method = RequestMethod.POST)
 	public void uploadNoteImage(
 			@RequestParam("image") MultipartFile image,
 			@PathVariable("note-id") long noteId

@@ -37,11 +37,6 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	public RegisteredUserDto findUser(MobileNumber mobileNumber) {
 		return queryUser("select * from duoshouji.v_user where mobile = " + mobileNumber);
 	}
-
-	@Override
-	public RegisteredUserDto findUser(String token) {
-		return queryUser("select * from duoshouji.v_user where token = '" + token + "'");
-	}
 	
 	private RegisteredUserDto queryUser(String sql) {
 		return mysqlDataSource.query(sql

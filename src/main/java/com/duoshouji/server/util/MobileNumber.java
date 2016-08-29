@@ -14,6 +14,14 @@ public class MobileNumber {
 		return number;
 	}
 
+	public long toLong() {
+		return Long.valueOf(number);
+	}
+	
+	public static MobileNumber valueOf(String mobileNumber) {
+		return new MobileNumber(mobileNumber);
+	}
+	
 	@Override
 	public int hashCode() {
 		return number.hashCode();

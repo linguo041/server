@@ -49,19 +49,18 @@ public class SpringServerSideTest {
     
     public String firstLogin() throws Exception {
     	MockHttpServletRequestBuilder requestBuilder;
-    	requestBuilder = post("/message/verification-code/login").param("mobile", MockConstants.MOCK_MOBILE_NUMBER.toString());
+    	requestBuilder = post("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER+"/message/verification-code/login");
     	mockMvc.perform(requestBuilder)
     	.andExpect(statusIsOk())
     	.andExpect(withJsonValue(null));
     	
-    	requestBuilder = post("/login/authenticate/verification-code");
-    	requestBuilder.param("mobile", MockConstants.MOCK_MOBILE_NUMBER.toString());
+    	requestBuilder = post("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER+"/login/verification-code");
     	requestBuilder.param("code", getLastVerificationCodeForMockUser());
     	return getTokenFromLoginResult(mockMvc.perform(requestBuilder).andReturn());
     }
     
-    public void setPassword(String userToken) throws Exception {    	
-    	mockMvc.perform(post("/message/verification-code/reset-password")
+    public void setPassword(String userToken) throws Exception {
+    	mockMvc.perform(post("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER+"/message/verification-code/reset-password")
     			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken));
      	mockMvc.perform(
        			post("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER.toString()+"/settings/security/password")
@@ -69,8 +68,7 @@ public class SpringServerSideTest {
     			.param("code", getLastVerificationCodeForMockUser())
     			.param("password", MockConstants.MOCK_PASSWORD.toString())
     	)
-    	.andExpect(statusIsOk())
-    	.andExpect(withJsonValue("{\"passwordUpdateResultCode\" : 0}"));
+    	.andExpect(statusIsOk());
     }
     
     public void logout(String userToken) throws Exception {
@@ -83,7 +81,7 @@ public class SpringServerSideTest {
 	public String credentialLogin() throws Exception {
 		return getTokenFromLoginResult(
 			mockMvc.perform(
-				post("/login/authenticate/credential")
+				post("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER+"/login/credential")
 				.param("mobile", MockConstants.MOCK_MOBILE_NUMBER.toString())
 				.param("password", MockConstants.MOCK_PASSWORD.toString())				
 			).andReturn()
@@ -92,7 +90,7 @@ public class SpringServerSideTest {
 	
 	public void setNickname(String userToken) throws Exception {
 		mockMvc.perform(
-				post("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER.toString()+"/settings/profile")
+				post("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER+"/settings/profile")
 				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken)
 				.param("nickname", MockConstants.MOCK_NICKNAME)				
 			).andExpect(statusIsOk());
@@ -100,21 +98,21 @@ public class SpringServerSideTest {
 	
 	public void uploadUserPortrait(String userToken) throws Exception {
 		mockMvc.perform(
-			fileUpload("/accounts/${account-id}/settings/profile/protrait", MockConstants.MOCK_MOBILE_NUMBER.toString())
+			fileUpload("/accounts/{account-id}/settings/profile/protrait", MockConstants.MOCK_MOBILE_NUMBER)
 			.file(new MockMultipartFile("image", getImageBytes("portrait.gif")))
 		);
 	}
 	
 	public void addNotes(int noteCount, String userToken) throws Exception {
 		for (int i = 0; i < noteCount; ++i) {
-			long noteId = getNoteIdFromReturnValue(mockMvc.perform(post("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER+"/notes/note")
+			long noteId = getNoteIdFromReturnValue(mockMvc.perform(post("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER+"/notes")
 				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken)
 				.param("title", "title" + this.noteCount)
 				.param("content", "content" + this.noteCount)
 			).andReturn());
 	
 			mockMvc.perform(
-				fileUpload("/notes/${note-id}/images/main-image", noteId)
+				fileUpload("/notes/{note-id}/images/main-image", noteId)
 				.file(new MockMultipartFile("image", getImageBytes("note.gif")))
 			);
 			this.noteCount++;
@@ -132,7 +130,7 @@ public class SpringServerSideTest {
 	}
 	
 	private void checkNoteReturn(String userToken, int loaded, int pageSize, int toIndex, int count) throws Exception {
-		JSONObject resultJson = new JSONObject(mockMvc.perform(get("/notes")
+		JSONObject resultJson = new JSONObject(mockMvc.perform(get("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER+"/pushed/notes")
 				.param("loadedSize", Integer.toString(loaded))
 				.param("pageSize", Integer.toString(pageSize))
 				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken))
