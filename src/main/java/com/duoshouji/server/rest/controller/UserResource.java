@@ -112,9 +112,12 @@ public class UserResource {
 		
 	@RequestMapping(path = "/notes", method = RequestMethod.GET)
 	public List<PublishedNote> getPublishedNotes(
-			@PathVariable("account-id") MobileNumber mobileNumber
+			@PathVariable("account-id") MobileNumber mobileNumber,
+			@RequestParam("loadedSize") int loadedSize,
+			@RequestParam("pageSize") int pageSize
 			) {
-		NoteCollection notes = duoShouJiFacade.getUserPublishedNotes(mobileNumber);
+		NoteCollection notes = duoShouJiFacade.getUserPublishedNotes(mobileNumber)
+				.subCollection(loadedSize, loadedSize + pageSize);
 		List<PublishedNote> returnValue = new LinkedList<PublishedNote>();
 		for (Note note : notes) {
 			PublishedNote pn = new PublishedNote();

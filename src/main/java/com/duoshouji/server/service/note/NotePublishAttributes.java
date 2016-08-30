@@ -6,6 +6,8 @@ import java.util.List;
 
 public class NotePublishAttributes {
 
+	private static final int MAX_TAG_COUNT = 9;
+	
 	private String title;
 	private String content;
 	private List<Tag> tags = new ArrayList<Tag>();
@@ -30,7 +32,14 @@ public class NotePublishAttributes {
 		return Collections.unmodifiableList(tags);
 	}
 	
+	public int getTagCount() {
+		return tags.size();
+	}
+	
 	public void addTag(Tag tag) {
+		if (tags.size() >= MAX_TAG_COUNT) {
+			throw new NotePublishException("Tag count has exceeds maximum value; maximum allowed tag count: 9");
+		}
 		tags.add(tag);
 	}
 	
