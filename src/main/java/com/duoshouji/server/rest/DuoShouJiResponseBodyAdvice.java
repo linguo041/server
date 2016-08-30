@@ -1,5 +1,6 @@
 package com.duoshouji.server.rest;
 
+import org.apache.logging.log4j.LogManager;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -27,6 +28,7 @@ public class DuoShouJiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 	
 	@ExceptionHandler
 	public StandardJsonResponse handleGeneralException(Exception e) {
+		LogManager.getLogger().error("Request handler throw exception", e);
 		return StandardJsonResponse.wrapResponse(e);
 	}
 }

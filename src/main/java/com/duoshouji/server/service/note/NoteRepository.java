@@ -4,4 +4,5 @@ public interface NoteRepository {
 
 	NoteCollection findNotes();
 
+	NoteCollection findNotes(Tag tag);
 }

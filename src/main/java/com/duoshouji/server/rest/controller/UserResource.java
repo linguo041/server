@@ -1,4 +1,4 @@
-package com.duoshouji.server.rest.user;
+package com.duoshouji.server.rest.controller;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -15,11 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.duoshouji.server.rest.Constants;
 import com.duoshouji.server.service.DuoShouJiFacade;
+import com.duoshouji.server.service.DuoShouJiFacade.NoteBuilder;
+import com.duoshouji.server.service.DuoShouJiFacade.SquareNoteRequester;
 import com.duoshouji.server.service.auth.UnauthenticatedUserException;
 import com.duoshouji.server.service.auth.UserTokenService;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
-import com.duoshouji.server.service.user.NoteBuilder;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
@@ -86,12 +87,14 @@ public class UserResource {
 	@RequestMapping(path = "/notes", method = RequestMethod.POST)
 	public PublishNoteResult publishNote(
 			@PathVariable("account-id") MobileNumber mobileNumber,
+			@RequestParam("tag") long[] tags,
 			@RequestParam("title") String title,
 			@RequestParam("content") String content
 			) {
 		NoteBuilder publisher = duoShouJiFacade.newNotePublisher(mobileNumber);
 		publisher.setTitle(title);
 		publisher.setContent(content);
+		publisher.setTags(tags);
 		return new PublishNoteResult(publisher.publishNote());
 	}
 	
@@ -109,9 +112,12 @@ public class UserResource {
 		
 	@RequestMapping(path = "/notes", method = RequestMethod.GET)
 	public List<PublishedNote> getPublishedNotes(
-			@PathVariable("account-id") MobileNumber mobileNumber
+			@PathVariable("account-id") MobileNumber mobileNumber,
+			@RequestParam("loadedSize") int loadedSize,
+			@RequestParam("pageSize") int pageSize
 			) {
-		NoteCollection notes = duoShouJiFacade.getUserPublishedNotes(mobileNumber);
+		NoteCollection notes = duoShouJiFacade.getUserPublishedNotes(mobileNumber)
+				.subCollection(loadedSize, loadedSize + pageSize);
 		List<PublishedNote> returnValue = new LinkedList<PublishedNote>();
 		for (Note note : notes) {
 			PublishedNote pn = new PublishedNote();
@@ -170,17 +176,22 @@ public class UserResource {
 	}
 	
 	@RequestMapping(path = "/pushed/notes", method = RequestMethod.GET)
-	public List<NoteJson> getNotes(
+	public List<NoteJson> getPushedNotes(
 			@PathVariable("account-id") MobileNumber mobileNumber,
+			@RequestParam(value="tagId", required=false) Long tagId,
 			@RequestParam("loadedSize") int loadedSize,
 			@RequestParam("pageSize") int pageSize
 			) {
+		SquareNoteRequester requester = duoShouJiFacade.newSquareNoteRequester(mobileNumber);
+		if (tagId != null) {
+			requester.setTagId(tagId.longValue());
+		}
 		NoteCollection notes;
 		if (loadedSize < 0) {
-			notes = duoShouJiFacade.pushSquareNotes(mobileNumber);
+			notes = requester.pushSquareNotes();
 			loadedSize = 0;
 		} else {
-			notes = duoShouJiFacade.getPushedSquareNotes(mobileNumber);
+			notes = requester.getPushedSquareNotes();
 		}
 		notes = notes.subCollection(loadedSize, loadedSize + pageSize);
 		List<NoteJson> returnValue = new ArrayList<NoteJson>();

@@ -103,12 +103,13 @@ public class SpringServerSideTest {
 		);
 	}
 	
-	public void addNotes(int noteCount, String userToken) throws Exception {
+	public void addNotes(int noteCount, String[] tagIds, String userToken) throws Exception {
 		for (int i = 0; i < noteCount; ++i) {
 			long noteId = getNoteIdFromReturnValue(mockMvc.perform(post("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER+"/notes")
 				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken)
 				.param("title", "title" + this.noteCount)
 				.param("content", "content" + this.noteCount)
+				.param("tag", tagIds)
 			).andReturn());
 	
 			mockMvc.perform(
@@ -148,6 +149,19 @@ public class SpringServerSideTest {
 			Assert.assertEquals(228162, imageSize);
 		}
 	}
+
+	private void checkNoteReturnWithTag2(String userToken) throws Exception {
+		JSONObject resultJson = new JSONObject(mockMvc.perform(get("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER+"/pushed/notes")
+				.param("tagId", "2")
+				.param("loadedSize", "-1")
+				.param("pageSize", "10")
+				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken))
+				.andExpect(statusIsOk())
+				.andReturn().getResponse().getContentAsString());
+		JSONArray array = resultJson.getJSONArray("resultValues");
+		Assert.assertEquals(3, array.length());
+	}
+
 	
 	@Test
 	public void duoShouJiEnd2EndTest() throws Exception {
@@ -157,12 +171,13 @@ public class SpringServerSideTest {
 		userToken = credentialLogin();
 		setNickname(userToken);
 		uploadUserPortrait(userToken);
-		addNotes(1, userToken);
+		addNotes(1, new String[]{"1", "2"}, userToken);
 		checkNoteReturn(userToken, -1, 2, 0, 1);
-		addNotes(2, userToken);
+		addNotes(2, new String[]{"2", "3"}, userToken);
 		checkNoteReturn(userToken, 1, 2, 1, 0);
 		checkNoteReturn(userToken, -1, 2, 2, 2);
 		checkNoteReturn(userToken, 2, 2, 0, 1);
+		checkNoteReturnWithTag2(userToken);
 		logout(userToken);
 	}
 

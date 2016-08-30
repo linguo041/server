@@ -15,6 +15,7 @@ import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NoteRepository;
+import com.duoshouji.server.service.note.Tag;
 import com.duoshouji.server.service.user.BasicUserAttributes;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserAlreadyExistsException;
@@ -27,7 +28,7 @@ import com.duoshouji.server.util.UserMessageProxy;
 
 @Service
 public class UserNoteOperationManager implements UserRepository, NoteRepository {
-	
+		
 	private UserNoteDao userNoteDao;
 	private MessageProxyFactory messageProxyFactory;
 
@@ -75,7 +76,16 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 	
 	@Override
 	public NoteCollection findNotes() {
-		return new OperationDelegatingNoteCollection(this, System.currentTimeMillis(), null);
+		return findNotes(null);
+	}
+
+	@Override
+	public NoteCollection findNotes(Tag tag) {
+		NoteFilter noteFilter = null;
+		if (tag != null) {
+			noteFilter = new NoteFilter(tag);
+		}
+		return new OperationDelegatingNoteCollection(this, System.currentTimeMillis(), noteFilter);
 	}
 
 	private OperationDelegatingNote newNote(NoteDto noteDto) {
@@ -119,6 +129,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 
 	public long publishNote(NotePublishAttributes noteAttributes,
 			OperationDelegatingMobileUser user) {
+		noteAttributes.checkAttributesSetup();
 		return userNoteDao.createNote(user.getMobileNumber(), noteAttributes);
 	}
 	

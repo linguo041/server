@@ -19,6 +19,7 @@ import com.duoshouji.server.service.dao.RegisteredUserDto;
 import com.duoshouji.server.service.dao.UserNoteDao;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
+import com.duoshouji.server.service.note.Tag;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;
 import com.duoshouji.server.util.MobileNumber;
@@ -61,8 +62,12 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	public List<NoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter) {
 		StringBuilder sqlBuilder = new StringBuilder("select * from duoshouji.v_square_notes where create_time < " + cutoff);
 		if (filter != null) {
-			sqlBuilder.append(" and mobile = ");
-			sqlBuilder.append(filter.getOwnerId().toString());
+			if (filter.isSetOwnerId()) {
+				sqlBuilder.append(" and mobile = " + filter.getOwnerId());
+			}
+			if (filter.isSetTag()) {
+				sqlBuilder.append(" and " + buildContainsTagIdClause(filter.getTag().getTagId()));
+			}
 		}
 		sqlBuilder.append(" order by create_time desc");
 		List<NoteDto> returnValue = mysqlDataSource.query(sqlBuilder.toString()
@@ -94,6 +99,16 @@ public class MysqlUserNoteDao implements UserNoteDao {
 		return returnValue;
 	}
 
+	private String buildContainsTagIdClause(long tagId) {
+		StringBuilder sqlBuilder = new StringBuilder("(");
+		sqlBuilder.append(" tag_id1 = " + tagId);
+		for (int i = 2; i <= 9; ++i) {
+			sqlBuilder.append(" or tag_id"+i+" = " + tagId);
+		}
+		sqlBuilder.append(")");
+		return sqlBuilder.toString();
+	}
+	
 	@Override
 	public void createUser(final MobileNumber mobileNumber) {
 		mysqlDataSource.update("insert into duoshouji.user (mobile, user_name) values(?, ?)"
@@ -156,7 +171,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 			final NotePublishAttributes noteAttributes) {
 		final long userId = getUserId(mobileNumber);
 		final long time = System.currentTimeMillis();
-		mysqlDataSource.update("insert into duoshouji.note (title, content, create_time, user_id, last_update_time) values(?,?,?,?,?)"
+		mysqlDataSource.update(buildInsertNoteClause(noteAttributes.getTagCount())
 				,new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
@@ -166,6 +181,10 @@ public class MysqlUserNoteDao implements UserNoteDao {
 						ps.setLong(3, time);
 						ps.setInt(4, (int)userId);
 						ps.setLong(5, time);
+						int parameterIndex = 6;
+						for (Tag tag : noteAttributes.getTags()) {
+							ps.setInt(parameterIndex++, (int)tag.getTagId());
+						}
 					}
 				});
 		
@@ -178,6 +197,21 @@ public class MysqlUserNoteDao implements UserNoteDao {
 						return rs.getLong("note_id");
 					}
 				});
+	}
+	
+	private String buildInsertNoteClause(int tagCount) {
+		StringBuilder sqlBuilder = new StringBuilder(
+				"insert into duoshouji.note (title, content, create_time, user_id, last_update_time");
+		for (int i = 0; i < tagCount; ++i) {
+			sqlBuilder.append(", tag_id");
+			sqlBuilder.append(i + 1);
+		}
+		sqlBuilder.append(") values(?,?,?,?,?");
+		for (int i = 0; i < tagCount; ++i) {
+			sqlBuilder.append(",?");
+		}
+		sqlBuilder.append(")");
+		return sqlBuilder.toString();
 	}
 	
 	private long getUserId(MobileNumber mobileNumber) {
@@ -224,4 +258,5 @@ public class MysqlUserNoteDao implements UserNoteDao {
 					}
 				});		
 	}
+
 }

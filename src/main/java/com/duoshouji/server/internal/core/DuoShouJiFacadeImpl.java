@@ -1,13 +1,17 @@
 package com.duoshouji.server.internal.core;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.DuoShouJiFacade;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NoteRepository;
-import com.duoshouji.server.service.user.NoteBuilder;
+import com.duoshouji.server.service.note.Tag;
+import com.duoshouji.server.service.note.TagRepository;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserNotExistsException;
 import com.duoshouji.server.service.user.UserRepository;
@@ -22,19 +26,38 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	
 	private NoteRepository noteRepository;
 	private UserRepository userRepository;
-	private NoteCollectionSnapshots snapshots;
+	private TagRepository tagRepository;
 	private SecureAccessFacade secureAccessFacade;
+	private NoteCollectionSnapshots snapshots;
 	
-	@Autowired
-	private DuoShouJiFacadeImpl(UserRepository userRepository,
-			SecureAccessFacade secureAccessFacade, NoteRepository noteRepository) {
-		super();
-		this.userRepository = userRepository;
-		this.secureAccessFacade = secureAccessFacade;
-		this.noteRepository = noteRepository;
+	private DuoShouJiFacadeImpl() {
 		snapshots = new NoteCollectionSnapshots();
 	}
 	
+	@Autowired
+	@Required
+	public void setNoteRepository(NoteRepository noteRepository) {
+		this.noteRepository = noteRepository;
+	}
+
+	@Autowired
+	@Required
+	public void setUserRepository(UserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
+
+	@Autowired
+	@Required
+	public void setTagRepository(TagRepository tagRepository) {
+		this.tagRepository = tagRepository;
+	}
+	
+	@Autowired
+	@Required
+	public void setSecureAccessFacade(SecureAccessFacade secureAccessFacade) {
+		this.secureAccessFacade = secureAccessFacade;
+	}
+
 	@Override
 	public void sendLoginVerificationCode(MobileNumber mobileNumber) {
 		RegisteredUser user = userRepository.findUser(mobileNumber);
@@ -104,25 +127,51 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	}
 	
 	@Override
-	public NoteCollection pushSquareNotes(MobileNumber accountId) {
-		return pushSquareNotes(getUser(accountId));
+	public SquareNoteRequester newSquareNoteRequester(MobileNumber mobileNumber) {
+		return new InnerSquareNoteRequester(mobileNumber);
 	}
-	
-	@Override
-	public NoteCollection getPushedSquareNotes(MobileNumber accountId) {
-		final RegisteredUser user = getUser(accountId);
-		NoteCollection notes = snapshots.getSnapshot(user);
-		if (notes == null) {
-			notes = pushSquareNotes(user);
+
+	private class InnerSquareNoteRequester implements SquareNoteRequester {
+		private final MobileNumber mobileNumber;
+		private Tag tag;
+		
+		private InnerSquareNoteRequester(MobileNumber mobileNumber) {
+			super();
+			this.mobileNumber = mobileNumber;
 		}
-		return notes;
+
+		@Override
+		public void setTagId(long tagId) {
+			tag = tagRepository.findTag(tagId);
+		}
+
+		@Override
+		public NoteCollection pushSquareNotes() {
+			return pushSquareNotes(getUser(mobileNumber));
+		}
+
+		@Override
+		public NoteCollection getPushedSquareNotes() {
+			final RegisteredUser user = getUser(mobileNumber);
+			NoteCollection notes = snapshots.getSnapshot(user);
+			if (notes == null) {
+				notes = pushSquareNotes(user);
+			}
+			return notes;
+		}
+		
+		private NoteCollection pushSquareNotes(RegisteredUser user) {
+			NoteCollection notes;
+			if (tag != null) {
+				notes = noteRepository.findNotes(tag);
+			} else {
+				notes = noteRepository.findNotes();
+			}
+			snapshots.putSnapshot(user, notes);
+			return notes;
+		}
 	}
 	
-	private NoteCollection pushSquareNotes(RegisteredUser user) {
-		NoteCollection notes = noteRepository.findNotes();
-		snapshots.putSnapshot(user, notes);
-		return notes;
-	}
 	
 	private class InnerNoteBuilder implements NoteBuilder {
 		
@@ -145,11 +194,23 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		}
 
 		@Override
+		public void setTags(long[] tags) {
+			for (long tagId : tags) {
+				valueHolder.addTag(tagRepository.findTag(tagId));
+			}
+		}
+		
+		@Override
 		public long publishNote() {
 			if (noteId < 0) {
 				noteId = user.publishNote(valueHolder);
 			}
 			return noteId;
 		}
+	}
+
+	@Override
+	public List<Tag> getTags() {
+		return tagRepository.listTags();
 	}
 }

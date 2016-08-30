@@ -1,4 +1,4 @@
-package com.duoshouji.server.rest.login;
+package com.duoshouji.server.rest.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
