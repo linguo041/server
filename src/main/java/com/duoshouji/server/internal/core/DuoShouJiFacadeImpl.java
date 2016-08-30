@@ -12,7 +12,6 @@ import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NoteRepository;
 import com.duoshouji.server.service.note.Tag;
 import com.duoshouji.server.service.note.TagRepository;
-import com.duoshouji.server.service.user.NoteBuilder;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserNotExistsException;
 import com.duoshouji.server.service.user.UserRepository;
@@ -134,8 +133,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 
 	private class InnerSquareNoteRequester implements SquareNoteRequester {
 		private final MobileNumber mobileNumber;
-		private long tagId;
-		private boolean isTagIdSet;
+		private Tag tag;
 		
 		private InnerSquareNoteRequester(MobileNumber mobileNumber) {
 			super();
@@ -144,8 +142,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 
 		@Override
 		public void setTagId(long tagId) {
-			this.tagId = tagId;
-			this.isTagIdSet = true;
+			tag = tagRepository.findTag(tagId);
 		}
 
 		@Override
@@ -165,8 +162,8 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		
 		private NoteCollection pushSquareNotes(RegisteredUser user) {
 			NoteCollection notes;
-			if (isTagIdSet) {
-				notes = noteRepository.findNotes(tagId);
+			if (tag != null) {
+				notes = noteRepository.findNotes(tag);
 			} else {
 				notes = noteRepository.findNotes();
 			}
@@ -196,6 +193,13 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 			valueHolder.setContent(content);
 		}
 
+		@Override
+		public void setTags(long[] tags) {
+			for (long tagId : tags) {
+				valueHolder.addTag(tagRepository.findTag(tagId));
+			}
+		}
+		
 		@Override
 		public long publishNote() {
 			if (noteId < 0) {

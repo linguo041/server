@@ -26,7 +26,7 @@ import com.duoshouji.server.util.IndexRange;
 import com.duoshouji.server.util.MobileNumber;
 
 @Service
-public class MysqlUserNoteDao implements UserNoteDao, TagRepository {
+public class MysqlUserNoteDao implements UserNoteDao {
 
 	private JdbcTemplate mysqlDataSource;
 
@@ -63,8 +63,12 @@ public class MysqlUserNoteDao implements UserNoteDao, TagRepository {
 	public List<NoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter) {
 		StringBuilder sqlBuilder = new StringBuilder("select * from duoshouji.v_square_notes where create_time < " + cutoff);
 		if (filter != null) {
-			sqlBuilder.append(" and mobile = ");
-			sqlBuilder.append(filter.getOwnerId().toString());
+			if (filter.isSetOwnerId()) {
+				sqlBuilder.append(" and mobile = " + filter.getOwnerId());
+			}
+			if (filter.isSetTag()) {
+				sqlBuilder.append(" and " + buildContainsTagIdClause(filter.getTag().getTagId()));
+			}
 		}
 		sqlBuilder.append(" order by create_time desc");
 		List<NoteDto> returnValue = mysqlDataSource.query(sqlBuilder.toString()
@@ -96,6 +100,16 @@ public class MysqlUserNoteDao implements UserNoteDao, TagRepository {
 		return returnValue;
 	}
 
+	private String buildContainsTagIdClause(long tagId) {
+		StringBuilder sqlBuilder = new StringBuilder("(");
+		sqlBuilder.append(" tag_id1 = " + tagId);
+		for (int i = 2; i <= 9; ++i) {
+			sqlBuilder.append(" or tag_id"+i+" = " + tagId);
+		}
+		sqlBuilder.append(")");
+		return sqlBuilder.toString();
+	}
+	
 	@Override
 	public void createUser(final MobileNumber mobileNumber) {
 		mysqlDataSource.update("insert into duoshouji.user (mobile, user_name) values(?, ?)"
@@ -182,6 +196,14 @@ public class MysqlUserNoteDao implements UserNoteDao, TagRepository {
 				});
 	}
 	
+	private String buildInsertNoteClause(int tagCount) {
+		StringBuilder sqlBuilder = new StringBuilder(
+				"insert into duoshouji.note (title, content, create_time, user_id, last_update_time) values(?,?,?,?,?)");
+		
+		return sqlBuilder.toString();
+		
+	}
+	
 	private long getUserId(MobileNumber mobileNumber) {
 		return mysqlDataSource.query("select id from duoshouji.user where mobile = " + mobileNumber
 				, new ResultSetExtractor<Long>(){
@@ -227,17 +249,4 @@ public class MysqlUserNoteDao implements UserNoteDao, TagRepository {
 				});		
 	}
 
-	@Override
-	public List<Tag> listTags() {
-		return mysqlDataSource.query(
-				"select id, name from duoshouji.tag order by sort_order"
-				, new RowMapper<Tag>() {
-
-					@Override
-					public Tag mapRow(ResultSet rs, int rowNum) throws SQLException {
-						return new Tag(rs.getLong("id"), rs.getString("name"));
-					}
-					
-				});
-	}
 }

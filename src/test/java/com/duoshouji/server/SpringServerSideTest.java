@@ -103,7 +103,7 @@ public class SpringServerSideTest {
 		);
 	}
 	
-	public void addNotes(int noteCount, String userToken) throws Exception {
+	public void addNotes(int noteCount, int tagId, String userToken) throws Exception {
 		for (int i = 0; i < noteCount; ++i) {
 			long noteId = getNoteIdFromReturnValue(mockMvc.perform(post("/accounts/"+MockConstants.MOCK_MOBILE_NUMBER+"/notes")
 				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, userToken)

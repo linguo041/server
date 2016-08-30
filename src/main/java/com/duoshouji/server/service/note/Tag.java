@@ -1,11 +1,11 @@
 package com.duoshouji.server.service.note;
 
-public class Tag {
+public final class Tag {
 		
 	private long tagId;
 	private String tagName;
 	
-	public Tag(long tagId, String tagName) {
+	Tag(long tagId, String tagName) {
 		super();
 		this.tagId = tagId;
 		this.tagName = tagName;

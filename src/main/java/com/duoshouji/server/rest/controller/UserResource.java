@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.duoshouji.server.rest.Constants;
 import com.duoshouji.server.service.DuoShouJiFacade;
+import com.duoshouji.server.service.DuoShouJiFacade.NoteBuilder;
 import com.duoshouji.server.service.DuoShouJiFacade.SquareNoteRequester;
 import com.duoshouji.server.service.auth.UnauthenticatedUserException;
 import com.duoshouji.server.service.auth.UserTokenService;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
-import com.duoshouji.server.service.user.NoteBuilder;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
@@ -87,12 +87,14 @@ public class UserResource {
 	@RequestMapping(path = "/notes", method = RequestMethod.POST)
 	public PublishNoteResult publishNote(
 			@PathVariable("account-id") MobileNumber mobileNumber,
+			@RequestParam("tag") long[] tags,
 			@RequestParam("title") String title,
 			@RequestParam("content") String content
 			) {
 		NoteBuilder publisher = duoShouJiFacade.newNotePublisher(mobileNumber);
 		publisher.setTitle(title);
 		publisher.setContent(content);
+		publisher.setTags(tags);
 		return new PublishNoteResult(publisher.publishNote());
 	}
 	
@@ -173,12 +175,14 @@ public class UserResource {
 	@RequestMapping(path = "/pushed/notes", method = RequestMethod.GET)
 	public List<NoteJson> getPushedNotes(
 			@PathVariable("account-id") MobileNumber mobileNumber,
-			@RequestParam("tagId") long tagId,
+			@RequestParam(value="tagId", required=false) Long tagId,
 			@RequestParam("loadedSize") int loadedSize,
 			@RequestParam("pageSize") int pageSize
 			) {
 		SquareNoteRequester requester = duoShouJiFacade.newSquareNoteRequester(mobileNumber);
-		requester.setTagId(tagId);
+		if (tagId != null) {
+			requester.setTagId(tagId.longValue());
+		}
 		NoteCollection notes;
 		if (loadedSize < 0) {
 			notes = requester.pushSquareNotes();

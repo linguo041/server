@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.Tag;
-import com.duoshouji.server.service.user.NoteBuilder;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
@@ -18,6 +17,18 @@ public interface DuoShouJiFacade {
 		NoteCollection pushSquareNotes();
 
 		NoteCollection getPushedSquareNotes();
+
+	}
+	
+	public interface NoteBuilder {
+
+		void setTitle(String title);
+
+		void setContent(String content);
+
+		long publishNote();
+
+		void setTags(long[] tags);
 
 	}
 

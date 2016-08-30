@@ -5,16 +5,32 @@ import com.duoshouji.server.util.MobileNumber;
 public class NoteFilter {
 
 	private MobileNumber ownerId;
-	private Long tagId;
+	private Tag tag;
 	
-	
-	
+	public NoteFilter(Tag tag) {
+		super();
+		this.tag = tag;
+	}
+
+	public NoteFilter(MobileNumber ownerId) {
+		super();
+		this.ownerId = ownerId;
+	}
+
 	public MobileNumber getOwnerId() {
 		return ownerId;
 	}
 	
-	public long getTagId() {
-		return tagId.longValue();
+	public boolean isSetOwnerId() {
+		return ownerId != null;
+	}
+	
+	public Tag getTag() {
+		return tag;
+	}
+	
+	public boolean isSetTag() {
+		return tag != null;
 	}
 	
 }
