@@ -1,4 +1,4 @@
-package com.duoshouji.server;
+package com.duoshouji.server.end2endtest;
 
 import org.springframework.test.web.servlet.MvcResult;
 

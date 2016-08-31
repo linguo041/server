@@ -51,7 +51,7 @@ public class LoginResource {
 	
 	@RequestMapping(path = "/accounts/{account-id}/login/credential", method = RequestMethod.POST)
 	public CredentialLoginResult authenticateCredential(
-		@RequestParam("mobile") MobileNumber mobileNumber,
+		@PathVariable("account-id") MobileNumber mobileNumber,
 		@RequestParam("password") String password
 			) {
 		final boolean verified = douShouJiFacade.passwordLogin(mobileNumber, Password.valueOf(password));

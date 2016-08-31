@@ -1,4 +1,4 @@
-package com.duoshouji.server;
+package com.duoshouji.server.end2endtest;
 
 import java.util.HashMap;
 

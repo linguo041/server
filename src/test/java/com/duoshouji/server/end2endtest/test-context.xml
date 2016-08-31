@@ -28,6 +28,6 @@
         </beans:constructor-arg>
     </beans:bean>
 	
-    <beans:bean id="mockMessageSender" class="com.duoshouji.server.MockMessageSender"/>
+    <beans:bean id="mockMessageSender" class="com.duoshouji.server.end2endtest.MockMessageSender"/>
 
 </beans:beans>

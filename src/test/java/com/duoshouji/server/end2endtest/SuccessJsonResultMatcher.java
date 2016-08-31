@@ -1,10 +1,10 @@
-package com.duoshouji.server;
+package com.duoshouji.server.end2endtest;
 
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.springframework.test.web.servlet.MvcResult;
 
-public abstract class SuccessJsonResultMatcher implements ResultMatcher {
+public class SuccessJsonResultMatcher implements ResultMatcher {
 
 	@Override
 	public void match(MvcResult result) throws Exception {
@@ -18,6 +18,7 @@ public abstract class SuccessJsonResultMatcher implements ResultMatcher {
 		Assert.assertTrue(json.isNull("resultErrorMessage"));
 	}
 	
-	abstract protected void verifyJsonResult(JSONObject json) throws Exception;
+	protected void verifyJsonResult(JSONObject json) throws Exception {
+	}
 
 }
