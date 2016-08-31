@@ -20,4 +20,10 @@ public class MockTokenManager implements TokenManager {
 	public String newToken(UserIdentifier userId) {
 		return MOCK_TOKEN;
 	}
+
+	@Override
+	public UserIdentifier getUserIdentifier(String token) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

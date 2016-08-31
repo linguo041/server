@@ -4,11 +4,13 @@ import javax.sql.DataSource;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 @Configuration
-public class APIConfiguration {
+public class DuoShouJiConfiguration {
 
 	@Bean
     public DataSource mysqlDataSource() {
@@ -24,5 +26,15 @@ public class APIConfiguration {
 	@Bean
 	public NamedParameterJdbcTemplate namedParameterJdbcTemplate () {
 		return new NamedParameterJdbcTemplate(mysqlDataSource());
+	}
+	
+	@Bean
+	public JdbcTemplate jdbcTemplate () {
+		return new JdbcTemplate(mysqlDataSource());
+	}
+	
+	@Bean
+	public DataSourceTransactionManager transactionManager () {
+		return new DataSourceTransactionManager(mysqlDataSource());
 	}
 }

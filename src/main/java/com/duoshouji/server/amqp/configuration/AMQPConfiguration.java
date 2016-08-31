@@ -12,9 +12,11 @@ import com.duoshouji.server.amqp.config.QueueConfig;
 import com.duoshouji.server.amqp.config.QueueConfigFactory;
 import com.duoshouji.server.amqp.consume.ConsumerContainer;
 import com.duoshouji.server.amqp.consume.ConsumerContainerFactory;
+import com.duoshouji.server.amqp.consume.ElasticImportConsumer;
 import com.duoshouji.server.amqp.consume.SimpleConsumer;
 import com.duoshouji.server.amqp.produce.Producer;
 import com.duoshouji.server.amqp.produce.ProducerFactory;
+import com.duoshouji.server.elastic.ElasticImportNote;
 import com.google.common.collect.Lists;
 
 /**
@@ -55,13 +57,18 @@ public class AMQPConfiguration {
     }
     
     @Bean
-    public Producer<String> createSimpleProducer() {
+    public Producer<String> simpleProducer() {
     	return producerFactory().create(QueueConfigFactory.loadSimpleQueueConfig());
     }
     
     @Bean
-    public Producer<String> createNoteChangeProducer() {
-    	return producerFactory().create(QueueConfigFactory.loadNodeChangeQueueConfig());
+    public Producer<String> noteChangeProducer() {
+    	return producerFactory().create(QueueConfigFactory.loadNoteChangeQueueConfig());
+    }
+    
+    @Bean
+    public Producer<ElasticImportNote> elasticNoteImportProducer() {
+    	return producerFactory().create(QueueConfigFactory.loadElasticNoteImportQueueConfig());
     }
     
     // consumer
@@ -79,5 +86,16 @@ public class AMQPConfiguration {
     ConsumerContainer createSimpleConsumerContainer () {
     	return consumerContainerFactory().createConsumerContainer(QueueConfigFactory.loadSimpleQueueConfig(),
     			simpleConsumer());
+    }
+    
+    @Bean
+    ElasticImportConsumer elasticImportConsumer() {
+    	return new ElasticImportConsumer();
+    }
+    
+    @Bean
+    ConsumerContainer createElasticImportConsumerContainer () {
+    	return consumerContainerFactory().createConsumerContainer(QueueConfigFactory.loadElasticNoteImportQueueConfig(),
+    			elasticImportConsumer());
     }
 }
