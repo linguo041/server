@@ -2,8 +2,7 @@ package com.duoshouji.server.util;
 
 import java.math.BigDecimal;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 public class LocationTest {
