@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.DuoShouJiFacade;
+import com.duoshouji.server.service.interaction.UserNoteInteraction;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NoteRepository;
@@ -26,6 +27,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	
 	private NoteRepository noteRepository;
 	private UserRepository userRepository;
+	private UserNoteInteraction interactionFacade;
 	private TagRepository tagRepository;
 	private SecureAccessFacade secureAccessFacade;
 	private NoteCollectionSnapshots snapshots;
@@ -44,6 +46,12 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	@Required
 	public void setUserRepository(UserRepository userRepository) {
 		this.userRepository = userRepository;
+	}
+
+	@Autowired
+	@Required
+	public void setInteractionFacade(UserNoteInteraction interactionFacade) {
+		this.interactionFacade = interactionFacade;
 	}
 
 	@Autowired
@@ -113,12 +121,12 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 
 	@Override
 	public NoteBuilder newNotePublisher(MobileNumber accountId) {
-		return new InnerNoteBuilder(getUser(accountId));
+		return new InnerNoteBuilder(accountId);
 	}
 
 	@Override
-	public NoteCollection getUserPublishedNotes(MobileNumber accountId) {
-		return getUser(accountId).getPublishedNotes();
+	public NoteCollection getUserPublishedNotes(MobileNumber mobile) {
+		return interactionFacade.getUserPublishedNotes(mobile);
 	}
 	
 	@Override
@@ -175,12 +183,12 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	
 	private class InnerNoteBuilder implements NoteBuilder {
 		
-		private RegisteredUser user;
+		private MobileNumber userId;
 		private long noteId = -1;
 		private NotePublishAttributes valueHolder = new NotePublishAttributes();
 		
-		private InnerNoteBuilder(RegisteredUser user) {
-			this.user = user;
+		private InnerNoteBuilder(MobileNumber userId) {
+			this.userId = userId;
 		}
 
 		@Override
@@ -203,7 +211,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		@Override
 		public long publishNote() {
 			if (noteId < 0) {
-				noteId = user.publishNote(valueHolder);
+				noteId = interactionFacade.publishNote(userId, valueHolder);
 			}
 			return noteId;
 		}

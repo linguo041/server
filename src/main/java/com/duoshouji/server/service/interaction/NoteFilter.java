@@ -1,5 +1,6 @@
-package com.duoshouji.server.service.note;
+package com.duoshouji.server.service.interaction;
 
+import com.duoshouji.server.service.note.Tag;
 import com.duoshouji.server.util.MobileNumber;
 
 public class NoteFilter {

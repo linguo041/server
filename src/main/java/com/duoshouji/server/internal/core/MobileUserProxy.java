@@ -76,15 +76,4 @@ public class MobileUserProxy implements RegisteredUser {
 	public void setNickname(String nickname) {
 		getRegisteredUser().setNickname(nickname);
 	}
-
-	@Override
-	public NoteCollection getPublishedNotes() {
-		return getRegisteredUser().getPublishedNotes();
-	}
-
-	@Override
-	public long publishNote(NotePublishAttributes notePublishAttributes) {
-		return getRegisteredUser().publishNote(notePublishAttributes);
-	}
-	
 }

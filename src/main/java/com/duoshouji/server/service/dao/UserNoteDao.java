@@ -2,7 +2,7 @@ package com.duoshouji.server.service.dao;
 
 import java.util.List;
 
-import com.duoshouji.server.service.note.NoteFilter;
+import com.duoshouji.server.service.interaction.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;

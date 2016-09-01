@@ -3,9 +3,9 @@ package com.duoshouji.server.internal.core;
 import java.util.Collections;
 import java.util.Iterator;
 
+import com.duoshouji.server.service.interaction.NoteFilter;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
-import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.util.IndexRange;
 
 public class OperationDelegatingNoteCollection implements NoteCollection {

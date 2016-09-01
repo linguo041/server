@@ -1,7 +1,5 @@
 package com.duoshouji.server.internal.core;
 
-import com.duoshouji.server.service.note.NoteCollection;
-import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.user.PasswordNotSetException;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.util.MobileNumber;
@@ -70,16 +68,6 @@ public class OperationDelegatingMobileUser extends InMemoryBasicUserAttributes i
 	@Override
 	public void setNickname(String nickname) {
 		delegator.setNickname(this, nickname);
-	}
-
-	@Override
-	public NoteCollection getPublishedNotes() {
-		return delegator.getPublishedNotes(this);
-	}
-
-	@Override
-	public long publishNote(NotePublishAttributes notePublishAttributes) {
-		return delegator.publishNote(notePublishAttributes, this);
 	}
 
 }
