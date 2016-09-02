@@ -2,7 +2,6 @@ package com.duoshouji.server.internal.core;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,12 +9,12 @@ import org.springframework.stereotype.Service;
 import com.duoshouji.server.service.dao.NoteDto;
 import com.duoshouji.server.service.dao.RegisteredUserDto;
 import com.duoshouji.server.service.dao.UserNoteDao;
-import com.duoshouji.server.service.interaction.NoteFilter;
+import com.duoshouji.server.service.interaction.UserNoteInteraction;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
+import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NoteRepository;
-import com.duoshouji.server.service.note.Tag;
 import com.duoshouji.server.service.user.BasicUserAttributes;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserAlreadyExistsException;
@@ -27,7 +26,7 @@ import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
 @Service
-public class UserNoteOperationManager implements UserRepository, NoteRepository {
+public class UserNoteOperationManager implements UserRepository, NoteRepository, UserNoteInteraction {
 		
 	private UserNoteDao userNoteDao;
 	private MessageProxyFactory messageProxyFactory;
@@ -73,18 +72,9 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 	private boolean containsUser(MobileNumber mobileNumber) {
 		return findUser(mobileNumber) != null;
 	}
-	
-	@Override
-	public NoteCollection findNotes() {
-		return findNotes(null);
-	}
 
 	@Override
-	public NoteCollection findNotes(Tag tag) {
-		NoteFilter noteFilter = null;
-		if (tag != null) {
-			noteFilter = new NoteFilter(tag);
-		}
+	public NoteCollection listNotes(NoteFilter noteFilter) {
 		return new OperationDelegatingNoteCollection(this, System.currentTimeMillis(), noteFilter);
 	}
 
@@ -105,12 +95,6 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 		userNoteDao.removeToken(user.getMobileNumber());
 	}
 
-	String login(OperationDelegatingMobileUser user) {
-		final String token = UUID.randomUUID().toString();
-		userNoteDao.saveToken(user.getMobileNumber(), token);
-		return token;
-	}
-
 	boolean verifyPassword(OperationDelegatingMobileUser user, Password password) {
 		return user.passwordDigest.equals(password.toString());
 	}
@@ -123,7 +107,8 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 		userNoteDao.savePasswordDigest(user.getMobileNumber(), password.toString());
 	}
 
-	public NoteCollection getPublishedNotes(OperationDelegatingMobileUser user) {
+	@Override
+	public NoteCollection getUserPublishedNotes(MobileNumber userId) {
 		return new OperationDelegatingNoteCollection(this, System.currentTimeMillis(), new NoteFilter(user.getMobileNumber()));
 	}
 

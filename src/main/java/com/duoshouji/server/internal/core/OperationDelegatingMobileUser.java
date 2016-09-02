@@ -56,11 +56,6 @@ public class OperationDelegatingMobileUser extends InMemoryBasicUserAttributes i
 	}
 
 	@Override
-	public String login() {
-		return delegator.login(this);
-	}
-
-	@Override
 	public void setPassword(Password password) {
 		delegator.setPassword(this, password);
 	}

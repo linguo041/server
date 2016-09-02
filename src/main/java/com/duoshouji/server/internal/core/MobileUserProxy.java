@@ -1,7 +1,5 @@
 package com.duoshouji.server.internal.core;
 
-import com.duoshouji.server.service.note.NoteCollection;
-import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.user.BasicUserAttributes;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.util.Image;
@@ -58,22 +56,18 @@ public class MobileUserProxy implements RegisteredUser {
 	}
 
 	@Override
-	public void logout() {
-		getRegisteredUser().logout();
-	}
-
-	@Override
 	public void setPassword(Password password) {
 		getRegisteredUser().setPassword(password);
-	}
-
-	@Override
-	public String login() {
-		return getRegisteredUser().login();
 	}
 
 	@Override
 	public void setNickname(String nickname) {
 		getRegisteredUser().setNickname(nickname);
 	}
+
+	@Override
+	public void logout() {
+		getRegisteredUser().logout();
+	}
 }
+

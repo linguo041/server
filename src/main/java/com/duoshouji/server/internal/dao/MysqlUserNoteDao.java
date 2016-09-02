@@ -17,7 +17,7 @@ import com.duoshouji.server.service.dao.BasicUserDto;
 import com.duoshouji.server.service.dao.NoteDto;
 import com.duoshouji.server.service.dao.RegisteredUserDto;
 import com.duoshouji.server.service.dao.UserNoteDao;
-import com.duoshouji.server.service.interaction.NoteFilter;
+import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.Tag;
 import com.duoshouji.server.util.Image;
@@ -65,7 +65,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 			if (filter.isSetOwnerId()) {
 				sqlBuilder.append(" and mobile = " + filter.getOwnerId());
 			}
-			if (filter.isSetTag()) {
+			if (filter.isTagSet()) {
 				sqlBuilder.append(" and " + buildContainsTagIdClause(filter.getTag().getTagId()));
 			}
 		}

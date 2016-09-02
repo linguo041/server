@@ -14,9 +14,7 @@ public interface DuoShouJiFacade {
 
 		void setTagId(long tagId);
 
-		NoteCollection pushSquareNotes();
-
-		NoteCollection getPushedSquareNotes();
+		NoteCollection pushSquareNotes(boolean refresh);
 
 	}
 	

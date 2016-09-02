@@ -6,9 +6,7 @@ import com.duoshouji.server.util.MobileNumber;
 
 public interface UserNoteInteraction {
 	
-	long publishNote(MobileNumber userId, NotePublishAttributes noteAttributes);
-
 	NoteCollection getUserPublishedNotes(MobileNumber userId);
 	
-	NoteCollection getPushedNotes(MobileNumber userId, NoteFilter filter);
+	long publishNote(MobileNumber userId, NotePublishAttributes noteAttributes);
 }

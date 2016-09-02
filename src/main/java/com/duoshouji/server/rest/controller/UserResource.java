@@ -186,16 +186,14 @@ public class UserResource {
 		if (tagId != null) {
 			requester.setTagId(tagId.longValue());
 		}
-		NoteCollection notes;
+		boolean refresh = false;
 		if (loadedSize < 0) {
-			notes = requester.pushSquareNotes();
 			loadedSize = 0;
-		} else {
-			notes = requester.getPushedSquareNotes();
+			refresh = true;
 		}
-		notes = notes.subCollection(loadedSize, loadedSize + pageSize);
 		List<NoteJson> returnValue = new ArrayList<NoteJson>();
-		for (Note note : notes) {
+		for (Note note : requester.pushSquareNotes(refresh)
+				.subCollection(loadedSize, loadedSize + pageSize)) {
 			returnValue.add(convert(note));
 		}
 		return returnValue;

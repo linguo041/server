@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.duoshouji.server.service.DuoShouJiFacade;
 import com.duoshouji.server.service.interaction.UserNoteInteraction;
 import com.duoshouji.server.service.note.NoteCollection;
+import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NoteRepository;
 import com.duoshouji.server.service.note.Tag;
@@ -30,11 +31,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	private UserNoteInteraction interactionFacade;
 	private TagRepository tagRepository;
 	private SecureAccessFacade secureAccessFacade;
-	private NoteCollectionSnapshots snapshots;
-	
-	private DuoShouJiFacadeImpl() {
-		snapshots = new NoteCollectionSnapshots();
-	}
+	private CollectionCache collectionCache;
 	
 	@Autowired
 	@Required
@@ -64,6 +61,12 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	@Required
 	public void setSecureAccessFacade(SecureAccessFacade secureAccessFacade) {
 		this.secureAccessFacade = secureAccessFacade;
+	}
+	
+	@Autowired
+	@Required
+	public void setCollectionCache(CollectionCache collectionCache) {
+		this.collectionCache = collectionCache;
 	}
 
 	@Override
@@ -139,9 +142,14 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		return new InnerSquareNoteRequester(mobileNumber);
 	}
 
+	@Override
+	public List<Tag> getTags() {
+		return tagRepository.listTags();
+	}
+	
 	private class InnerSquareNoteRequester implements SquareNoteRequester {
 		private final MobileNumber mobileNumber;
-		private Tag tag;
+		private NoteFilter noteFilter;
 		
 		private InnerSquareNoteRequester(MobileNumber mobileNumber) {
 			super();
@@ -150,33 +158,13 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 
 		@Override
 		public void setTagId(long tagId) {
-			tag = tagRepository.findTag(tagId);
+			noteFilter = new NoteFilter(tagRepository.findTag(tagId));
 		}
 
 		@Override
-		public NoteCollection pushSquareNotes() {
-			return pushSquareNotes(getUser(mobileNumber));
-		}
-
-		@Override
-		public NoteCollection getPushedSquareNotes() {
-			final RegisteredUser user = getUser(mobileNumber);
-			NoteCollection notes = snapshots.getSnapshot(user);
-			if (notes == null) {
-				notes = pushSquareNotes(user);
-			}
-			return notes;
-		}
-		
-		private NoteCollection pushSquareNotes(RegisteredUser user) {
-			NoteCollection notes;
-			if (tag != null) {
-				notes = noteRepository.findNotes(tag);
-			} else {
-				notes = noteRepository.findNotes();
-			}
-			snapshots.putSnapshot(user, notes);
-			return notes;
+		public NoteCollection pushSquareNotes(boolean refresh) {
+			NoteRepository requestor = collectionCache.getCollectionRequestor(mobileNumber, noteRepository, refresh);
+			return requestor.listNotes(noteFilter);
 		}
 	}
 	
@@ -215,10 +203,5 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 			}
 			return noteId;
 		}
-	}
-
-	@Override
-	public List<Tag> getTags() {
-		return tagRepository.listTags();
 	}
 }

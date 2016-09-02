@@ -15,7 +15,5 @@ public interface RegisteredUser extends BasicUserAttributes {
 
 	void setPassword(Password password);
 
-	String login();
-
 	void setNickname(String nickname);
 }
