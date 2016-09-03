@@ -1,8 +1,7 @@
 package com.duoshouji.server.service.note;
 
-import java.math.BigDecimal;
-
-import com.duoshouji.server.service.user.RegisteredUser;
+import com.duoshouji.server.service.user.BasicUserAttributes;
+import com.duoshouji.server.util.Image;
 
 public interface Note {
 
@@ -10,17 +9,18 @@ public interface Note {
 	
 	String getTitle();
 	
-	NoteAlbum getNoteAlbum();
+	Image getMainImage();
 	
-	RegisteredUser getOwner();
+	BasicUserAttributes getOwner();
 	
 	int getRank();
 	
-	LikeCollection getLikes();
+	int getLikeCount();
 	
-	CommentCollection getComments();
+	int getCommentCount();
+
+	int getTransactionCount();
 	
-	BigDecimal getListPrice();
-	
-	BigDecimal getDiscountPrice();
+	long getPublishedTime();
+
 }
