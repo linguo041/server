@@ -5,10 +5,9 @@ import java.util.Iterator;
 
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
-import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.util.IndexRange;
 
-public class OperationDelegatingNoteCollection implements NoteCollection {
+public abstract class AbstractOperationDelegatingNoteCollection implements NoteCollection {
 
 	private static final NoteCollection EMPTY_COLLECTION =
 			new NoteCollection() {
@@ -27,18 +26,18 @@ public class OperationDelegatingNoteCollection implements NoteCollection {
 	
 	private final long cutoff;
 	private final UserNoteOperationManager operationDelegator;
-	private NoteFilter filter;
 	
-	public OperationDelegatingNoteCollection(UserNoteOperationManager operationDelegator, long cutoff, NoteFilter filter) {
+	public AbstractOperationDelegatingNoteCollection(UserNoteOperationManager operationDelegator, long cutoff) {
 		super();
 		this.operationDelegator = operationDelegator;
 		this.cutoff = cutoff;
-		this.filter = filter;
 	}
 
+	protected abstract Iterator<Note> getNoteIterator(UserNoteOperationManager operationDelegator, long cutoff, IndexRange range);
+	
 	@Override
 	public Iterator<Note> iterator() {
-		return operationDelegator.findNotes(cutoff, null, filter);
+		return getNoteIterator(operationDelegator, cutoff, null);
 	}
 
 	@Override
@@ -63,12 +62,12 @@ public class OperationDelegatingNoteCollection implements NoteCollection {
 
 		@Override
 		public Iterator<Note> iterator() {
-			return operationDelegator.findNotes(cutoff, new IndexRange(startIndex, endIndex), filter);
+			return getNoteIterator(operationDelegator, cutoff, new IndexRange(startIndex, endIndex));
 		}
 
 		@Override
 		public NoteCollection subCollection(int startIndex, int endIndex) {
-			return OperationDelegatingNoteCollection.this.subCollection(
+			return AbstractOperationDelegatingNoteCollection.this.subCollection(
 					this.startIndex + startIndex, this.startIndex + endIndex);
 		}
 		

@@ -4,8 +4,11 @@ public class NoteFilter {
 
 	private Tag tag;
 	
-	public NoteFilter(Tag tag) {
+	public NoteFilter() {
 		super();
+	}
+	
+	public void setTag(Tag tag) {
 		this.tag = tag;
 	}
 	

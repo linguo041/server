@@ -1,16 +1,16 @@
 package com.duoshouji.server.internal.core;
 
-import com.duoshouji.server.service.user.BasicUserAttributes;
+import com.duoshouji.server.service.user.BasicUser;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 
-public class InMemoryBasicUserAttributes implements BasicUserAttributes {
+public class InMemoryBasicUser implements BasicUser {
 
 	private final MobileNumber mobile;
 	String nickname;
 	Image portrait;
 	
-	public InMemoryBasicUserAttributes(MobileNumber mobile) {
+	public InMemoryBasicUser(MobileNumber mobile) {
 		super();
 		this.mobile = mobile;
 	}

@@ -1,17 +1,17 @@
 package com.duoshouji.server.service.user;
 
+import com.duoshouji.server.annotation.Unique;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
-public interface RegisteredUser extends BasicUserAttributes {
+@Unique
+public interface RegisteredUser extends BasicUser {
 
 	UserMessageProxy getMessageProxy();
 
 	boolean verifyPassword(Password password);
 
 	boolean hasPassword();
-
-	void logout();
 
 	void setPassword(Password password);
 

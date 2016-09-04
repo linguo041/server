@@ -59,14 +59,27 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	}
 
 	@Override
+	public List<NoteDto> findNotes(long cutoff, IndexRange range, MobileNumber userId) {
+		return findNotes(cutoff, range, (Object) userId);
+	}
+	
+	@Override
 	public List<NoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter) {
+		return findNotes(cutoff, range, (Object) filter);
+	}
+	
+	private List<NoteDto> findNotes(long cutoff, IndexRange range, Object filter) {
 		StringBuilder sqlBuilder = new StringBuilder("select * from duoshouji.v_square_notes where create_time < " + cutoff);
 		if (filter != null) {
-			if (filter.isSetOwnerId()) {
-				sqlBuilder.append(" and mobile = " + filter.getOwnerId());
+			if (filter instanceof NoteFilter) {
+				final NoteFilter that = (NoteFilter) filter;
+				if (that.isTagSet()) {
+					sqlBuilder.append(" and " + buildContainsTagIdClause(that.getTag().getTagId()));
+				}
 			}
-			if (filter.isTagSet()) {
-				sqlBuilder.append(" and " + buildContainsTagIdClause(filter.getTag().getTagId()));
+			if (filter instanceof MobileNumber) {
+				final MobileNumber that = (MobileNumber) filter;
+				sqlBuilder.append(" and mobile = " + that);
 			}
 		}
 		sqlBuilder.append(" order by create_time desc");
@@ -99,6 +112,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 		return returnValue;
 	}
 
+	
 	private String buildContainsTagIdClause(long tagId) {
 		StringBuilder sqlBuilder = new StringBuilder("(");
 		sqlBuilder.append(" tag_id1 = " + tagId);

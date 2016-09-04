@@ -53,7 +53,7 @@ public class UserResource {
 	@RequestMapping(path = "/logout", method = RequestMethod.POST)
 	public void logout(
 			@PathVariable("account-id") MobileNumber mobileNumber) {
-		duoShouJiFacade.logout(mobileNumber);
+		anthentication.logout(mobileNumber);
 	}
 	
 	@RequestMapping(path = "/message/verification-code/reset-password", method = RequestMethod.POST)

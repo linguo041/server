@@ -1,18 +1,18 @@
 package com.duoshouji.server.internal.core;
 
-import com.duoshouji.server.service.user.BasicUserAttributes;
+import com.duoshouji.server.service.user.BasicUser;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
-public class MobileUserProxy implements RegisteredUser {
+public class BasicUserProxy implements RegisteredUser {
 	
-	BasicUserAttributes delegator;
+	BasicUser delegator;
 	private UserNoteOperationManager userRepository;
 
-	public MobileUserProxy(BasicUserAttributes delegator, UserNoteOperationManager userRepository) {
+	public BasicUserProxy(BasicUser delegator, UserNoteOperationManager userRepository) {
 		super();
 		this.delegator = delegator;
 		this.userRepository = userRepository;

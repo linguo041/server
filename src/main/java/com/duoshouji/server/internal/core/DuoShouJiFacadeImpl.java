@@ -15,7 +15,7 @@ import com.duoshouji.server.service.note.NoteRepository;
 import com.duoshouji.server.service.note.Tag;
 import com.duoshouji.server.service.note.TagRepository;
 import com.duoshouji.server.service.user.RegisteredUser;
-import com.duoshouji.server.service.user.UserNotExistsException;
+import com.duoshouji.server.service.user.UserNotFoundException;
 import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.service.verify.SecureAccessFacade;
 import com.duoshouji.server.service.verify.SecureChecker;
@@ -69,6 +69,14 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		this.collectionCache = collectionCache;
 	}
 
+	private RegisteredUser getUser(MobileNumber mobileNumber) {
+		RegisteredUser user = userRepository.findUser(mobileNumber);
+		if (user == null) {
+			throw new UserNotFoundException("Mobile: " + mobileNumber);
+		}
+		return user;
+	}
+	
 	@Override
 	public void sendLoginVerificationCode(MobileNumber mobileNumber) {
 		RegisteredUser user = userRepository.findUser(mobileNumber);
@@ -91,14 +99,6 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		return user.verifyPassword(password);
 	}
 	
-	private RegisteredUser getUser(MobileNumber mobileNumber) {
-		RegisteredUser user = userRepository.findUser(mobileNumber);
-		if (user == null) {
-			throw new UserNotExistsException("Mobile: " + mobileNumber);
-		}
-		return user;
-	}
-
 	@Override
 	public boolean resetPassword(MobileNumber accountId, VerificationCode verificationCode,
 			Password password) {
@@ -129,12 +129,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 
 	@Override
 	public NoteCollection getUserPublishedNotes(MobileNumber mobile) {
-		return interactionFacade.getUserPublishedNotes(mobile);
-	}
-	
-	@Override
-	public void logout(MobileNumber accountId) {
-		getUser(accountId).logout();
+		return interactionFacade.getUserPublishedNotes(getUser(mobile));
 	}
 	
 	@Override
@@ -154,11 +149,12 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		private InnerSquareNoteRequester(MobileNumber mobileNumber) {
 			super();
 			this.mobileNumber = mobileNumber;
+			noteFilter = new NoteFilter();
 		}
 
 		@Override
 		public void setTagId(long tagId) {
-			noteFilter = new NoteFilter(tagRepository.findTag(tagId));
+			noteFilter.setTag(tagRepository.findTag(tagId));
 		}
 
 		@Override
@@ -199,7 +195,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		@Override
 		public long publishNote() {
 			if (noteId < 0) {
-				noteId = interactionFacade.publishNote(userId, valueHolder);
+				noteId = interactionFacade.publishNote(getUser(userId), valueHolder);
 			}
 			return noteId;
 		}

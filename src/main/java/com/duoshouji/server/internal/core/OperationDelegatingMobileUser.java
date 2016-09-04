@@ -6,7 +6,7 @@ import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
-public class OperationDelegatingMobileUser extends InMemoryBasicUserAttributes implements RegisteredUser {
+public class OperationDelegatingMobileUser extends InMemoryBasicUser implements RegisteredUser {
 
 	private final UserNoteOperationManager delegator;
 	String passwordDigest;
@@ -58,11 +58,13 @@ public class OperationDelegatingMobileUser extends InMemoryBasicUserAttributes i
 	@Override
 	public void setPassword(Password password) {
 		delegator.setPassword(this, password);
+		this.passwordDigest = password.toString();
 	}
 	
 	@Override
 	public void setNickname(String nickname) {
 		delegator.setNickname(this, nickname);
+		this.nickname = nickname;
 	}
 
 }

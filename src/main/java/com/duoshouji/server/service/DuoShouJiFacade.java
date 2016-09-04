@@ -46,10 +46,7 @@ public interface DuoShouJiFacade {
 
 	NoteCollection getUserPublishedNotes(MobileNumber accountId);
 
-	void logout(MobileNumber accountId);
-
-	List<Tag> getTags();
-
 	SquareNoteRequester newSquareNoteRequester(MobileNumber mobileNumber);
 
+	List<Tag> getTags();	
 }

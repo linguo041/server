@@ -29,7 +29,7 @@ public class DatabaseTokenService implements UserTokenService {
 	@Override
 	public boolean verify(final MobileNumber mobileNumber, final String token) {
 		return connection.query(
-				"select 1 from duoshouji.user_wechat_login where mobile = ? and token  = ?"
+				"select 1 from duoshouji.user_wechat_login where mobile = ? and token  = ? and expired = 0"
 				, new PreparedStatementSetter() {
 					@Override
 					public void setValues(PreparedStatement ps)
@@ -51,7 +51,7 @@ public class DatabaseTokenService implements UserTokenService {
 	public String newToken(final MobileNumber mobileNumber) {
 		final String token = UUID.randomUUID().toString();
 		connection.update(
-				"insert into duoshouji.user_wechat_login (mobile, create_time, token) values (?,?,?)"
+				"insert into duoshouji.user_wechat_login (mobile, create_time, token, expired) values (?,?,?,0)"
 				, new PreparedStatementSetter() {
 
 					@Override
@@ -64,6 +64,11 @@ public class DatabaseTokenService implements UserTokenService {
 					
 				});
 		return token;
+	}
+
+	@Override
+	public void logout(MobileNumber mobileNumber) {
+		connection.update("update duoshouji.user_wechat_login set expired = 1 where mobile = " + mobileNumber);
 	}
 
 }
