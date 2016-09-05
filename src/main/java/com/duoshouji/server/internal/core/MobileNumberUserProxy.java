@@ -8,67 +8,61 @@ import com.duoshouji.server.util.UserMessageProxy;
 
 public class MobileNumberUserProxy implements RegisteredUser {
 
-	private final MobileNumber mobile;
+	private final MobileNumber mobileNumber;
 	private final UserNoteOperationManager operationManager;
 	private RegisteredUser delegator;
 	
-	public MobileNumberUserProxy(MobileNumber mobile, UserNoteOperationManager operationManager) {
+	public MobileNumberUserProxy(MobileNumber mobileNumber, UserNoteOperationManager operationManager) {
 		super();
-		this.mobile = mobile;
+		this.mobileNumber = mobileNumber;
 		this.operationManager = operationManager;
 	}
 
-	private void ensureDelegatorLoaded() {
+	private RegisteredUser getRegisteredUser() {
 		if (delegator == null) {
-			delegator = operationManager.loadUser(mobileNumber)
+			delegator = operationManager.loadUserIfNotExists(mobileNumber);
 		}
+		return delegator;
 	}
 	
 	@Override
 	public MobileNumber getMobileNumber() {
-		return mobile;
+		return mobileNumber;
 	}
 
 	@Override
 	public String getNickname() {
-		// TODO Auto-generated method stub
-		return null;
+		return getRegisteredUser().getNickname();
 	}
 
 	@Override
 	public Image getPortrait() {
-		// TODO Auto-generated method stub
-		return null;
+		return getRegisteredUser().getPortrait();
 	}
 
 	@Override
 	public UserMessageProxy getMessageProxy() {
-		// TODO Auto-generated method stub
-		return null;
+		return getRegisteredUser().getMessageProxy();
 	}
 
 	@Override
 	public boolean verifyPassword(Password password) {
-		// TODO Auto-generated method stub
-		return false;
+		return getRegisteredUser().verifyPassword(password);
 	}
 
 	@Override
 	public boolean hasPassword() {
-		// TODO Auto-generated method stub
-		return false;
+		return getRegisteredUser().hasPassword();
 	}
 
 	@Override
 	public void setPassword(Password password) {
-		// TODO Auto-generated method stub
-
+		getRegisteredUser().setPassword(password);
 	}
 
 	@Override
 	public void setNickname(String nickname) {
-		// TODO Auto-generated method stub
-
+		getRegisteredUser().setNickname(nickname);
 	}
 
 }

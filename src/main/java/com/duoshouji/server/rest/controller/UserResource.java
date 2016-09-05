@@ -21,6 +21,7 @@ import com.duoshouji.server.service.auth.UnauthenticatedUserException;
 import com.duoshouji.server.service.auth.UserTokenService;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
+import com.duoshouji.server.service.note.PushedNote;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
@@ -116,7 +117,12 @@ public class UserResource {
 			@RequestParam("loadedSize") int loadedSize,
 			@RequestParam("pageSize") int pageSize
 			) {
-		NoteCollection notes = duoShouJiFacade.getUserPublishedNotes(mobileNumber)
+		boolean refresh = false;
+		if (loadedSize < 0) {
+			loadedSize = 0;
+			refresh = true;
+		}
+		NoteCollection notes = duoShouJiFacade.getUserPublishedNotes(mobileNumber, refresh)
 				.subCollection(loadedSize, loadedSize + pageSize);
 		List<PublishedNote> returnValue = new LinkedList<PublishedNote>();
 		for (Note note : notes) {
@@ -194,12 +200,12 @@ public class UserResource {
 		List<NoteJson> returnValue = new ArrayList<NoteJson>();
 		for (Note note : requester.pushSquareNotes(refresh)
 				.subCollection(loadedSize, loadedSize + pageSize)) {
-			returnValue.add(convert(note));
+			returnValue.add(convert((PushedNote)note));
 		}
 		return returnValue;
 	}
 	
-	private NoteJson convert(Note note) {
+	private NoteJson convert(PushedNote note) {
 		NoteJson noteJson = new NoteJson();
 		noteJson.setNoteId(note.getNoteId());
 		noteJson.setTitle(note.getTitle());

@@ -10,17 +10,17 @@ import com.duoshouji.server.util.UserMessageProxy;
 public class BasicUserProxy implements RegisteredUser {
 	
 	BasicUser delegator;
-	private UserNoteOperationManager userRepository;
+	private UserNoteOperationManager operationManager;
 
-	public BasicUserProxy(BasicUser delegator, UserNoteOperationManager userRepository) {
+	public BasicUserProxy(BasicUser delegator, UserNoteOperationManager operationManager) {
 		super();
 		this.delegator = delegator;
-		this.userRepository = userRepository;
+		this.operationManager = operationManager;
 	}
 
 	private RegisteredUser getRegisteredUser() {
 		if (!(delegator instanceof RegisteredUser)) {
-			userRepository.loadRegisteredUser(this);
+			delegator = operationManager.loadUserIfNotExists(delegator.getMobileNumber());
 		}
 		return (RegisteredUser) delegator;
 	}
@@ -63,11 +63,6 @@ public class BasicUserProxy implements RegisteredUser {
 	@Override
 	public void setNickname(String nickname) {
 		getRegisteredUser().setNickname(nickname);
-	}
-
-	@Override
-	public void logout() {
-		getRegisteredUser().logout();
 	}
 }
 

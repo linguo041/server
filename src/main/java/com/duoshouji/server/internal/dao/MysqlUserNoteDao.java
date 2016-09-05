@@ -137,24 +137,6 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	}
 
 	@Override
-	public void removeToken(MobileNumber mobileNumber) {
-		mysqlDataSource.update("update duoshouji.user set token = null where mobile = "+mobileNumber);
-	}
-
-	@Override
-	public void saveToken(final MobileNumber mobileNumber, final String token) {
-		mysqlDataSource.update("update duoshouji.user set token = ? where mobile = ?"
-				,new PreparedStatementSetter(){
-					@Override
-					public void setValues(PreparedStatement ps)
-							throws SQLException {
-						ps.setString(1, token);
-						ps.setLong(2, Long.valueOf(mobileNumber.toString()));
-					}
-				});
-	}
-
-	@Override
 	public void saveUserProfile(final MobileNumber mobileNumber, final String nickname) {
 		mysqlDataSource.update("update duoshouji.user set user_name = ? where mobile = ?"
 				,new PreparedStatementSetter(){
@@ -271,6 +253,22 @@ public class MysqlUserNoteDao implements UserNoteDao {
 						ps.setLong(4, noteId);
 					}
 				});		
+	}
+
+	@Override
+	public MobileNumber findNoteOwner(long noteId) {
+		return mysqlDataSource.query("select mobile from duoshouji.v_square_notes where id = " + noteId
+				, new ResultSetExtractor<MobileNumber>(){
+
+					@Override
+					public MobileNumber extractData(ResultSet rs) throws SQLException, DataAccessException {
+						MobileNumber accountId = null;
+						if (rs.next()) {
+							accountId = MobileNumber.valueOf(rs.getLong("mobile"));
+						}
+						return accountId;
+					}
+				});
 	}
 
 }

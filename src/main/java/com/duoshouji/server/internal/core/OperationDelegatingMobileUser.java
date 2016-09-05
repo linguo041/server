@@ -51,11 +51,6 @@ public class OperationDelegatingMobileUser extends InMemoryBasicUser implements 
 	}
 
 	@Override
-	public void logout() {
-		delegator.logout(this);
-	}
-
-	@Override
 	public void setPassword(Password password) {
 		delegator.setPassword(this, password);
 		this.passwordDigest = password.toString();

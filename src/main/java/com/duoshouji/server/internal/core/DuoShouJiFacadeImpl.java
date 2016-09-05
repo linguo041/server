@@ -1,6 +1,8 @@
 package com.duoshouji.server.internal.core;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
@@ -8,14 +10,15 @@ import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.DuoShouJiFacade;
 import com.duoshouji.server.service.interaction.UserNoteInteraction;
+import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NoteRepository;
+import com.duoshouji.server.service.note.PushedNote;
 import com.duoshouji.server.service.note.Tag;
 import com.duoshouji.server.service.note.TagRepository;
 import com.duoshouji.server.service.user.RegisteredUser;
-import com.duoshouji.server.service.user.UserNotFoundException;
 import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.service.verify.SecureAccessFacade;
 import com.duoshouji.server.service.verify.SecureChecker;
@@ -68,41 +71,28 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	public void setCollectionCache(CollectionCache collectionCache) {
 		this.collectionCache = collectionCache;
 	}
-
-	private RegisteredUser getUser(MobileNumber mobileNumber) {
-		RegisteredUser user = userRepository.findUser(mobileNumber);
-		if (user == null) {
-			throw new UserNotFoundException("Mobile: " + mobileNumber);
-		}
-		return user;
-	}
 	
 	@Override
 	public void sendLoginVerificationCode(MobileNumber mobileNumber) {
 		RegisteredUser user = userRepository.findUser(mobileNumber);
-		if (user == null) {
-			user = userRepository.createUser(mobileNumber);
-		}
 		secureAccessFacade.getSecureChecker(user).sendVerificationCode();
 	}
 
 	@Override
 	public boolean verificationCodeLogin(MobileNumber mobileNumber, VerificationCode verificationCode) {
-		final RegisteredUser user = getUser(mobileNumber);
-		SecureChecker checker = secureAccessFacade.getSecureChecker(user);
+		SecureChecker checker = secureAccessFacade.getSecureChecker(userRepository.findUser(mobileNumber));
 		return checker.verify(verificationCode);
 	}
 
 	@Override
 	public boolean passwordLogin(MobileNumber mobileNumber, Password password) {
-		final RegisteredUser user = getUser(mobileNumber);
-		return user.verifyPassword(password);
+		return userRepository.findUser(mobileNumber).verifyPassword(password);
 	}
 	
 	@Override
-	public boolean resetPassword(MobileNumber accountId, VerificationCode verificationCode,
-			Password password) {
-		final RegisteredUser user = getUser(accountId);
+	public boolean resetPassword(MobileNumber accountId
+			, VerificationCode verificationCode, Password password) {
+		final RegisteredUser user = userRepository.findUser(accountId);
 		boolean isSuccess = false;
 		if (secureAccessFacade.getSecureChecker(user).verify(verificationCode)) {
 			user.setPassword(password);
@@ -113,13 +103,12 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 
 	@Override
 	public void sendResetPasswordVerificationCode(MobileNumber accountId) {
-		final RegisteredUser user = getUser(accountId);
-		secureAccessFacade.getSecureChecker(user).sendVerificationCode();
+		secureAccessFacade.getSecureChecker(userRepository.findUser(accountId)).sendVerificationCode();
 	}
 
 	@Override
 	public void updateNickname(MobileNumber accountId, String nickname) {
-		getUser(accountId).setNickname(nickname);		
+		userRepository.findUser(accountId).setNickname(nickname);		
 	}
 
 	@Override
@@ -128,8 +117,10 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	}
 
 	@Override
-	public NoteCollection getUserPublishedNotes(MobileNumber mobile) {
-		return interactionFacade.getUserPublishedNotes(getUser(mobile));
+	public NoteCollection getUserPublishedNotes(MobileNumber accountId, boolean refresh) {
+		return collectionCache
+			.getCollectionRequestor(accountId, interactionFacade, refresh)
+			.getUserPublishedNotes(userRepository.findUser(accountId));
 	}
 	
 	@Override
@@ -160,10 +151,43 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		@Override
 		public NoteCollection pushSquareNotes(boolean refresh) {
 			NoteRepository requestor = collectionCache.getCollectionRequestor(mobileNumber, noteRepository, refresh);
-			return requestor.listNotes(noteFilter);
+			return new PushedNoteCollection(requestor.listNotes(noteFilter));
 		}
 	}
 	
+	private class PushedNoteCollection implements NoteCollection {
+		
+		private NoteCollection delegator;
+		
+		private PushedNoteCollection(NoteCollection delegator) {
+			this.delegator = delegator;
+		}
+
+		@Override
+		public Iterator<Note> iterator() {
+			return new Iterator<Note>() {
+				final Iterator<Note> ite = delegator.iterator();
+				@Override
+				public boolean hasNext() {
+					return ite.hasNext();
+				}
+
+				@Override
+				public Note next() {
+					if (!hasNext()) {
+						throw new NoSuchElementException();
+					}
+					final Note note = ite.next();
+					return new PushedNote(note, interactionFacade.getOwner(note));
+				}
+			};
+		}
+
+		@Override
+		public NoteCollection subCollection(int startIndex, int endIndex) {
+			return new PushedNoteCollection(delegator.subCollection(startIndex, endIndex));
+		}
+	}
 	
 	private class InnerNoteBuilder implements NoteBuilder {
 		
@@ -195,7 +219,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		@Override
 		public long publishNote() {
 			if (noteId < 0) {
-				noteId = interactionFacade.publishNote(getUser(userId), valueHolder);
+				noteId = interactionFacade.publishNote(userRepository.findUser(userId), valueHolder);
 			}
 			return noteId;
 		}

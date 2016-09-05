@@ -44,7 +44,7 @@ public interface DuoShouJiFacade {
 
 	NoteBuilder newNotePublisher(MobileNumber accountId);
 
-	NoteCollection getUserPublishedNotes(MobileNumber accountId);
+	NoteCollection getUserPublishedNotes(MobileNumber accountId, boolean refresh);
 
 	SquareNoteRequester newSquareNoteRequester(MobileNumber mobileNumber);
 

@@ -27,4 +27,6 @@ public interface UserNoteDao {
 	List<NoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter);
 	
 	List<NoteDto> findNotes(long cutoff, IndexRange range, MobileNumber userId);
+
+	MobileNumber findNoteOwner(long noteId);
 }
