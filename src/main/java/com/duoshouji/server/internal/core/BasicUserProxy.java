@@ -18,6 +18,23 @@ public class BasicUserProxy implements RegisteredUser {
 		this.operationManager = operationManager;
 	}
 
+	@Override
+	public int hashCode() {
+		return delegator.getMobileNumber().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof BasicUser))
+			return false;
+		BasicUser that = (BasicUser) obj;
+		return getMobileNumber().equals(that.getMobileNumber());
+	}
+
 	private RegisteredUser getRegisteredUser() {
 		if (!(delegator instanceof RegisteredUser)) {
 			delegator = operationManager.loadUserIfNotExists(delegator.getMobileNumber());

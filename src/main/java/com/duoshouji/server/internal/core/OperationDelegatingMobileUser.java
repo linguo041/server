@@ -27,23 +27,6 @@ public class OperationDelegatingMobileUser extends InMemoryBasicUser implements 
 	public boolean hasPassword() {
 		return passwordDigest != null;
 	}
-	
-	@Override
-	public int hashCode() {
-		return getMobileNumber().hashCode();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == this)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof RegisteredUser))
-			return false;
-		RegisteredUser other = (RegisteredUser) obj;
-		return getMobileNumber().equals(other.getMobileNumber());
-	}
 
 	@Override
 	public UserMessageProxy getMessageProxy() {

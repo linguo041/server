@@ -6,28 +6,21 @@ import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
-public class MobileNumberUserProxy implements RegisteredUser {
+public class MobileNumberUserProxy extends AbstractUser implements RegisteredUser {
 
-	private final MobileNumber mobileNumber;
 	private final UserNoteOperationManager operationManager;
 	private RegisteredUser delegator;
 	
 	public MobileNumberUserProxy(MobileNumber mobileNumber, UserNoteOperationManager operationManager) {
-		super();
-		this.mobileNumber = mobileNumber;
+		super(mobileNumber);
 		this.operationManager = operationManager;
 	}
 
 	private RegisteredUser getRegisteredUser() {
 		if (delegator == null) {
-			delegator = operationManager.loadUserIfNotExists(mobileNumber);
+			delegator = operationManager.loadUserIfNotExists(getMobileNumber());
 		}
 		return delegator;
-	}
-	
-	@Override
-	public MobileNumber getMobileNumber() {
-		return mobileNumber;
 	}
 
 	@Override

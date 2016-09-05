@@ -34,7 +34,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	private UserNoteInteraction interactionFacade;
 	private TagRepository tagRepository;
 	private SecureAccessFacade secureAccessFacade;
-	private CollectionCache collectionCache;
+	private CollectionCache collectionCache = new CollectionCache();
 	
 	@Autowired
 	@Required
@@ -64,12 +64,6 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	@Required
 	public void setSecureAccessFacade(SecureAccessFacade secureAccessFacade) {
 		this.secureAccessFacade = secureAccessFacade;
-	}
-	
-	@Autowired
-	@Required
-	public void setCollectionCache(CollectionCache collectionCache) {
-		this.collectionCache = collectionCache;
 	}
 	
 	@Override

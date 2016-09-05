@@ -7,7 +7,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.duoshouji.server.internal.core.OperationDelegatingMobileUser;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.verify.SecureAccessFacade;
 import com.duoshouji.server.service.verify.SecureChecker;
@@ -50,7 +49,7 @@ public class SecureAccessFacadeImpl implements SecureAccessFacade {
 			}
 		}
 		if (!found) {
-			returnValue = new InnerSecureChecker((OperationDelegatingMobileUser)user);
+			returnValue = new InnerSecureChecker(user);
 			checkers.add(returnValue);
 		}
 		return returnValue;
@@ -64,11 +63,11 @@ public class SecureAccessFacadeImpl implements SecureAccessFacade {
 	
 	private class InnerSecureChecker implements SecureChecker {
 
-		private OperationDelegatingMobileUser user;
+		private RegisteredUser user;
 		private State state;
 		private VerificationCode verificationCode;
 		
-		public InnerSecureChecker(OperationDelegatingMobileUser user) {
+		public InnerSecureChecker(RegisteredUser user) {
 			super();
 			state = State.INIT;
 			this.user = user;

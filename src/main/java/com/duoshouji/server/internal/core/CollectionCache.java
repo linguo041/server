@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.duoshouji.server.annotation.Collection;
 import com.duoshouji.server.util.MobileNumber;
 
 @Service
@@ -20,12 +21,28 @@ public class CollectionCache {
 	
 	private HashMap<MobileNumber, List<InvocationResultHolder>> cache;
 	
+	private static void compile(Class<?> requestorClass) {
+		if (compiledClasses.contains(requestorClass)) {
+			return;
+		}
+		for (Class<?> implementedIntefaces : requestorClass.getInterfaces()) {
+			compile(implementedIntefaces);
+		}
+		for (Method method : requestorClass.getMethods()) {
+			if (method.getReturnType().isAnnotationPresent(Collection.class)) {
+				proxiedMethods.add(method);
+			}
+		}
+		compiledClasses.add(requestorClass);
+	}
+	
 	public CollectionCache() {
 		cache = new HashMap<MobileNumber, List<InvocationResultHolder>>();
 	}
 	
 	@SuppressWarnings("unchecked")
 	public <T> T getCollectionRequestor(MobileNumber callerId, T requestor, boolean refresh) {
+		compile(requestor.getClass());
 		List<InvocationResultHolder> handlers = cache.get(callerId);
 		if (handlers == null) {
 			handlers = new LinkedList<InvocationResultHolder>();
@@ -60,11 +77,14 @@ public class CollectionCache {
 
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-			// TODO Auto-generated method stub
-			delegator.getClass().getde
-			return null;
+			if (proxiedMethods.contains(method)) {
+				if (refresh || lastResult == null) {
+					lastResult = method.invoke(delegator, args);
+				}
+				return lastResult;
+			}
+			return method.invoke(delegator, args);
 		}
-		
 	}
 
 }

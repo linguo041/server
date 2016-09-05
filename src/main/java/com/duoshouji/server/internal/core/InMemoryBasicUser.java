@@ -1,23 +1,15 @@
 package com.duoshouji.server.internal.core;
 
-import com.duoshouji.server.service.user.BasicUser;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 
-public class InMemoryBasicUser implements BasicUser {
+class InMemoryBasicUser extends AbstractUser {
 
-	private final MobileNumber mobile;
 	String nickname;
 	Image portrait;
 	
-	public InMemoryBasicUser(MobileNumber mobile) {
-		super();
-		this.mobile = mobile;
-	}
-
-	@Override
-	public MobileNumber getMobileNumber() {
-		return mobile;
+	InMemoryBasicUser(MobileNumber mobileNumber) {
+		super(mobileNumber);
 	}
 
 	@Override
