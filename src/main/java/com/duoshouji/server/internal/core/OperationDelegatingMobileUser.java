@@ -1,14 +1,13 @@
 package com.duoshouji.server.internal.core;
 
-import com.duoshouji.server.service.note.NoteCollection;
-import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.user.PasswordNotSetException;
 import com.duoshouji.server.service.user.RegisteredUser;
+import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
-public class OperationDelegatingMobileUser extends InMemoryBasicUserAttributes implements RegisteredUser {
+public class OperationDelegatingMobileUser extends InMemoryBasicUser implements RegisteredUser {
 
 	private final UserNoteOperationManager delegator;
 	String passwordDigest;
@@ -29,23 +28,6 @@ public class OperationDelegatingMobileUser extends InMemoryBasicUserAttributes i
 	public boolean hasPassword() {
 		return passwordDigest != null;
 	}
-	
-	@Override
-	public int hashCode() {
-		return getMobileNumber().hashCode();
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == this)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof RegisteredUser))
-			return false;
-		RegisteredUser other = (RegisteredUser) obj;
-		return getMobileNumber().equals(other.getMobileNumber());
-	}
 
 	@Override
 	public UserMessageProxy getMessageProxy() {
@@ -53,33 +35,21 @@ public class OperationDelegatingMobileUser extends InMemoryBasicUserAttributes i
 	}
 
 	@Override
-	public void logout() {
-		delegator.logout(this);
-	}
-
-	@Override
-	public String login() {
-		return delegator.login(this);
-	}
-
-	@Override
 	public void setPassword(Password password) {
 		delegator.setPassword(this, password);
+		this.passwordDigest = password.toString();
 	}
 	
 	@Override
 	public void setNickname(String nickname) {
 		delegator.setNickname(this, nickname);
+		this.nickname = nickname;
 	}
 
 	@Override
-	public NoteCollection getPublishedNotes() {
-		return delegator.getPublishedNotes(this);
-	}
-
-	@Override
-	public long publishNote(NotePublishAttributes notePublishAttributes) {
-		return delegator.publishNote(notePublishAttributes, this);
+	public void setPortrait(Image portrait) {
+		delegator.setPortrait(this, portrait);
+		this.portrait = portrait;
 	}
 
 }

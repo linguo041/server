@@ -22,6 +22,10 @@ public class MobileNumber {
 		return new MobileNumber(mobileNumber);
 	}
 	
+	public static MobileNumber valueOf(long mobileNumber) {
+		return new MobileNumber(Long.toString(mobileNumber));
+	}
+	
 	@Override
 	public int hashCode() {
 		return number.hashCode();

@@ -1,28 +1,43 @@
 package com.duoshouji.server.internal.core;
 
-import com.duoshouji.server.service.note.NoteCollection;
-import com.duoshouji.server.service.note.NotePublishAttributes;
-import com.duoshouji.server.service.user.BasicUserAttributes;
+import com.duoshouji.server.service.user.BasicUser;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
-public class MobileUserProxy implements RegisteredUser {
+public class BasicUserProxy implements RegisteredUser {
 	
-	BasicUserAttributes delegator;
-	private UserNoteOperationManager userRepository;
+	BasicUser delegator;
+	private UserNoteOperationManager operationManager;
 
-	public MobileUserProxy(BasicUserAttributes delegator, UserNoteOperationManager userRepository) {
+	public BasicUserProxy(BasicUser delegator, UserNoteOperationManager operationManager) {
 		super();
 		this.delegator = delegator;
-		this.userRepository = userRepository;
+		this.operationManager = operationManager;
+	}
+
+	@Override
+	public int hashCode() {
+		return delegator.getMobileNumber().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof BasicUser))
+			return false;
+		BasicUser that = (BasicUser) obj;
+		return getMobileNumber().equals(that.getMobileNumber());
 	}
 
 	private RegisteredUser getRegisteredUser() {
 		if (!(delegator instanceof RegisteredUser)) {
-			userRepository.loadRegisteredUser(this);
+			delegator = operationManager.loadUserIfNotExists(delegator.getMobileNumber());
 		}
 		return (RegisteredUser) delegator;
 	}
@@ -58,18 +73,8 @@ public class MobileUserProxy implements RegisteredUser {
 	}
 
 	@Override
-	public void logout() {
-		getRegisteredUser().logout();
-	}
-
-	@Override
 	public void setPassword(Password password) {
 		getRegisteredUser().setPassword(password);
-	}
-
-	@Override
-	public String login() {
-		return getRegisteredUser().login();
 	}
 
 	@Override
@@ -78,13 +83,8 @@ public class MobileUserProxy implements RegisteredUser {
 	}
 
 	@Override
-	public NoteCollection getPublishedNotes() {
-		return getRegisteredUser().getPublishedNotes();
+	public void setPortrait(Image portrait) {
+		getRegisteredUser().setPortrait(portrait);
 	}
-
-	@Override
-	public long publishNote(NotePublishAttributes notePublishAttributes) {
-		return getRegisteredUser().publishNote(notePublishAttributes);
-	}
-	
 }
+

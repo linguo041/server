@@ -12,21 +12,23 @@ public interface UserNoteDao {
 
 	RegisteredUserDto findUser(MobileNumber mobileNumber);
 	
-	List<NoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter);
-
 	void createUser(MobileNumber mobileNumber);
-	
-	void removeToken(MobileNumber mobileNumber);
-
-	void saveToken(MobileNumber mobileNumber, String token);
 
 	void saveUserProfile(MobileNumber mobileNumber, String nickname);
 
 	void savePasswordDigest(MobileNumber mobileNumber, String passwordDigest);
 
+	void savePortrait(MobileNumber mobileNumber, Image portrait);
+	
 	long createNote(MobileNumber mobileNumber, NotePublishAttributes noteAttributes);
 
-	void savePortrait(MobileNumber mobileNumber, Image portrait);
-
 	void saveNoteImage(long noteId, Image noteImage);
+	
+	NoteDto findNote(long noteId);
+	
+	List<NoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter);
+	
+	List<NoteDto> findNotes(long cutoff, IndexRange range, MobileNumber userId);
+
+	MobileNumber findNoteOwner(long noteId);
 }

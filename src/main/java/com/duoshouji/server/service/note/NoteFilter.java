@@ -1,36 +1,41 @@
 package com.duoshouji.server.service.note;
 
-import com.duoshouji.server.util.MobileNumber;
+import java.util.Objects;
 
 public class NoteFilter {
 
-	private MobileNumber ownerId;
 	private Tag tag;
 	
-	public NoteFilter(Tag tag) {
+	public NoteFilter() {
 		super();
-		this.tag = tag;
-	}
-
-	public NoteFilter(MobileNumber ownerId) {
-		super();
-		this.ownerId = ownerId;
-	}
-
-	public MobileNumber getOwnerId() {
-		return ownerId;
 	}
 	
-	public boolean isSetOwnerId() {
-		return ownerId != null;
+	public void setTag(Tag tag) {
+		this.tag = tag;
 	}
 	
 	public Tag getTag() {
 		return tag;
 	}
 	
-	public boolean isSetTag() {
+	public boolean isTagSet() {
 		return tag != null;
 	}
 	
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(tag);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof NoteFilter))
+			return false;
+		NoteFilter that = (NoteFilter) obj;
+		return Objects.equals(tag, that.tag);
+	}
 }

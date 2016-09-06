@@ -2,19 +2,18 @@ package com.duoshouji.server.internal.core;
 
 import com.duoshouji.server.service.dao.NoteDto;
 import com.duoshouji.server.service.note.Note;
-import com.duoshouji.server.service.user.BasicUserAttributes;
 import com.duoshouji.server.util.Image;
 
 class OperationDelegatingNote implements Note {
 
-	private UserNoteOperationManager operationDelegator;
+	private UserNoteOperationManager operationManager;
 	NoteDto noteDto;
-	
-	public OperationDelegatingNote(NoteDto noteDto,
-			UserNoteOperationManager operationDelegator) {
+
+	public OperationDelegatingNote(UserNoteOperationManager operationManager,
+			NoteDto noteDto) {
 		super();
+		this.operationManager = operationManager;
 		this.noteDto = noteDto;
-		this.operationDelegator = operationDelegator;
 	}
 
 	@Override
@@ -28,11 +27,6 @@ class OperationDelegatingNote implements Note {
 	}
 
 	@Override
-	public BasicUserAttributes getOwner() {
-		return operationDelegator.getOwner(this);
-	}
-
-	@Override
 	public int getRank() {
 		return noteDto.rank;
 	}
@@ -40,6 +34,12 @@ class OperationDelegatingNote implements Note {
 	@Override
 	public Image getMainImage() {
 		return noteDto.mainImage;
+	}
+
+	@Override
+	public void setMainImage(Image mainImage) {
+		operationManager.setMainImage(this, mainImage);
+		noteDto.mainImage = mainImage;
 	}
 
 	@Override

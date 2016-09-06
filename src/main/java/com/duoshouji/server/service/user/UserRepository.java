@@ -6,6 +6,4 @@ public interface UserRepository {
 
 	RegisteredUser findUser(MobileNumber mobileNumber);
 		
-	RegisteredUser createUser(MobileNumber mobileNumber);
-
 }

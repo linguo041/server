@@ -2,24 +2,26 @@ package com.duoshouji.server.internal.core;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Service;
 
+import com.duoshouji.server.service.dao.BasicUserDto;
 import com.duoshouji.server.service.dao.NoteDto;
 import com.duoshouji.server.service.dao.RegisteredUserDto;
 import com.duoshouji.server.service.dao.UserNoteDao;
+import com.duoshouji.server.service.interaction.UserNoteInteraction;
+import com.duoshouji.server.service.note.BasicNote;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NoteRepository;
-import com.duoshouji.server.service.note.Tag;
-import com.duoshouji.server.service.user.BasicUserAttributes;
+import com.duoshouji.server.service.user.BasicUser;
 import com.duoshouji.server.service.user.RegisteredUser;
-import com.duoshouji.server.service.user.UserAlreadyExistsException;
 import com.duoshouji.server.service.user.UserRepository;
+import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;
 import com.duoshouji.server.util.MessageProxyFactory;
 import com.duoshouji.server.util.MobileNumber;
@@ -27,88 +29,105 @@ import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
 @Service
-public class UserNoteOperationManager implements UserRepository, NoteRepository {
-		
+public class UserNoteOperationManager implements UserRepository, NoteRepository, UserNoteInteraction {
+
+	private UserCache userCache = new UserCache();
 	private UserNoteDao userNoteDao;
 	private MessageProxyFactory messageProxyFactory;
 
+	private final class UserCache {
+		
+		private UniqueObjectCache cache = new HashMapUniqueObjectCache();
+		
+		private RegisteredUser getUser(MobileNumber mobileNumber) {
+			RegisteredUser user = cache.get(mobileNumber, RegisteredUser.class);
+			if (user == null) {
+				user = new MobileNumberUserProxy(mobileNumber, UserNoteOperationManager.this);
+				cache.put(mobileNumber, user);
+			}
+			return user;
+		}
+		
+		private RegisteredUser getUser(BasicUserDto basicUserDto) {
+			RegisteredUser user = cache.get(basicUserDto.mobileNumber, RegisteredUser.class);
+			if (user instanceof MobileNumberUserProxy) {
+				InMemoryBasicUser userAttributes = new InMemoryBasicUser(basicUserDto.mobileNumber);
+				userAttributes.nickname = basicUserDto.nickname;
+				userAttributes.portrait = basicUserDto.portrait;
+				user = new BasicUserProxy(userAttributes, UserNoteOperationManager.this);
+				cache.put(user.getMobileNumber(), user);
+			}
+			return user;
+
+		}
+		
+		private RegisteredUser getUser(RegisteredUserDto userDto) {
+			RegisteredUser user = cache.get(userDto.mobileNumber, RegisteredUser.class);
+			if (!(user instanceof OperationDelegatingMobileUser)) {
+				user = new OperationDelegatingMobileUser(userDto.mobileNumber, UserNoteOperationManager.this);
+				((OperationDelegatingMobileUser)user).passwordDigest = userDto.passwordDigest;
+				((OperationDelegatingMobileUser)user).nickname = userDto.nickname;
+				((OperationDelegatingMobileUser)user).portrait = userDto.portrait;
+				cache.put(user.getMobileNumber(), user);				
+			}
+			return user;
+		}
+	}
+	
 	@Autowired
-	private UserNoteOperationManager(UserNoteDao userNoteDao,
-			MessageProxyFactory messageProxyFactory) {
-		super();
+	@Required
+	public void setUserNoteDao(UserNoteDao userNoteDao) {
 		this.userNoteDao = userNoteDao;
+	}
+
+	@Autowired
+	@Required
+	public void setMessageProxyFactory(MessageProxyFactory messageProxyFactory) {
 		this.messageProxyFactory = messageProxyFactory;
 	}
-
+	
+	OperationDelegatingMobileUser loadUserIfNotExists(MobileNumber mobileNumber) {
+		RegisteredUser user = userCache.getUser(mobileNumber);
+		if (!(user instanceof OperationDelegatingMobileUser)) {
+			user = userCache.getUser(loadUserFromDao(mobileNumber));
+		}
+		return (OperationDelegatingMobileUser) user;
+	}
+	
+	private RegisteredUserDto loadUserFromDao(MobileNumber mobileNumber) {
+		RegisteredUserDto userDto = userNoteDao.findUser(mobileNumber);
+		if (userDto == null) {
+			userNoteDao.createUser(mobileNumber);
+			userDto = new RegisteredUserDto();
+			userDto.mobileNumber = mobileNumber;
+		}
+		return userDto;		
+	}
+	
 	@Override
 	public RegisteredUser findUser(MobileNumber mobileNumber) {
-		return get(userNoteDao.findUser(mobileNumber));
-	}
-	
-	private OperationDelegatingMobileUser get(RegisteredUserDto userDto) {
-		OperationDelegatingMobileUser user = null;
-		if (userDto != null) {
-			user = convert(userDto);
-		}
-		return user;
-	}
-	
-	private OperationDelegatingMobileUser convert(RegisteredUserDto userDto) {
-		OperationDelegatingMobileUser user = new OperationDelegatingMobileUser(userDto.mobileNumber, this);
-		user.passwordDigest = userDto.passwordDigest;
-		user.nickname = userDto.nickname;
-		user.portrait = userDto.portrait;
-		return user;
+		return userCache.getUser(mobileNumber);
 	}
 	
 	@Override
-	public RegisteredUser createUser(MobileNumber mobileNumber) {
-		if (containsUser(mobileNumber)) {
-			throw new UserAlreadyExistsException("User already exists in system, mobile: " + mobileNumber);
-		}
-		userNoteDao.createUser(mobileNumber);
-		return new OperationDelegatingMobileUser(mobileNumber, this);
-	}
-	
-	private boolean containsUser(MobileNumber mobileNumber) {
-		return findUser(mobileNumber) != null;
-	}
-	
-	@Override
-	public NoteCollection findNotes() {
-		return findNotes(null);
-	}
-
-	@Override
-	public NoteCollection findNotes(Tag tag) {
-		NoteFilter noteFilter = null;
-		if (tag != null) {
-			noteFilter = new NoteFilter(tag);
-		}
-		return new OperationDelegatingNoteCollection(this, System.currentTimeMillis(), noteFilter);
+	public NoteCollection listNotes(NoteFilter noteFilter) {
+		return new FilteredNoteCollection(this, System.currentTimeMillis(), noteFilter);
 	}
 
 	private OperationDelegatingNote newNote(NoteDto noteDto) {
-		return new OperationDelegatingNote(noteDto, this);
+		return new OperationDelegatingNote(this, noteDto);
 	}
 
-	Iterator<Note> findNotes(long cutoff, IndexRange range, NoteFilter filter) {
+	Iterator<BasicNote> findNotes(long cutoff, IndexRange range, NoteFilter filter) {
 		return new InnerNoteIterator(userNoteDao.findNotes(cutoff, range, filter));
 	}
 	
-	UserMessageProxy getMessageProxy(
-			OperationDelegatingMobileUser user) {
+	Iterator<BasicNote> findNotes(long cutoff, IndexRange range, MobileNumber userId) {
+		return new InnerNoteIterator(userNoteDao.findNotes(cutoff, range, userId));
+	}	
+	
+	UserMessageProxy getMessageProxy(OperationDelegatingMobileUser user) {
 		return messageProxyFactory.getMessageProxy(user);
-	}
-
-	void logout(OperationDelegatingMobileUser user) {
-		userNoteDao.removeToken(user.getMobileNumber());
-	}
-
-	String login(OperationDelegatingMobileUser user) {
-		final String token = UUID.randomUUID().toString();
-		userNoteDao.saveToken(user.getMobileNumber(), token);
-		return token;
 	}
 
 	boolean verifyPassword(OperationDelegatingMobileUser user, Password password) {
@@ -119,36 +138,46 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 		userNoteDao.saveUserProfile(user.getMobileNumber(), nickname);
 	}
 
-	public void setPassword(OperationDelegatingMobileUser user, Password password) {
+	void setPassword(OperationDelegatingMobileUser user, Password password) {
 		userNoteDao.savePasswordDigest(user.getMobileNumber(), password.toString());
 	}
 
-	public NoteCollection getPublishedNotes(OperationDelegatingMobileUser user) {
-		return new OperationDelegatingNoteCollection(this, System.currentTimeMillis(), new NoteFilter(user.getMobileNumber()));
+	void setPortrait(OperationDelegatingMobileUser user, Image portrait) {
+		userNoteDao.savePortrait(user.getMobileNumber(), portrait);
 	}
 
-	public long publishNote(NotePublishAttributes noteAttributes,
-			OperationDelegatingMobileUser user) {
+	public void setMainImage(OperationDelegatingNote note, Image mainImage) {
+		userNoteDao.saveNoteImage(note.getNoteId(), mainImage);
+	}
+	
+	@Override
+	public NoteCollection getUserPublishedNotes(BasicUser user) {
+		return new UserPublishedNoteCollection(this, System.currentTimeMillis(), user.getMobileNumber());
+	}
+	
+	@Override
+	public long publishNote(BasicUser user, NotePublishAttributes noteAttributes) {
 		noteAttributes.checkAttributesSetup();
 		return userNoteDao.createNote(user.getMobileNumber(), noteAttributes);
 	}
 	
-	public BasicUserAttributes getOwner(OperationDelegatingNote note) {
-		InMemoryBasicUserAttributes userAttributes = new InMemoryBasicUserAttributes(note.noteDto.owner.mobileNumber);
-		userAttributes.nickname = note.noteDto.owner.nickname;
-		userAttributes.portrait = note.noteDto.owner.portrait;
-		return new MobileUserProxy(userAttributes, this);
-	}
-	
-	public void loadRegisteredUser(MobileUserProxy mobileUserProxy) {
-		final RegisteredUserDto userDto = userNoteDao.findUser(mobileUserProxy.getMobileNumber());
-		if (userDto == null) {
-			throw new UnsupportedOperationException("Can't load user.");
+	@Override
+	public BasicUser getOwner(BasicNote note) {
+		BasicUser user = null;
+		if (note instanceof OperationDelegatingNote) {
+			user = userCache.getUser(((OperationDelegatingNote) note).noteDto.owner);
+		} else {
+			user = userCache.getUser(userNoteDao.findNoteOwner(note.getNoteId()));
 		}
-		mobileUserProxy.delegator = convert(userDto);
+		return user;
 	}
-	
-	private class InnerNoteIterator implements Iterator<Note> {
+
+	@Override
+	public Note getNote(long noteId) {
+		return newNote(userNoteDao.findNote(noteId));
+	}
+
+	private class InnerNoteIterator implements Iterator<BasicNote> {
 		Iterator<NoteDto> noteDtoIte;
 		
 		InnerNoteIterator(List<NoteDto> noteDtos) {
@@ -161,7 +190,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository 
 		}
 		
 		@Override
-		public Note next() {
+		public BasicNote next() {
 			return newNote(noteDtoIte.next());
 		}
 	}

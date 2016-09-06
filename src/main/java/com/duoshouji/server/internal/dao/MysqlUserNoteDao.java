@@ -59,14 +59,63 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	}
 
 	@Override
+	public NoteDto findNote(long noteId) {
+		return mysqlDataSource.query("select * from duoshouji.v_square_notes where id = " + noteId
+				, new ResultSetExtractor<NoteDto>() {
+
+					@Override
+					public NoteDto extractData(ResultSet rs)
+							throws SQLException, DataAccessException {
+						NoteDto result = null;
+						if (rs.next()) {
+							result = mapNoteDto(rs);
+						}
+						return result;
+					}
+			
+				});
+	}
+
+	private NoteDto mapNoteDto(ResultSet rs) throws SQLException {
+		NoteDto noteDto = new NoteDto();
+		noteDto.commentCount = rs.getInt("comment_number");
+		noteDto.likeCount = rs.getInt("like_number");
+		noteDto.mainImage = new Image(rs.getInt("image1_width"), rs.getInt("image1_height"), rs.getString("image1"));
+		noteDto.noteId = rs.getLong("id");
+		noteDto.publishedTime = rs.getLong("create_time");
+		noteDto.rank = (int)rs.getFloat("rank");
+		noteDto.title = rs.getString("title");
+		noteDto.transactionCount = rs.getInt("order_number");
+		BasicUserDto userDto = new BasicUserDto();
+		userDto.mobileNumber = new MobileNumber(Long.toString(rs.getLong("mobile")));
+		userDto.nickname = rs.getString("user_name");
+		userDto.portrait = new Image(rs.getInt("avatar_width"), rs.getInt("avatar_height"), rs.getString("avatar_url"));
+		noteDto.owner = userDto;
+		return noteDto;		
+	}
+	
+	@Override
+	public List<NoteDto> findNotes(long cutoff, IndexRange range, MobileNumber userId) {
+		return findNotes(cutoff, range, (Object) userId);
+	}
+	
+	@Override
 	public List<NoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter) {
+		return findNotes(cutoff, range, (Object) filter);
+	}
+	
+	private List<NoteDto> findNotes(long cutoff, IndexRange range, Object filter) {
 		StringBuilder sqlBuilder = new StringBuilder("select * from duoshouji.v_square_notes where create_time < " + cutoff);
 		if (filter != null) {
-			if (filter.isSetOwnerId()) {
-				sqlBuilder.append(" and mobile = " + filter.getOwnerId());
+			if (filter instanceof NoteFilter) {
+				final NoteFilter that = (NoteFilter) filter;
+				if (that.isTagSet()) {
+					sqlBuilder.append(" and " + buildContainsTagIdClause(that.getTag().getTagId()));
+				}
 			}
-			if (filter.isSetTag()) {
-				sqlBuilder.append(" and " + buildContainsTagIdClause(filter.getTag().getTagId()));
+			if (filter instanceof MobileNumber) {
+				final MobileNumber that = (MobileNumber) filter;
+				sqlBuilder.append(" and mobile = " + that);
 			}
 		}
 		sqlBuilder.append(" order by create_time desc");
@@ -74,21 +123,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 				, new RowMapper<NoteDto>(){
 					@Override
 					public NoteDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-						NoteDto noteDto = new NoteDto();
-						noteDto.commentCount = rs.getInt("comment_number");
-						noteDto.likeCount = rs.getInt("like_number");
-						noteDto.mainImage = new Image(rs.getInt("image1_width"), rs.getInt("image1_height"), rs.getString("image1"));
-						noteDto.noteId = rs.getLong("id");
-						noteDto.publishedTime = rs.getLong("create_time");
-						noteDto.rank = (int)rs.getFloat("rank");
-						noteDto.title = rs.getString("title");
-						noteDto.transactionCount = rs.getInt("order_number");
-						BasicUserDto userDto = new BasicUserDto();
-						userDto.mobileNumber = new MobileNumber(Long.toString(rs.getLong("mobile")));
-						userDto.nickname = rs.getString("user_name");
-						userDto.portrait = new Image(rs.getInt("avatar_width"), rs.getInt("avatar_height"), rs.getString("avatar_url"));
-						noteDto.owner = userDto;
-						return noteDto;
+						return mapNoteDto(rs);
 					}
 				});
 		if (range != null) {
@@ -99,6 +134,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 		return returnValue;
 	}
 
+	
 	private String buildContainsTagIdClause(long tagId) {
 		StringBuilder sqlBuilder = new StringBuilder("(");
 		sqlBuilder.append(" tag_id1 = " + tagId);
@@ -120,24 +156,6 @@ public class MysqlUserNoteDao implements UserNoteDao {
 						ps.setString(2, mobileNumber.toString());
 					}
 		});
-	}
-
-	@Override
-	public void removeToken(MobileNumber mobileNumber) {
-		mysqlDataSource.update("update duoshouji.user set token = null where mobile = "+mobileNumber);
-	}
-
-	@Override
-	public void saveToken(final MobileNumber mobileNumber, final String token) {
-		mysqlDataSource.update("update duoshouji.user set token = ? where mobile = ?"
-				,new PreparedStatementSetter(){
-					@Override
-					public void setValues(PreparedStatement ps)
-							throws SQLException {
-						ps.setString(1, token);
-						ps.setLong(2, Long.valueOf(mobileNumber.toString()));
-					}
-				});
 	}
 
 	@Override
@@ -257,6 +275,22 @@ public class MysqlUserNoteDao implements UserNoteDao {
 						ps.setLong(4, noteId);
 					}
 				});		
+	}
+
+	@Override
+	public MobileNumber findNoteOwner(long noteId) {
+		return mysqlDataSource.query("select mobile from duoshouji.v_square_notes where id = " + noteId
+				, new ResultSetExtractor<MobileNumber>(){
+
+					@Override
+					public MobileNumber extractData(ResultSet rs) throws SQLException, DataAccessException {
+						MobileNumber accountId = null;
+						if (rs.next()) {
+							accountId = MobileNumber.valueOf(rs.getLong("mobile"));
+						}
+						return accountId;
+					}
+				});
 	}
 
 }

@@ -14,9 +14,7 @@ public interface DuoShouJiFacade {
 
 		void setTagId(long tagId);
 
-		NoteCollection pushSquareNotes();
-
-		NoteCollection getPushedSquareNotes();
+		NoteCollection pushSquareNotes(boolean refresh);
 
 	}
 	
@@ -46,12 +44,9 @@ public interface DuoShouJiFacade {
 
 	NoteBuilder newNotePublisher(MobileNumber accountId);
 
-	NoteCollection getUserPublishedNotes(MobileNumber accountId);
-
-	void logout(MobileNumber accountId);
-
-	List<Tag> getTags();
+	NoteCollection getUserPublishedNotes(MobileNumber accountId, boolean refresh);
 
 	SquareNoteRequester newSquareNoteRequester(MobileNumber mobileNumber);
 
+	List<Tag> getTags();	
 }

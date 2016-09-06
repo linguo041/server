@@ -1,11 +1,12 @@
 package com.duoshouji.server.service.user;
 
-import com.duoshouji.server.service.note.NoteCollection;
-import com.duoshouji.server.service.note.NotePublishAttributes;
+import com.duoshouji.server.annotation.Unique;
+import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
-public interface RegisteredUser extends BasicUserAttributes {
+@Unique
+public interface RegisteredUser extends BasicUser {
 
 	UserMessageProxy getMessageProxy();
 
@@ -13,15 +14,9 @@ public interface RegisteredUser extends BasicUserAttributes {
 
 	boolean hasPassword();
 
-	void logout();
-
 	void setPassword(Password password);
 
-	String login();
-
 	void setNickname(String nickname);
-
-	NoteCollection getPublishedNotes();
-
-	long publishNote(NotePublishAttributes notePublishAttributes);
+	
+	void setPortrait(Image portrait);
 }
