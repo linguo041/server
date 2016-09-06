@@ -19,7 +19,7 @@ import com.duoshouji.server.service.DuoShouJiFacade.NoteBuilder;
 import com.duoshouji.server.service.DuoShouJiFacade.SquareNoteRequester;
 import com.duoshouji.server.service.auth.UnauthenticatedUserException;
 import com.duoshouji.server.service.auth.UserTokenService;
-import com.duoshouji.server.service.note.Note;
+import com.duoshouji.server.service.note.BasicNote;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.PushedNote;
 import com.duoshouji.server.util.MobileNumber;
@@ -125,7 +125,7 @@ public class UserResource {
 		NoteCollection notes = duoShouJiFacade.getUserPublishedNotes(mobileNumber, refresh)
 				.subCollection(loadedSize, loadedSize + pageSize);
 		List<PublishedNote> returnValue = new LinkedList<PublishedNote>();
-		for (Note note : notes) {
+		for (BasicNote note : notes) {
 			PublishedNote pn = new PublishedNote();
 			pn.noteId = note.getNoteId();
 			pn.publishTime = note.getPublishedTime();
@@ -198,7 +198,7 @@ public class UserResource {
 			refresh = true;
 		}
 		List<NoteJson> returnValue = new ArrayList<NoteJson>();
-		for (Note note : requester.pushSquareNotes(refresh)
+		for (BasicNote note : requester.pushSquareNotes(refresh)
 				.subCollection(loadedSize, loadedSize + pageSize)) {
 			returnValue.add(convert((PushedNote)note));
 		}

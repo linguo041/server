@@ -2,7 +2,7 @@ package com.duoshouji.server.internal.core;
 
 import java.util.Iterator;
 
-import com.duoshouji.server.service.note.Note;
+import com.duoshouji.server.service.note.BasicNote;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.util.IndexRange;
 
@@ -17,7 +17,7 @@ public class FilteredNoteCollection extends AbstractOperationDelegatingNoteColle
 	}
 
 	@Override
-	protected Iterator<Note> getNoteIterator(
+	protected Iterator<BasicNote> getNoteIterator(
 			UserNoteOperationManager operationDelegator, long cutoff, IndexRange range) {
 		return operationDelegator.findNotes(cutoff, range, noteFilter);
 	}

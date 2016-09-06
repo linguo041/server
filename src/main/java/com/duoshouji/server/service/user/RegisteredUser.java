@@ -1,6 +1,7 @@
 package com.duoshouji.server.service.user;
 
 import com.duoshouji.server.annotation.Unique;
+import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
@@ -16,4 +17,6 @@ public interface RegisteredUser extends BasicUser {
 	void setPassword(Password password);
 
 	void setNickname(String nickname);
+	
+	void setPortrait(Image portrait);
 }

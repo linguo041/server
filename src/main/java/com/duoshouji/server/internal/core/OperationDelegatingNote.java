@@ -6,10 +6,13 @@ import com.duoshouji.server.util.Image;
 
 class OperationDelegatingNote implements Note {
 
+	private UserNoteOperationManager operationManager;
 	NoteDto noteDto;
-	
-	public OperationDelegatingNote(NoteDto noteDto) {
+
+	public OperationDelegatingNote(UserNoteOperationManager operationManager,
+			NoteDto noteDto) {
 		super();
+		this.operationManager = operationManager;
 		this.noteDto = noteDto;
 	}
 
@@ -31,6 +34,12 @@ class OperationDelegatingNote implements Note {
 	@Override
 	public Image getMainImage() {
 		return noteDto.mainImage;
+	}
+
+	@Override
+	public void setMainImage(Image mainImage) {
+		operationManager.setMainImage(this, mainImage);
+		noteDto.mainImage = mainImage;
 	}
 
 	@Override

@@ -24,6 +24,8 @@ public interface UserNoteDao {
 
 	void saveNoteImage(long noteId, Image noteImage);
 	
+	NoteDto findNote(long noteId);
+	
 	List<NoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter);
 	
 	List<NoteDto> findNotes(long cutoff, IndexRange range, MobileNumber userId);

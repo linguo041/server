@@ -14,32 +14,36 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.duoshouji.server.service.dao.UserNoteDao;
 import com.duoshouji.server.service.image.ImageStore;
+import com.duoshouji.server.service.note.NoteRepository;
+import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 
 @RestController
 public class ImageResource {
 
-	private UserNoteDao dao;
+	private UserRepository userRepository;
+	private NoteRepository noteRepository;
 	private ImageStore imageStore;
 	
 	@Autowired
-	public ImageResource(UserNoteDao dao, ImageStore imageStore) {
+	public ImageResource(UserRepository userRepository,
+			NoteRepository noteRepository, ImageStore imageStore) {
 		super();
-		this.dao = dao;
+		this.userRepository = userRepository;
+		this.noteRepository = noteRepository;
 		this.imageStore = imageStore;
 	}
 
 	@RequestMapping(path = "/accounts/{account-id}/settings/profile/protrait", method = RequestMethod.POST)
 	public void uploadPortrait(
 			@RequestParam("image") MultipartFile image,
-			@PathVariable("account-id") String accountId) throws IOException {
+			@PathVariable("account-id") MobileNumber accountId) throws IOException {
 		if (!image.isEmpty()) {
 			BufferedImage swingImage = toSwingImage(image);
-			String imageUrl = imageStore.savePortrait(accountId, swingImage);
-			dao.savePortrait(new MobileNumber(accountId), new Image(swingImage.getWidth(), swingImage.getHeight(), imageUrl));
+			String imageUrl = imageStore.savePortrait(accountId.toString(), swingImage);
+			userRepository.findUser(accountId).setPortrait(new Image(swingImage.getWidth(), swingImage.getHeight(), imageUrl));
 		}
 	}
 	
@@ -51,7 +55,7 @@ public class ImageResource {
 		if (!image.isEmpty()) {
 			BufferedImage swingImage = toSwingImage(image);
 			String imageUrl = imageStore.saveNoteImage(noteId, swingImage);
-			dao.saveNoteImage(noteId, new Image(swingImage.getWidth(), swingImage.getHeight(), imageUrl));
+			noteRepository.getNote(noteId).setMainImage(new Image(swingImage.getWidth(), swingImage.getHeight(), imageUrl));
 		}		
 	}
 	

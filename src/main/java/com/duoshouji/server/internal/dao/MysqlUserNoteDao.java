@@ -59,6 +59,42 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	}
 
 	@Override
+	public NoteDto findNote(long noteId) {
+		return mysqlDataSource.query("select * from duoshouji.v_square_notes where id = " + noteId
+				, new ResultSetExtractor<NoteDto>() {
+
+					@Override
+					public NoteDto extractData(ResultSet rs)
+							throws SQLException, DataAccessException {
+						NoteDto result = null;
+						if (rs.next()) {
+							result = mapNoteDto(rs);
+						}
+						return result;
+					}
+			
+				});
+	}
+
+	private NoteDto mapNoteDto(ResultSet rs) throws SQLException {
+		NoteDto noteDto = new NoteDto();
+		noteDto.commentCount = rs.getInt("comment_number");
+		noteDto.likeCount = rs.getInt("like_number");
+		noteDto.mainImage = new Image(rs.getInt("image1_width"), rs.getInt("image1_height"), rs.getString("image1"));
+		noteDto.noteId = rs.getLong("id");
+		noteDto.publishedTime = rs.getLong("create_time");
+		noteDto.rank = (int)rs.getFloat("rank");
+		noteDto.title = rs.getString("title");
+		noteDto.transactionCount = rs.getInt("order_number");
+		BasicUserDto userDto = new BasicUserDto();
+		userDto.mobileNumber = new MobileNumber(Long.toString(rs.getLong("mobile")));
+		userDto.nickname = rs.getString("user_name");
+		userDto.portrait = new Image(rs.getInt("avatar_width"), rs.getInt("avatar_height"), rs.getString("avatar_url"));
+		noteDto.owner = userDto;
+		return noteDto;		
+	}
+	
+	@Override
 	public List<NoteDto> findNotes(long cutoff, IndexRange range, MobileNumber userId) {
 		return findNotes(cutoff, range, (Object) userId);
 	}
@@ -87,21 +123,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 				, new RowMapper<NoteDto>(){
 					@Override
 					public NoteDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-						NoteDto noteDto = new NoteDto();
-						noteDto.commentCount = rs.getInt("comment_number");
-						noteDto.likeCount = rs.getInt("like_number");
-						noteDto.mainImage = new Image(rs.getInt("image1_width"), rs.getInt("image1_height"), rs.getString("image1"));
-						noteDto.noteId = rs.getLong("id");
-						noteDto.publishedTime = rs.getLong("create_time");
-						noteDto.rank = (int)rs.getFloat("rank");
-						noteDto.title = rs.getString("title");
-						noteDto.transactionCount = rs.getInt("order_number");
-						BasicUserDto userDto = new BasicUserDto();
-						userDto.mobileNumber = new MobileNumber(Long.toString(rs.getLong("mobile")));
-						userDto.nickname = rs.getString("user_name");
-						userDto.portrait = new Image(rs.getInt("avatar_width"), rs.getInt("avatar_height"), rs.getString("avatar_url"));
-						noteDto.owner = userDto;
-						return noteDto;
+						return mapNoteDto(rs);
 					}
 				});
 		if (range != null) {

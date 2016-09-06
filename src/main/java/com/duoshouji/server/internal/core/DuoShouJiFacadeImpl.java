@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.DuoShouJiFacade;
 import com.duoshouji.server.service.interaction.UserNoteInteraction;
-import com.duoshouji.server.service.note.Note;
+import com.duoshouji.server.service.note.BasicNote;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
@@ -158,20 +158,20 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		}
 
 		@Override
-		public Iterator<Note> iterator() {
-			return new Iterator<Note>() {
-				final Iterator<Note> ite = delegator.iterator();
+		public Iterator<BasicNote> iterator() {
+			return new Iterator<BasicNote>() {
+				final Iterator<BasicNote> ite = delegator.iterator();
 				@Override
 				public boolean hasNext() {
 					return ite.hasNext();
 				}
 
 				@Override
-				public Note next() {
+				public BasicNote next() {
 					if (!hasNext()) {
 						throw new NoSuchElementException();
 					}
-					final Note note = ite.next();
+					final BasicNote note = ite.next();
 					return new PushedNote(note, interactionFacade.getOwner(note));
 				}
 			};

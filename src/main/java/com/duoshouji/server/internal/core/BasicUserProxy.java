@@ -81,5 +81,10 @@ public class BasicUserProxy implements RegisteredUser {
 	public void setNickname(String nickname) {
 		getRegisteredUser().setNickname(nickname);
 	}
+
+	@Override
+	public void setPortrait(Image portrait) {
+		getRegisteredUser().setPortrait(portrait);
+	}
 }
 

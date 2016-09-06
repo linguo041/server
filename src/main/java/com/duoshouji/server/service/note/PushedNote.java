@@ -3,12 +3,12 @@ package com.duoshouji.server.service.note;
 import com.duoshouji.server.service.user.BasicUser;
 import com.duoshouji.server.util.Image;
 
-public class PushedNote implements Note {
+public class PushedNote implements BasicNote {
 
-	private Note delegator;
+	private BasicNote delegator;
 	private BasicUser owner;
 	
-	public PushedNote(Note delegator, BasicUser owner) {
+	public PushedNote(BasicNote delegator, BasicUser owner) {
 		super();
 		this.delegator = delegator;
 		this.owner = owner;

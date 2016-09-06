@@ -58,4 +58,9 @@ public class MobileNumberUserProxy extends AbstractUser implements RegisteredUse
 		getRegisteredUser().setNickname(nickname);
 	}
 
+	@Override
+	public void setPortrait(Image portrait) {
+		getRegisteredUser().setPortrait(portrait);
+	}
+
 }

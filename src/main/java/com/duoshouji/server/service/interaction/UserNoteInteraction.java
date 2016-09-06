@@ -1,6 +1,6 @@
 package com.duoshouji.server.service.interaction;
 
-import com.duoshouji.server.service.note.Note;
+import com.duoshouji.server.service.note.BasicNote;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.user.BasicUser;
@@ -11,6 +11,6 @@ public interface UserNoteInteraction {
 	
 	long publishNote(BasicUser user, NotePublishAttributes noteAttributes);
 	
-	BasicUser getOwner(Note note);
+	BasicUser getOwner(BasicNote note);
 	
 }

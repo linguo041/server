@@ -2,6 +2,7 @@ package com.duoshouji.server.internal.core;
 
 import com.duoshouji.server.service.user.PasswordNotSetException;
 import com.duoshouji.server.service.user.RegisteredUser;
+import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
@@ -43,6 +44,12 @@ public class OperationDelegatingMobileUser extends InMemoryBasicUser implements 
 	public void setNickname(String nickname) {
 		delegator.setNickname(this, nickname);
 		this.nickname = nickname;
+	}
+
+	@Override
+	public void setPortrait(Image portrait) {
+		delegator.setPortrait(this, portrait);
+		this.portrait = portrait;
 	}
 
 }

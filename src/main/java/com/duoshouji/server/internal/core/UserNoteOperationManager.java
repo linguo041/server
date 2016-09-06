@@ -12,6 +12,7 @@ import com.duoshouji.server.service.dao.NoteDto;
 import com.duoshouji.server.service.dao.RegisteredUserDto;
 import com.duoshouji.server.service.dao.UserNoteDao;
 import com.duoshouji.server.service.interaction.UserNoteInteraction;
+import com.duoshouji.server.service.note.BasicNote;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.NoteFilter;
@@ -20,6 +21,7 @@ import com.duoshouji.server.service.note.NoteRepository;
 import com.duoshouji.server.service.user.BasicUser;
 import com.duoshouji.server.service.user.RegisteredUser;
 import com.duoshouji.server.service.user.UserRepository;
+import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;
 import com.duoshouji.server.util.MessageProxyFactory;
 import com.duoshouji.server.util.MobileNumber;
@@ -44,7 +46,6 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 				cache.put(mobileNumber, user);
 			}
 			return user;
-
 		}
 		
 		private RegisteredUser getUser(BasicUserDto basicUserDto) {
@@ -114,14 +115,14 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	}
 
 	private OperationDelegatingNote newNote(NoteDto noteDto) {
-		return new OperationDelegatingNote(noteDto);
+		return new OperationDelegatingNote(this, noteDto);
 	}
 
-	Iterator<Note> findNotes(long cutoff, IndexRange range, NoteFilter filter) {
+	Iterator<BasicNote> findNotes(long cutoff, IndexRange range, NoteFilter filter) {
 		return new InnerNoteIterator(userNoteDao.findNotes(cutoff, range, filter));
 	}
 	
-	Iterator<Note> findNotes(long cutoff, IndexRange range, MobileNumber userId) {
+	Iterator<BasicNote> findNotes(long cutoff, IndexRange range, MobileNumber userId) {
 		return new InnerNoteIterator(userNoteDao.findNotes(cutoff, range, userId));
 	}	
 	
@@ -137,10 +138,18 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		userNoteDao.saveUserProfile(user.getMobileNumber(), nickname);
 	}
 
-	public void setPassword(OperationDelegatingMobileUser user, Password password) {
+	void setPassword(OperationDelegatingMobileUser user, Password password) {
 		userNoteDao.savePasswordDigest(user.getMobileNumber(), password.toString());
 	}
 
+	void setPortrait(OperationDelegatingMobileUser user, Image portrait) {
+		userNoteDao.savePortrait(user.getMobileNumber(), portrait);
+	}
+
+	public void setMainImage(OperationDelegatingNote note, Image mainImage) {
+		userNoteDao.saveNoteImage(note.getNoteId(), mainImage);
+	}
+	
 	@Override
 	public NoteCollection getUserPublishedNotes(BasicUser user) {
 		return new UserPublishedNoteCollection(this, System.currentTimeMillis(), user.getMobileNumber());
@@ -153,7 +162,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	}
 	
 	@Override
-	public BasicUser getOwner(Note note) {
+	public BasicUser getOwner(BasicNote note) {
 		BasicUser user = null;
 		if (note instanceof OperationDelegatingNote) {
 			user = userCache.getUser(((OperationDelegatingNote) note).noteDto.owner);
@@ -163,7 +172,12 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		return user;
 	}
 
-	private class InnerNoteIterator implements Iterator<Note> {
+	@Override
+	public Note getNote(long noteId) {
+		return newNote(userNoteDao.findNote(noteId));
+	}
+
+	private class InnerNoteIterator implements Iterator<BasicNote> {
 		Iterator<NoteDto> noteDtoIte;
 		
 		InnerNoteIterator(List<NoteDto> noteDtos) {
@@ -176,7 +190,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		}
 		
 		@Override
-		public Note next() {
+		public BasicNote next() {
 			return newNote(noteDtoIte.next());
 		}
 	}
