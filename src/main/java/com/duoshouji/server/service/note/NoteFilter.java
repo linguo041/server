@@ -1,5 +1,7 @@
 package com.duoshouji.server.service.note;
 
+import java.util.Objects;
+
 public class NoteFilter {
 
 	private Tag tag;
@@ -19,6 +21,11 @@ public class NoteFilter {
 	public boolean isTagSet() {
 		return tag != null;
 	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(tag);
+	}
 
 	@Override
 	public boolean equals(Object obj) {
@@ -29,13 +36,6 @@ public class NoteFilter {
 		if (!(obj instanceof NoteFilter))
 			return false;
 		NoteFilter that = (NoteFilter) obj;
-		if (isTagSet() == that.isTagSet()) {
-			if (isTagSet()) {
-				return tag.equals(that.tag);
-			} else {
-				return true;
-			}
-		}
-		return false;
+		return Objects.equals(tag, that.tag);
 	}
 }

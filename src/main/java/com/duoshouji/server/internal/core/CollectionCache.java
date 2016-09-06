@@ -1,6 +1,5 @@
 package com.duoshouji.server.internal.core;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -82,30 +81,30 @@ public class CollectionCache {
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 			if (proxiedMethods.contains(method)) {
-				lastResults.get(key)
-				if (refresh || lastResults == null) {
-					lastResults = method.invoke(delegator, args);
+				ArgumentListKey key = new ArgumentListKey(args);
+				Object lastResult = lastResults.get(key);
+				if (refresh || lastResult == null) {
+					lastResult = method.invoke(delegator, args);
+					lastResults.put(key, lastResult);
 				}
-				return lastResults;
+				return lastResult;
 			}
 			return method.invoke(delegator, args);
 		}
 	}
 	
 	private static class ArgumentListKey {
-		Object[] args;
-		ArgumentListKey(Object[] args) {
+		private Object[] args;
+		private ArgumentListKey(Object[] args) {
 			super();
 			this.args = args;
 		}
+		
 		@Override
 		public int hashCode() {
-			int hashCode = 0;
-			for (Object obj : args) {
-				hashCode ^= obj.hashCode();
-			}
-			return hashCode;
+			return Arrays.hashCode(args);
 		}
+		
 		@Override
 		public boolean equals(Object obj) {
 			if (obj == this)
@@ -118,5 +117,4 @@ public class CollectionCache {
 			return Arrays.deepEquals(args, that.args);
 		}
 	}
-
 }
