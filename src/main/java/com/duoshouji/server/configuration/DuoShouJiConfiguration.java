@@ -16,9 +16,9 @@ public class DuoShouJiConfiguration {
     public DataSource mysqlDataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost:3306/duoshouji");
-        dataSource.setUsername("user1");
-        dataSource.setPassword("user1");
+        dataSource.setUrl("jdbc:mysql://139.196.151.131:3306/duoshouji");
+        dataSource.setUsername("root");
+        dataSource.setPassword("Duo@2016");
 
         return dataSource;
     }

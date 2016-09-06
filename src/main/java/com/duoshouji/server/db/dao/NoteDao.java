@@ -13,7 +13,7 @@ import com.duoshouji.server.entity.Note;
 import com.google.common.collect.Maps;
 
 @Component
-public class NoteDao {
+public class NoteDao extends BaseDao{
 
 	@Autowired
 	private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
