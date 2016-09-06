@@ -17,6 +17,14 @@ public final class Tag {
 	public String getTagName() {
 		return tagName;
 	}
-	
-	
+
+	@Override
+	public int hashCode() {
+		return Long.hashCode(tagId);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return obj == this;
+	}
 }

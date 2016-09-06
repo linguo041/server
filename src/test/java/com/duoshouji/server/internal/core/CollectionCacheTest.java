@@ -13,16 +13,17 @@ public class CollectionCacheTest {
 		CollectionCache cache = new CollectionCache();
 		CounterInterface counter = new CounterClass();
 		CounterInterface proxy = cache.getCollectionRequestor(MockConstants.MOCK_MOBILE_NUMBER, counter, true);
-		Assert.assertEquals(0, proxy.getCollection().size());
+		Assert.assertEquals(1, proxy.getCollection(1).size());
 		Assert.assertEquals(Integer.valueOf(0), proxy.getSize());
 		
 		((CounterClass)counter).addCount();
 		proxy = cache.getCollectionRequestor(MockConstants.MOCK_MOBILE_NUMBER, counter, false);
-		Assert.assertEquals(0, proxy.getCollection().size());
+		Assert.assertEquals(1, proxy.getCollection(1).size());
+		Assert.assertEquals(3, proxy.getCollection(2).size());
 		Assert.assertEquals(Integer.valueOf(1), proxy.getSize());
 		
 		proxy = cache.getCollectionRequestor(MockConstants.MOCK_MOBILE_NUMBER, counter, true);
-		Assert.assertEquals(1, proxy.getCollection().size());
+		Assert.assertEquals(2, proxy.getCollection(1).size());
 		Assert.assertEquals(Integer.valueOf(1), proxy.getSize());
 	}
 
@@ -31,7 +32,7 @@ public class CollectionCacheTest {
 		CollectionCache cache = new CollectionCache();
 		CounterInterface counter = new CounterClass();
 		CounterInterface proxy = cache.getCollectionRequestor(MockConstants.MOCK_MOBILE_NUMBER, counter, false);
-		Assert.assertEquals(0, proxy.getCollection().size());
+		Assert.assertEquals(1, proxy.getCollection(1).size());
 		Assert.assertEquals(Integer.valueOf(0), proxy.getSize());
 	}
 
@@ -42,7 +43,7 @@ public class CollectionCacheTest {
 	
 	public static interface CounterInterface {
 		Integer getSize();
-		MockCollection getCollection();
+		MockCollection getCollection(int add);
 	}
 	
 	public static class CounterClass implements CounterInterface {
@@ -58,14 +59,13 @@ public class CollectionCacheTest {
 		}
 		
 		@Override
-		public MockCollection getCollection() {
+		public MockCollection getCollection(final int add) {
 			return new MockCollection(){
 				final int size = counter;
 				@Override
 				public int size() {
-					return size;
+					return size + add;
 				}
-				
 			};
 		}
 		
