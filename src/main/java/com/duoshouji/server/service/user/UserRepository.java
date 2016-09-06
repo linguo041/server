@@ -4,6 +4,6 @@ import com.duoshouji.server.util.MobileNumber;
 
 public interface UserRepository {
 
-	RegisteredUser findUser(MobileNumber mobileNumber);
+	FullFunctionalUser findUser(MobileNumber mobileNumber);
 		
 }

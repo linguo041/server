@@ -152,10 +152,20 @@ public class MysqlUserNoteDao implements UserNoteDao {
 					@Override
 					public void setValues(PreparedStatement ps)
 							throws SQLException {
-						ps.setLong(1, Long.valueOf(mobileNumber.toString()));
+						ps.setLong(1, mobileNumber.toLong());
 						ps.setString(2, mobileNumber.toString());
 					}
 		});
+		mysqlDataSource.update("insert into duoshouji.user_extend (user_id) values(?)"
+				, new PreparedStatementSetter() {
+
+					@Override
+					public void setValues(PreparedStatement ps)
+							throws SQLException {
+						ps.setLong(1, mobileNumber.toLong());
+					}
+					
+				});
 	}
 
 	@Override

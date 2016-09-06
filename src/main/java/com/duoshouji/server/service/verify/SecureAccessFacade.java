@@ -1,8 +1,8 @@
 package com.duoshouji.server.service.verify;
 
-import com.duoshouji.server.service.user.RegisteredUser;
+import com.duoshouji.server.service.user.FullFunctionalUser;
 
 public interface SecureAccessFacade {
 
-	SecureChecker getSecureChecker(RegisteredUser user);
+	SecureChecker getSecureChecker(FullFunctionalUser user);
 }

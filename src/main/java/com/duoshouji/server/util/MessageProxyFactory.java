@@ -1,8 +1,8 @@
 package com.duoshouji.server.util;
 
-import com.duoshouji.server.service.user.RegisteredUser;
+import com.duoshouji.server.service.user.FullFunctionalUser;
 
 public interface MessageProxyFactory {
 
-	UserMessageProxy getMessageProxy(RegisteredUser user);
+	UserMessageProxy getMessageProxy(FullFunctionalUser user);
 }

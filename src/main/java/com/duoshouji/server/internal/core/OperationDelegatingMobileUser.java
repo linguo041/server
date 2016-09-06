@@ -1,22 +1,54 @@
 package com.duoshouji.server.internal.core;
 
+import java.math.BigDecimal;
+
 import com.duoshouji.server.service.user.PasswordNotSetException;
-import com.duoshouji.server.service.user.RegisteredUser;
+import com.duoshouji.server.service.user.FullFunctionalUser;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
-public class OperationDelegatingMobileUser extends InMemoryBasicUser implements RegisteredUser {
+class OperationDelegatingMobileUser extends InMemoryBasicUser implements FullFunctionalUser {
 
 	private final UserNoteOperationManager delegator;
 	String passwordDigest;
+	BigDecimal totalRevenue;
+	int publishedNoteCount;
+	int transactionCount;
+	int watchCount;
+	int fanCount;
 	
-	public OperationDelegatingMobileUser(MobileNumber mobile, UserNoteOperationManager delegator) {
+	OperationDelegatingMobileUser(MobileNumber mobile, UserNoteOperationManager delegator) {
 		super(mobile);
 		this.delegator = delegator;
 	}
 	
+	@Override
+	public BigDecimal getTotalRevenue() {
+		return totalRevenue;
+	}
+
+	@Override
+	public int getPublishedNoteCount() {
+		return publishedNoteCount;
+	}
+
+	@Override
+	public int getTransactionCount() {
+		return transactionCount;
+	}
+
+	@Override
+	public int getWatchCount() {
+		return watchCount;
+	}
+
+	@Override
+	public int getFanCount() {
+		return fanCount;
+	}
+
 	@Override
 	public boolean verifyPassword(Password password) {
 		if (!hasPassword()) {

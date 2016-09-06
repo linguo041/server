@@ -1,5 +1,6 @@
 package com.duoshouji.server.rest.controller;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +23,7 @@ import com.duoshouji.server.service.auth.UserTokenService;
 import com.duoshouji.server.service.note.BasicNote;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.PushedNote;
+import com.duoshouji.server.service.user.UserProfile;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
@@ -305,4 +307,58 @@ public class UserResource {
 
 	}
 
+	
+	@RequestMapping(path = "/profile", method = RequestMethod.GET)
+	public UserProfileView getUserProfile(@PathVariable("account-id") MobileNumber mobileNumber) {
+		return new UserProfileView(duoShouJiFacade.getUserProfile(mobileNumber));
+	}
+	
+	public static class UserProfileView {
+		private UserProfile profile;
+		
+		private UserProfileView(UserProfile profile) {
+			super();
+			this.profile = profile;
+		}
+
+		public long getUserId() {
+			return profile.getMobileNumber().toLong();
+		}
+		
+		public String getPortraitUrl() {
+			return profile.getPortrait().getUrl();
+		}
+		
+		public int getPortraitHeight() {
+			return profile.getPortrait().getHeight();
+		}
+		
+		public int getPortraitWidth() {
+			return profile.getPortrait().getWidth();
+		}
+		
+		public String getNickname() {
+			return profile.getNickname();
+		}
+		
+		public BigDecimal getTotalRevenue() {
+			return profile.getTotalRevenue();
+		}
+		
+		public int getPublishedNoteCount() {
+			return profile.getPublishedNoteCount();
+		}
+		
+		public int getTransactionCount() {
+			return profile.getTransactionCount();
+		}
+		
+		public int getWatchCount() {
+			return profile.getWatchCount();
+		}
+		
+		public int getFanCount() {
+			return profile.getFanCount();
+		}
+	}
 }

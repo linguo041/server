@@ -6,7 +6,7 @@ import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
 @Unique
-public interface RegisteredUser extends BasicUser {
+public interface FullFunctionalUser extends UserProfile {
 
 	UserMessageProxy getMessageProxy();
 

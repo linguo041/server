@@ -10,4 +10,6 @@ public interface BasicUser {
 	String getNickname();
 	
 	Image getPortrait();
+	
+	Gender getGender();
 }

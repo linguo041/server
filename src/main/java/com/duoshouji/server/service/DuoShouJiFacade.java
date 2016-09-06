@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.Tag;
+import com.duoshouji.server.service.user.UserProfile;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
@@ -34,6 +35,8 @@ public interface DuoShouJiFacade {
 	
 	boolean verificationCodeLogin(MobileNumber accountId, VerificationCode verificationCode);
 	
+	UserProfile getUserProfile(MobileNumber mobileNumber);	
+	
 	boolean passwordLogin(MobileNumber accountId, Password mockPassword);
 
 	boolean resetPassword(MobileNumber accountId, VerificationCode code, Password password);
@@ -48,5 +51,5 @@ public interface DuoShouJiFacade {
 
 	SquareNoteRequester newSquareNoteRequester(MobileNumber mobileNumber);
 
-	List<Tag> getTags();	
+	List<Tag> getTags();
 }

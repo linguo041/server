@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.duoshouji.server.service.user.RegisteredUser;
+import com.duoshouji.server.service.user.FullFunctionalUser;
 import com.duoshouji.server.service.verify.SecureAccessFacade;
 import com.duoshouji.server.service.verify.SecureChecker;
 import com.duoshouji.server.util.VerificationCode;
@@ -37,7 +37,7 @@ public class SecureAccessFacadeImpl implements SecureAccessFacade {
 	}
 
 	@Override
-	public SecureChecker getSecureChecker(RegisteredUser user) {
+	public SecureChecker getSecureChecker(FullFunctionalUser user) {
 		InnerSecureChecker returnValue = null;
 		boolean found = false;
 		Iterator<InnerSecureChecker> ite = checkers.iterator();
@@ -63,11 +63,11 @@ public class SecureAccessFacadeImpl implements SecureAccessFacade {
 	
 	private class InnerSecureChecker implements SecureChecker {
 
-		private RegisteredUser user;
+		private FullFunctionalUser user;
 		private State state;
 		private VerificationCode verificationCode;
 		
-		public InnerSecureChecker(RegisteredUser user) {
+		public InnerSecureChecker(FullFunctionalUser user) {
 			super();
 			state = State.INIT;
 			this.user = user;

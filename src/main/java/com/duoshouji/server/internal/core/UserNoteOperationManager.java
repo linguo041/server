@@ -19,7 +19,7 @@ import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NoteRepository;
 import com.duoshouji.server.service.user.BasicUser;
-import com.duoshouji.server.service.user.RegisteredUser;
+import com.duoshouji.server.service.user.FullFunctionalUser;
 import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;
@@ -39,8 +39,8 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		
 		private UniqueObjectCache cache = new HashMapUniqueObjectCache();
 		
-		private RegisteredUser getUser(MobileNumber mobileNumber) {
-			RegisteredUser user = cache.get(mobileNumber, RegisteredUser.class);
+		private FullFunctionalUser getUser(MobileNumber mobileNumber) {
+			FullFunctionalUser user = cache.get(mobileNumber, FullFunctionalUser.class);
 			if (user == null) {
 				user = new MobileNumberUserProxy(mobileNumber, UserNoteOperationManager.this);
 				cache.put(mobileNumber, user);
@@ -48,8 +48,8 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 			return user;
 		}
 		
-		private RegisteredUser getUser(BasicUserDto basicUserDto) {
-			RegisteredUser user = cache.get(basicUserDto.mobileNumber, RegisteredUser.class);
+		private FullFunctionalUser getUser(BasicUserDto basicUserDto) {
+			FullFunctionalUser user = cache.get(basicUserDto.mobileNumber, FullFunctionalUser.class);
 			if (user instanceof MobileNumberUserProxy) {
 				InMemoryBasicUser userAttributes = new InMemoryBasicUser(basicUserDto.mobileNumber);
 				userAttributes.nickname = basicUserDto.nickname;
@@ -61,8 +61,8 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 
 		}
 		
-		private RegisteredUser getUser(RegisteredUserDto userDto) {
-			RegisteredUser user = cache.get(userDto.mobileNumber, RegisteredUser.class);
+		private FullFunctionalUser getUser(RegisteredUserDto userDto) {
+			FullFunctionalUser user = cache.get(userDto.mobileNumber, FullFunctionalUser.class);
 			if (!(user instanceof OperationDelegatingMobileUser)) {
 				user = new OperationDelegatingMobileUser(userDto.mobileNumber, UserNoteOperationManager.this);
 				((OperationDelegatingMobileUser)user).passwordDigest = userDto.passwordDigest;
@@ -87,7 +87,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	}
 	
 	OperationDelegatingMobileUser loadUserIfNotExists(MobileNumber mobileNumber) {
-		RegisteredUser user = userCache.getUser(mobileNumber);
+		FullFunctionalUser user = userCache.getUser(mobileNumber);
 		if (!(user instanceof OperationDelegatingMobileUser)) {
 			user = userCache.getUser(loadUserFromDao(mobileNumber));
 		}
@@ -105,7 +105,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	}
 	
 	@Override
-	public RegisteredUser findUser(MobileNumber mobileNumber) {
+	public FullFunctionalUser findUser(MobileNumber mobileNumber) {
 		return userCache.getUser(mobileNumber);
 	}
 	
