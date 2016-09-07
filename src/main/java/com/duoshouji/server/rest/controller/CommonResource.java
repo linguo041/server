@@ -17,7 +17,7 @@ public class CommonResource {
 
 	private DuoShouJiFacade duoShouJiFacade;
 	
-	@Autowired
+	
 	private BrandDao brandDao;
 
 	@Autowired

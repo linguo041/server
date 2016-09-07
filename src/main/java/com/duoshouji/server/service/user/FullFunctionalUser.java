@@ -6,7 +6,7 @@ import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
 @Unique
-public interface RegisteredUser extends BasicUser {
+public interface FullFunctionalUser extends UserProfile {
 
 	UserMessageProxy getMessageProxy();
 
@@ -16,6 +16,8 @@ public interface RegisteredUser extends BasicUser {
 
 	void setPassword(Password password);
 
+	void setGender(Gender gender);
+	
 	void setNickname(String nickname);
 	
 	void setPortrait(Image portrait);

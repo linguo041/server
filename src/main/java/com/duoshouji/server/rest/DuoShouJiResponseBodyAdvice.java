@@ -23,12 +23,15 @@ public class DuoShouJiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 	public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
 			Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
 			ServerHttpResponse response) {
+		if (body instanceof Exception) {
+			return StandardJsonResponse.wrapResponse((Exception)body);
+		}
 		return StandardJsonResponse.wrapResponse(body);
 	}
 	
 	@ExceptionHandler
-	public StandardJsonResponse handleGeneralException(Exception e) {
+	public Exception handleGeneralException(Exception e) {
 		LogManager.getLogger().error("Request handler throw exception", e);
-		return StandardJsonResponse.wrapResponse(e);
+		return e;
 	}
 }

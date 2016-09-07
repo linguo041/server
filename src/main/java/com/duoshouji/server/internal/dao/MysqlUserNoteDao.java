@@ -20,6 +20,7 @@ import com.duoshouji.server.service.dao.UserNoteDao;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.Tag;
+import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;
 import com.duoshouji.server.util.MobileNumber;
@@ -45,19 +46,36 @@ public class MysqlUserNoteDao implements UserNoteDao {
 					@Override
 					public RegisteredUserDto extractData(ResultSet rs)
 						throws SQLException, DataAccessException {
-						RegisteredUserDto returnValue = null;
+						RegisteredUserDto userDto = null;
 						if (rs.next()) {
-							returnValue = new RegisteredUserDto();
-							returnValue.mobileNumber = new MobileNumber(Long.toString(rs.getLong("mobile")));
-							returnValue.nickname = rs.getString("user_name");
-							returnValue.passwordDigest = rs.getString("password");
-							returnValue.portrait = new Image(rs.getInt("avatar_width"), rs.getInt("avatar_height"), rs.getString("avatar_url"));
+							userDto = new RegisteredUserDto();
+							mapBasicUserDto(userDto, rs);
+							userDto.passwordDigest = rs.getString("password");
+							userDto.totalRevenue = rs.getBigDecimal("balance");
+							userDto.publishedNoteCount = rs.getInt("note_number");
+							userDto.transactionCount = rs.getInt("order_number");
+							userDto.watchCount = rs.getInt("follow_number");
+							userDto.fanCount = rs.getInt("followed_number");
 						}
-						return returnValue;
+						return userDto;
 				}
 		});
 	}
 
+	private void mapBasicUserDto(BasicUserDto basicUserDto, ResultSet rs) throws SQLException {
+		basicUserDto.mobileNumber = new MobileNumber(Long.toString(rs.getLong("mobile")));
+		basicUserDto.nickname = rs.getString("user_name");
+		if (rs.getString("avatar_url") != null) {
+			basicUserDto.portrait = new Image(
+					rs.getInt("avatar_width")
+					, rs.getInt("avatar_height")
+					, rs.getString("avatar_url"));
+		}
+		if (rs.getString("gender") != null) {
+			basicUserDto.gender = Gender.valueOf(rs.getString("gender").trim());
+		}
+	}
+	
 	@Override
 	public NoteDto findNote(long noteId) {
 		return mysqlDataSource.query("select * from duoshouji.v_square_notes where id = " + noteId
@@ -87,9 +105,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 		noteDto.title = rs.getString("title");
 		noteDto.transactionCount = rs.getInt("order_number");
 		BasicUserDto userDto = new BasicUserDto();
-		userDto.mobileNumber = new MobileNumber(Long.toString(rs.getLong("mobile")));
-		userDto.nickname = rs.getString("user_name");
-		userDto.portrait = new Image(rs.getInt("avatar_width"), rs.getInt("avatar_height"), rs.getString("avatar_url"));
+		mapBasicUserDto(userDto, rs);
 		noteDto.owner = userDto;
 		return noteDto;		
 	}
@@ -152,23 +168,46 @@ public class MysqlUserNoteDao implements UserNoteDao {
 					@Override
 					public void setValues(PreparedStatement ps)
 							throws SQLException {
-						ps.setLong(1, Long.valueOf(mobileNumber.toString()));
+						ps.setLong(1, mobileNumber.toLong());
 						ps.setString(2, mobileNumber.toString());
 					}
 		});
+		mysqlDataSource.update("insert into duoshouji.user_extend (user_id) values(?)"
+				, new PreparedStatementSetter() {
+
+					@Override
+					public void setValues(PreparedStatement ps)
+							throws SQLException {
+						ps.setLong(1, mobileNumber.toLong());
+					}
+					
+				});
 	}
 
 	@Override
-	public void saveUserProfile(final MobileNumber mobileNumber, final String nickname) {
+	public void saveNickname(final MobileNumber mobileNumber, final String nickname) {
 		mysqlDataSource.update("update duoshouji.user set user_name = ? where mobile = ?"
 				,new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
 							throws SQLException {
 						ps.setString(1, nickname);
-						ps.setLong(2, Long.valueOf(mobileNumber.toString()));
+						ps.setLong(2, mobileNumber.toLong());
 					}
 				});		
+	}
+
+	@Override
+	public void saveGender(final MobileNumber mobileNumber, final Gender gender) {
+		mysqlDataSource.update("update duoshouji.user set gender = ? where mobile = ?"
+				,new PreparedStatementSetter(){
+					@Override
+					public void setValues(PreparedStatement ps)
+							throws SQLException {
+						ps.setString(1, gender.toString());
+						ps.setLong(2, mobileNumber.toLong());
+					}
+				});				
 	}
 
 	@Override
@@ -190,7 +229,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 		final long userId = getUserId(mobileNumber);
 		final long time = System.currentTimeMillis();
 		mysqlDataSource.update(buildInsertNoteClause(noteAttributes.getTagCount())
-				,new PreparedStatementSetter(){
+				, new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
 							throws SQLException {
@@ -205,7 +244,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 						}
 					}
 				});
-		
+		mysqlDataSource.update("update duoshouji.user_extend set note_number = note_number + 1 where user_id = " + mobileNumber);
 		return mysqlDataSource.query("select max(id) note_id from duoshouji.note where user_id = " + userId
 				, new ResultSetExtractor<Long>(){
 					@Override

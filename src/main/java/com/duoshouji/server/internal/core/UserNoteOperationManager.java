@@ -1,5 +1,6 @@
 package com.duoshouji.server.internal.core;
 
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
 
@@ -19,7 +20,8 @@ import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NoteRepository;
 import com.duoshouji.server.service.user.BasicUser;
-import com.duoshouji.server.service.user.RegisteredUser;
+import com.duoshouji.server.service.user.FullFunctionalUser;
+import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;
@@ -27,6 +29,7 @@ import com.duoshouji.server.util.MessageProxyFactory;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
+import com.google.common.base.MoreObjects;
 
 @Service
 public class UserNoteOperationManager implements UserRepository, NoteRepository, UserNoteInteraction {
@@ -39,8 +42,16 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		
 		private UniqueObjectCache cache = new HashMapUniqueObjectCache();
 		
-		private RegisteredUser getUser(MobileNumber mobileNumber) {
-			RegisteredUser user = cache.get(mobileNumber, RegisteredUser.class);
+		private OperationDelegatingMobileUser getUserIfLoaded(MobileNumber mobileNumber) {
+			FullFunctionalUser user = cache.get(mobileNumber, FullFunctionalUser.class);
+			if (user instanceof OperationDelegatingMobileUser) {
+				return (OperationDelegatingMobileUser) user;
+			}
+			return null;
+		}
+		
+		private FullFunctionalUser getUser(MobileNumber mobileNumber) {
+			FullFunctionalUser user = cache.get(mobileNumber, FullFunctionalUser.class);
 			if (user == null) {
 				user = new MobileNumberUserProxy(mobileNumber, UserNoteOperationManager.this);
 				cache.put(mobileNumber, user);
@@ -48,12 +59,13 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 			return user;
 		}
 		
-		private RegisteredUser getUser(BasicUserDto basicUserDto) {
-			RegisteredUser user = cache.get(basicUserDto.mobileNumber, RegisteredUser.class);
+		private FullFunctionalUser getUser(BasicUserDto basicUserDto) {
+			FullFunctionalUser user = cache.get(basicUserDto.mobileNumber, FullFunctionalUser.class);
 			if (user instanceof MobileNumberUserProxy) {
 				InMemoryBasicUser userAttributes = new InMemoryBasicUser(basicUserDto.mobileNumber);
 				userAttributes.nickname = basicUserDto.nickname;
 				userAttributes.portrait = basicUserDto.portrait;
+				userAttributes.gender = basicUserDto.gender;
 				user = new BasicUserProxy(userAttributes, UserNoteOperationManager.this);
 				cache.put(user.getMobileNumber(), user);
 			}
@@ -61,14 +73,21 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 
 		}
 		
-		private RegisteredUser getUser(RegisteredUserDto userDto) {
-			RegisteredUser user = cache.get(userDto.mobileNumber, RegisteredUser.class);
+		private FullFunctionalUser getUser(RegisteredUserDto userDto) {
+			FullFunctionalUser user = cache.get(userDto.mobileNumber, FullFunctionalUser.class);
 			if (!(user instanceof OperationDelegatingMobileUser)) {
-				user = new OperationDelegatingMobileUser(userDto.mobileNumber, UserNoteOperationManager.this);
-				((OperationDelegatingMobileUser)user).passwordDigest = userDto.passwordDigest;
-				((OperationDelegatingMobileUser)user).nickname = userDto.nickname;
-				((OperationDelegatingMobileUser)user).portrait = userDto.portrait;
-				cache.put(user.getMobileNumber(), user);				
+				OperationDelegatingMobileUser tempUser = new OperationDelegatingMobileUser(userDto.mobileNumber, UserNoteOperationManager.this);
+				tempUser.passwordDigest = userDto.passwordDigest;
+				tempUser.nickname = userDto.nickname;
+				tempUser.portrait = userDto.portrait;
+				tempUser.gender = userDto.gender;
+				tempUser.totalRevenue = MoreObjects.firstNonNull(userDto.totalRevenue, BigDecimal.ZERO);
+				tempUser.publishedNoteCount = userDto.publishedNoteCount;
+				tempUser.transactionCount = userDto.transactionCount;
+				tempUser.watchCount = userDto.watchCount;
+				tempUser.fanCount = userDto.fanCount;
+				cache.put(user.getMobileNumber(), tempUser);
+				user = tempUser;
 			}
 			return user;
 		}
@@ -87,7 +106,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	}
 	
 	OperationDelegatingMobileUser loadUserIfNotExists(MobileNumber mobileNumber) {
-		RegisteredUser user = userCache.getUser(mobileNumber);
+		FullFunctionalUser user = userCache.getUser(mobileNumber);
 		if (!(user instanceof OperationDelegatingMobileUser)) {
 			user = userCache.getUser(loadUserFromDao(mobileNumber));
 		}
@@ -105,7 +124,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	}
 	
 	@Override
-	public RegisteredUser findUser(MobileNumber mobileNumber) {
+	public FullFunctionalUser findUser(MobileNumber mobileNumber) {
 		return userCache.getUser(mobileNumber);
 	}
 	
@@ -135,7 +154,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	}
 	
 	void setNickname(OperationDelegatingMobileUser user, String nickname) {
-		userNoteDao.saveUserProfile(user.getMobileNumber(), nickname);
+		userNoteDao.saveNickname(user.getMobileNumber(), nickname);
 	}
 
 	void setPassword(OperationDelegatingMobileUser user, Password password) {
@@ -150,6 +169,10 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		userNoteDao.saveNoteImage(note.getNoteId(), mainImage);
 	}
 	
+	public void setGender(OperationDelegatingMobileUser user, Gender gender) {
+		userNoteDao.saveGender(user.getMobileNumber(), gender);
+	}
+	
 	@Override
 	public NoteCollection getUserPublishedNotes(BasicUser user) {
 		return new UserPublishedNoteCollection(this, System.currentTimeMillis(), user.getMobileNumber());
@@ -158,7 +181,17 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	@Override
 	public long publishNote(BasicUser user, NotePublishAttributes noteAttributes) {
 		noteAttributes.checkAttributesSetup();
-		return userNoteDao.createNote(user.getMobileNumber(), noteAttributes);
+		final long noteId = userNoteDao.createNote(user.getMobileNumber(), noteAttributes);
+		OperationDelegatingMobileUser loadedUser = null;
+		if (user instanceof OperationDelegatingMobileUser) {
+			loadedUser = (OperationDelegatingMobileUser) user;
+		} else {
+			loadedUser = userCache.getUserIfLoaded(user.getMobileNumber());
+		}
+		if (loadedUser != null) {
+			loadedUser.publishedNoteCount++;
+		}
+		return noteId;
 	}
 	
 	@Override

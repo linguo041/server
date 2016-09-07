@@ -1,13 +1,16 @@
 package com.duoshouji.server.internal.core;
 
+import java.math.BigDecimal;
+
 import com.duoshouji.server.service.user.BasicUser;
-import com.duoshouji.server.service.user.RegisteredUser;
+import com.duoshouji.server.service.user.Gender;
+import com.duoshouji.server.service.user.FullFunctionalUser;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
-public class BasicUserProxy implements RegisteredUser {
+public class BasicUserProxy implements FullFunctionalUser {
 	
 	BasicUser delegator;
 	private UserNoteOperationManager operationManager;
@@ -35,11 +38,11 @@ public class BasicUserProxy implements RegisteredUser {
 		return getMobileNumber().equals(that.getMobileNumber());
 	}
 
-	private RegisteredUser getRegisteredUser() {
-		if (!(delegator instanceof RegisteredUser)) {
+	private FullFunctionalUser getRegisteredUser() {
+		if (!(delegator instanceof FullFunctionalUser)) {
 			delegator = operationManager.loadUserIfNotExists(delegator.getMobileNumber());
 		}
-		return (RegisteredUser) delegator;
+		return (FullFunctionalUser) delegator;
 	}
 	
 	@Override
@@ -55,6 +58,36 @@ public class BasicUserProxy implements RegisteredUser {
 	@Override
 	public Image getPortrait() {
 		return delegator.getPortrait();
+	}
+
+	@Override
+	public BigDecimal getTotalRevenue() {
+		return getRegisteredUser().getTotalRevenue();
+	}
+
+	@Override
+	public int getPublishedNoteCount() {
+		return getRegisteredUser().getPublishedNoteCount();
+	}
+
+	@Override
+	public int getTransactionCount() {
+		return getRegisteredUser().getTransactionCount();
+	}
+
+	@Override
+	public int getWatchCount() {
+		return getRegisteredUser().getWatchCount();
+	}
+
+	@Override
+	public int getFanCount() {
+		return getRegisteredUser().getFanCount();
+	}
+
+	@Override
+	public Gender getGender() {
+		return getRegisteredUser().getGender();
 	}
 
 	@Override
@@ -85,6 +118,11 @@ public class BasicUserProxy implements RegisteredUser {
 	@Override
 	public void setPortrait(Image portrait) {
 		getRegisteredUser().setPortrait(portrait);
+	}
+
+	@Override
+	public void setGender(Gender gender) {
+		getRegisteredUser().setGender(gender);
 	}
 }
 

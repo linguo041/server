@@ -1,5 +1,6 @@
 package com.duoshouji.server.rest.controller;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +23,9 @@ import com.duoshouji.server.service.auth.UserTokenService;
 import com.duoshouji.server.service.note.BasicNote;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.PushedNote;
+import com.duoshouji.server.service.user.BasicUserAttributes;
+import com.duoshouji.server.service.user.Gender;
+import com.duoshouji.server.service.user.UserProfile;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
@@ -79,10 +83,23 @@ public class UserResource {
 	
 	@RequestMapping(path = "/settings/profile", method = RequestMethod.POST)
 	public void updateProfile(
-			@PathVariable("account-id") MobileNumber mobileNumber,
-			@RequestParam("nickname") String nickname
+			@PathVariable("account-id") MobileNumber accountId,
+			@RequestParam(value="nickname", required=false) final String nickname,
+			@RequestParam(value="gender", required=false) final Gender gender
 			) {
-		duoShouJiFacade.updateNickname(mobileNumber, nickname);
+		duoShouJiFacade.updateProfile(accountId, new BasicUserAttributes() {
+
+			@Override
+			public String getNickname() {
+				return nickname;
+			}
+
+			@Override
+			public Gender getGender() {
+				return gender;
+			}
+			
+		});
 	}
 	
 	@RequestMapping(path = "/notes", method = RequestMethod.POST)
@@ -305,4 +322,62 @@ public class UserResource {
 
 	}
 
+	
+	@RequestMapping(path = "/profile", method = RequestMethod.GET)
+	public UserProfileView getUserProfile(@PathVariable("account-id") MobileNumber mobileNumber) {
+		return new UserProfileView(duoShouJiFacade.getUserProfile(mobileNumber));
+	}
+	
+	public static class UserProfileView {
+		private UserProfile profile;
+		
+		private UserProfileView(UserProfile profile) {
+			super();
+			this.profile = profile;
+		}
+
+		public long getUserId() {
+			return profile.getMobileNumber().toLong();
+		}
+		
+		public String getPortraitUrl() {
+			return profile.getPortrait().getUrl();
+		}
+		
+		public int getPortraitHeight() {
+			return profile.getPortrait().getHeight();
+		}
+		
+		public int getPortraitWidth() {
+			return profile.getPortrait().getWidth();
+		}
+		
+		public String getNickname() {
+			return profile.getNickname();
+		}
+		
+		public Gender getGender() {
+			return profile.getGender();
+		}
+		
+		public BigDecimal getTotalRevenue() {
+			return profile.getTotalRevenue();
+		}
+		
+		public int getPublishedNoteCount() {
+			return profile.getPublishedNoteCount();
+		}
+		
+		public int getTransactionCount() {
+			return profile.getTransactionCount();
+		}
+		
+		public int getWatchCount() {
+			return profile.getWatchCount();
+		}
+		
+		public int getFanCount() {
+			return profile.getFanCount();
+		}
+	}
 }

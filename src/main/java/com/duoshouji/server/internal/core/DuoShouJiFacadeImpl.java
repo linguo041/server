@@ -18,7 +18,9 @@ import com.duoshouji.server.service.note.NoteRepository;
 import com.duoshouji.server.service.note.PushedNote;
 import com.duoshouji.server.service.note.Tag;
 import com.duoshouji.server.service.note.TagRepository;
-import com.duoshouji.server.service.user.RegisteredUser;
+import com.duoshouji.server.service.user.BasicUserAttributes;
+import com.duoshouji.server.service.user.FullFunctionalUser;
+import com.duoshouji.server.service.user.UserProfile;
 import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.service.verify.SecureAccessFacade;
 import com.duoshouji.server.service.verify.SecureChecker;
@@ -68,7 +70,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	
 	@Override
 	public void sendLoginVerificationCode(MobileNumber mobileNumber) {
-		RegisteredUser user = userRepository.findUser(mobileNumber);
+		FullFunctionalUser user = userRepository.findUser(mobileNumber);
 		secureAccessFacade.getSecureChecker(user).sendVerificationCode();
 	}
 
@@ -84,9 +86,14 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	}
 	
 	@Override
+	public UserProfile getUserProfile(MobileNumber mobileNumber) {
+		return userRepository.findUser(mobileNumber);
+	}
+
+	@Override
 	public boolean resetPassword(MobileNumber accountId
 			, VerificationCode verificationCode, Password password) {
-		final RegisteredUser user = userRepository.findUser(accountId);
+		final FullFunctionalUser user = userRepository.findUser(accountId);
 		boolean isSuccess = false;
 		if (secureAccessFacade.getSecureChecker(user).verify(verificationCode)) {
 			user.setPassword(password);
@@ -101,8 +108,14 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	}
 
 	@Override
-	public void updateNickname(MobileNumber accountId, String nickname) {
-		userRepository.findUser(accountId).setNickname(nickname);		
+	public void updateProfile(MobileNumber accountId, BasicUserAttributes attributes) {
+		final FullFunctionalUser user = userRepository.findUser(accountId);
+		if (attributes.getNickname() != null) {
+			user.setNickname(attributes.getNickname());
+		}
+		if (attributes.getGender() != null) {
+			user.setGender(attributes.getGender());
+		}	
 	}
 
 	@Override
