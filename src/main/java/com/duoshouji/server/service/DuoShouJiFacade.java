@@ -43,7 +43,7 @@ public interface DuoShouJiFacade {
 
 	void sendResetPasswordVerificationCode(MobileNumber accountId);
 
-	void updateNickname(MobileNumber accountId, String nickname);
+	void updateProfile(MobileNumber accountId, String nickname);
 
 	NoteBuilder newNotePublisher(MobileNumber accountId);
 

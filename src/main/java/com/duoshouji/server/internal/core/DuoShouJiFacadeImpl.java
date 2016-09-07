@@ -107,7 +107,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	}
 
 	@Override
-	public void updateNickname(MobileNumber accountId, String nickname) {
+	public void updateProfile(MobileNumber accountId, String nickname) {
 		userRepository.findUser(accountId).setNickname(nickname);		
 	}
 

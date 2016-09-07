@@ -84,7 +84,7 @@ public class UserResource {
 			@PathVariable("account-id") MobileNumber mobileNumber,
 			@RequestParam("nickname") String nickname
 			) {
-		duoShouJiFacade.updateNickname(mobileNumber, nickname);
+		duoShouJiFacade.updateProfile(mobileNumber, nickname);
 	}
 	
 	@RequestMapping(path = "/notes", method = RequestMethod.POST)

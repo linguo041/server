@@ -1,5 +1,6 @@
 package com.duoshouji.server.internal.core;
 
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,6 +28,7 @@ import com.duoshouji.server.util.MessageProxyFactory;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
+import com.google.common.base.MoreObjects;
 
 @Service
 public class UserNoteOperationManager implements UserRepository, NoteRepository, UserNoteInteraction {
@@ -54,6 +56,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 				InMemoryBasicUser userAttributes = new InMemoryBasicUser(basicUserDto.mobileNumber);
 				userAttributes.nickname = basicUserDto.nickname;
 				userAttributes.portrait = basicUserDto.portrait;
+				userAttributes.gender = basicUserDto.gender;
 				user = new BasicUserProxy(userAttributes, UserNoteOperationManager.this);
 				cache.put(user.getMobileNumber(), user);
 			}
@@ -64,11 +67,18 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		private FullFunctionalUser getUser(RegisteredUserDto userDto) {
 			FullFunctionalUser user = cache.get(userDto.mobileNumber, FullFunctionalUser.class);
 			if (!(user instanceof OperationDelegatingMobileUser)) {
-				user = new OperationDelegatingMobileUser(userDto.mobileNumber, UserNoteOperationManager.this);
-				((OperationDelegatingMobileUser)user).passwordDigest = userDto.passwordDigest;
-				((OperationDelegatingMobileUser)user).nickname = userDto.nickname;
-				((OperationDelegatingMobileUser)user).portrait = userDto.portrait;
-				cache.put(user.getMobileNumber(), user);				
+				OperationDelegatingMobileUser tempUser = new OperationDelegatingMobileUser(userDto.mobileNumber, UserNoteOperationManager.this);
+				tempUser.passwordDigest = userDto.passwordDigest;
+				tempUser.nickname = userDto.nickname;
+				tempUser.portrait = userDto.portrait;
+				tempUser.gender = userDto.gender;
+				tempUser.totalRevenue = MoreObjects.firstNonNull(userDto.totalRevenue, BigDecimal.ZERO);
+				tempUser.publishedNoteCount = userDto.publishedNoteCount;
+				tempUser.transactionCount = userDto.transactionCount;
+				tempUser.watchCount = userDto.watchCount;
+				tempUser.fanCount = userDto.fanCount;
+				cache.put(user.getMobileNumber(), tempUser);
+				user = tempUser;
 			}
 			return user;
 		}
