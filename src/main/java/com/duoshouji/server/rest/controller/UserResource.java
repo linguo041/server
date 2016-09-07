@@ -23,6 +23,8 @@ import com.duoshouji.server.service.auth.UserTokenService;
 import com.duoshouji.server.service.note.BasicNote;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.PushedNote;
+import com.duoshouji.server.service.user.BasicUserAttributes;
+import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.service.user.UserProfile;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
@@ -81,10 +83,23 @@ public class UserResource {
 	
 	@RequestMapping(path = "/settings/profile", method = RequestMethod.POST)
 	public void updateProfile(
-			@PathVariable("account-id") MobileNumber mobileNumber,
-			@RequestParam("nickname") String nickname
+			@PathVariable("account-id") MobileNumber accountId,
+			@RequestParam(value="nickname", required=false) final String nickname,
+			@RequestParam(value="gender", required=false) final Gender gender
 			) {
-		duoShouJiFacade.updateProfile(mobileNumber, nickname);
+		duoShouJiFacade.updateProfile(accountId, new BasicUserAttributes() {
+
+			@Override
+			public String getNickname() {
+				return nickname;
+			}
+
+			@Override
+			public Gender getGender() {
+				return gender;
+			}
+			
+		});
 	}
 	
 	@RequestMapping(path = "/notes", method = RequestMethod.POST)
@@ -339,6 +354,10 @@ public class UserResource {
 		
 		public String getNickname() {
 			return profile.getNickname();
+		}
+		
+		public Gender getGender() {
+			return profile.getGender();
 		}
 		
 		public BigDecimal getTotalRevenue() {

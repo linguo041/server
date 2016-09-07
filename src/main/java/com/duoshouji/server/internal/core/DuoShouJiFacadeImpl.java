@@ -18,6 +18,7 @@ import com.duoshouji.server.service.note.NoteRepository;
 import com.duoshouji.server.service.note.PushedNote;
 import com.duoshouji.server.service.note.Tag;
 import com.duoshouji.server.service.note.TagRepository;
+import com.duoshouji.server.service.user.BasicUserAttributes;
 import com.duoshouji.server.service.user.FullFunctionalUser;
 import com.duoshouji.server.service.user.UserProfile;
 import com.duoshouji.server.service.user.UserRepository;
@@ -107,8 +108,14 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	}
 
 	@Override
-	public void updateProfile(MobileNumber accountId, String nickname) {
-		userRepository.findUser(accountId).setNickname(nickname);		
+	public void updateProfile(MobileNumber accountId, BasicUserAttributes attributes) {
+		final FullFunctionalUser user = userRepository.findUser(accountId);
+		if (attributes.getNickname() != null) {
+			user.setNickname(attributes.getNickname());
+		}
+		if (attributes.getGender() != null) {
+			user.setGender(attributes.getGender());
+		}	
 	}
 
 	@Override

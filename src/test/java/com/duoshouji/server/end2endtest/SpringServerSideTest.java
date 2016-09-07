@@ -18,7 +18,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.duoshouji.server.MockConstants;
+import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.util.MessageProxyFactory;
+import com.duoshouji.server.util.MobileNumber;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -57,7 +59,7 @@ public class SpringServerSideTest {
 			.extract(ValueExtractor.TOKEN_EXTRACTOR);
 		
 		session = new MockSession(mockMvc, MockConstants.MOCK_MOBILE_NUMBER, token);
-		session.emitUpdateProfile(MockConstants.MOCK_NICKNAME).performAndExpectSuccess();
+		session.emitUpdateProfile(MockConstants.MOCK_NICKNAME, MockConstants.MOCK_GENDER.toString()).performAndExpectSuccess();
 		session.emitUploadPortrait(getImageBytes(MockConstants.MOCK_USER_PORTRAIT)).performAndExpectSuccess();
 		
 		final long note1 = session.emitPublishNote(new long[]{1l, 2l})
@@ -87,6 +89,9 @@ public class SpringServerSideTest {
 		session.emitListSquareNotes(-1, 10).performAndExpectSuccess().expect(new NoteIdMatcher(note4, note3, note2, note1));
 		session.emitListPublishedNotes(-1, 10).performAndExpectSuccess().expect(new NoteIdMatcher(note4, note3, note2, note1));
 		session.emitListChannelNotes(-1, 10, 3l).performAndExpectSuccess().expect(new NoteIdMatcher(note4, note3, note2));
+		
+		session.emitGetUserProfile().perform().expect(
+				new UserProfileMatcher(MockConstants.MOCK_MOBILE_NUMBER, MockConstants.MOCK_NICKNAME, MockConstants.MOCK_GENDER, 4));
 	}
 
 
@@ -109,6 +114,30 @@ public class SpringServerSideTest {
 				final long actualNoteId = jsonNotes.getJSONObject(i).getLong("noteId");
 				Assert.assertEquals(noteIds[i], actualNoteId);
 			}
+		}
+	}
+	
+	private static class UserProfileMatcher extends SuccessJsonResultMatcher {
+		private MobileNumber userId;
+		private String nickname;
+		private Gender gender;
+		private int noteCount;
+		
+		public UserProfileMatcher(MobileNumber userId, String nickname, Gender gender, int noteCount) {
+			super();
+			this.userId = userId;
+			this.nickname = nickname;
+			this.gender = gender;
+			this.noteCount = noteCount;
+		}
+
+		@Override
+		protected void verifyJsonResult(JSONObject json) throws Exception {
+			JSONObject jsonProfile = json.getJSONObject("resultValues");
+			Assert.assertEquals(userId.toLong(), jsonProfile.getLong("userId"));
+			Assert.assertEquals(nickname, jsonProfile.getString("nickname"));
+			Assert.assertEquals(gender, Gender.valueOf(jsonProfile.getString("gender")));
+			Assert.assertEquals(noteCount, jsonProfile.getInt("publishedNoteCount"));
 		}
 	}
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.Tag;
+import com.duoshouji.server.service.user.BasicUserAttributes;
 import com.duoshouji.server.service.user.UserProfile;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
@@ -35,7 +36,7 @@ public interface DuoShouJiFacade {
 	
 	boolean verificationCodeLogin(MobileNumber accountId, VerificationCode verificationCode);
 	
-	UserProfile getUserProfile(MobileNumber mobileNumber);	
+	UserProfile getUserProfile(MobileNumber mobileNumber);
 	
 	boolean passwordLogin(MobileNumber accountId, Password mockPassword);
 
@@ -43,7 +44,7 @@ public interface DuoShouJiFacade {
 
 	void sendResetPasswordVerificationCode(MobileNumber accountId);
 
-	void updateProfile(MobileNumber accountId, String nickname);
+	void updateProfile(MobileNumber accountId, BasicUserAttributes attributes);
 
 	NoteBuilder newNotePublisher(MobileNumber accountId);
 

@@ -185,16 +185,29 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	}
 
 	@Override
-	public void saveUserProfile(final MobileNumber mobileNumber, final String nickname) {
+	public void saveNickname(final MobileNumber mobileNumber, final String nickname) {
 		mysqlDataSource.update("update duoshouji.user set user_name = ? where mobile = ?"
 				,new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
 							throws SQLException {
 						ps.setString(1, nickname);
-						ps.setLong(2, Long.valueOf(mobileNumber.toString()));
+						ps.setLong(2, mobileNumber.toLong());
 					}
 				});		
+	}
+
+	@Override
+	public void saveGender(final MobileNumber mobileNumber, final Gender gender) {
+		mysqlDataSource.update("update duoshouji.user set gender = ? where mobile = ?"
+				,new PreparedStatementSetter(){
+					@Override
+					public void setValues(PreparedStatement ps)
+							throws SQLException {
+						ps.setString(1, gender.toString());
+						ps.setLong(2, mobileNumber.toLong());
+					}
+				});				
 	}
 
 	@Override
@@ -231,7 +244,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 						}
 					}
 				});
-		
+		mysqlDataSource.update("update duoshouji.user_extend set note_number = note_number + 1 where user_id = " + mobileNumber);
 		return mysqlDataSource.query("select max(id) note_id from duoshouji.note where user_id = " + userId
 				, new ResultSetExtractor<Long>(){
 					@Override

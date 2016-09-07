@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import com.duoshouji.server.service.user.PasswordNotSetException;
 import com.duoshouji.server.service.user.FullFunctionalUser;
+import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
@@ -82,6 +83,12 @@ class OperationDelegatingMobileUser extends InMemoryBasicUser implements FullFun
 	public void setPortrait(Image portrait) {
 		delegator.setPortrait(this, portrait);
 		this.portrait = portrait;
+	}
+
+	@Override
+	public void setGender(Gender gender) {
+		delegator.setGender(this, gender);
+		this.gender = gender;
 	}
 
 }

@@ -21,6 +21,7 @@ import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NoteRepository;
 import com.duoshouji.server.service.user.BasicUser;
 import com.duoshouji.server.service.user.FullFunctionalUser;
+import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;
@@ -40,6 +41,14 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	private final class UserCache {
 		
 		private UniqueObjectCache cache = new HashMapUniqueObjectCache();
+		
+		private OperationDelegatingMobileUser getUserIfLoaded(MobileNumber mobileNumber) {
+			FullFunctionalUser user = cache.get(mobileNumber, FullFunctionalUser.class);
+			if (user instanceof OperationDelegatingMobileUser) {
+				return (OperationDelegatingMobileUser) user;
+			}
+			return null;
+		}
 		
 		private FullFunctionalUser getUser(MobileNumber mobileNumber) {
 			FullFunctionalUser user = cache.get(mobileNumber, FullFunctionalUser.class);
@@ -145,7 +154,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	}
 	
 	void setNickname(OperationDelegatingMobileUser user, String nickname) {
-		userNoteDao.saveUserProfile(user.getMobileNumber(), nickname);
+		userNoteDao.saveNickname(user.getMobileNumber(), nickname);
 	}
 
 	void setPassword(OperationDelegatingMobileUser user, Password password) {
@@ -160,6 +169,10 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		userNoteDao.saveNoteImage(note.getNoteId(), mainImage);
 	}
 	
+	public void setGender(OperationDelegatingMobileUser user, Gender gender) {
+		userNoteDao.saveGender(user.getMobileNumber(), gender);
+	}
+	
 	@Override
 	public NoteCollection getUserPublishedNotes(BasicUser user) {
 		return new UserPublishedNoteCollection(this, System.currentTimeMillis(), user.getMobileNumber());
@@ -168,7 +181,17 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	@Override
 	public long publishNote(BasicUser user, NotePublishAttributes noteAttributes) {
 		noteAttributes.checkAttributesSetup();
-		return userNoteDao.createNote(user.getMobileNumber(), noteAttributes);
+		final long noteId = userNoteDao.createNote(user.getMobileNumber(), noteAttributes);
+		OperationDelegatingMobileUser loadedUser = null;
+		if (user instanceof OperationDelegatingMobileUser) {
+			loadedUser = (OperationDelegatingMobileUser) user;
+		} else {
+			loadedUser = userCache.getUserIfLoaded(user.getMobileNumber());
+		}
+		if (loadedUser != null) {
+			loadedUser.publishedNoteCount++;
+		}
+		return noteId;
 	}
 	
 	@Override

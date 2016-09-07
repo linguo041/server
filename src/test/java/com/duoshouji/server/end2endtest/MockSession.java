@@ -39,8 +39,12 @@ public class MockSession extends MockClient {
 		return new ResetPassword(code, password);
 	}
 	
-	public UpdateProfile emitUpdateProfile(String nickname) {
-		return new UpdateProfile(nickname);
+	public UpdateProfile emitUpdateProfile(String nickname, String gender) {
+		return new UpdateProfile(nickname, gender);
+	}
+	
+	public GetUserProfile emitGetUserProfile() {
+		return new GetUserProfile();
 	}
 	
 	public UploadPortrait emitUploadPortrait(InputStream imageFile) {
@@ -105,17 +109,33 @@ public class MockSession extends MockClient {
 	}
 	
 	public class UpdateProfile extends DynamicResourceRequest {
-		private String nickName;
+		private String nickname;
+		private String gender;
 		
-		private UpdateProfile(String nickName) {
+		private UpdateProfile(String nickname, String gender) {
 			super();
-			this.nickName = nickName;
+			this.nickname = nickname;
+			this.gender = gender;
 		}
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() {
-			return post("/accounts/{account-id}/settings/profile", mobile)
-					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
-					.param("nickname", nickName);
+			MockHttpServletRequestBuilder builder = post("/accounts/{account-id}/settings/profile", mobile)
+					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
+			if (nickname != null) {
+				builder.param("nickname", nickname);
+			}
+			if (gender != null) {
+				builder.param("gender", gender);
+			}
+			return builder;
+		}
+	}
+	
+	public class GetUserProfile extends DynamicResourceRequest {
+
+		@Override
+		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			return get("/accounts/{account-id}/profile", mobile).header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
 	}
 	

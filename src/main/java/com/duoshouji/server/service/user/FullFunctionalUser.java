@@ -16,6 +16,8 @@ public interface FullFunctionalUser extends UserProfile {
 
 	void setPassword(Password password);
 
+	void setGender(Gender gender);
+	
 	void setNickname(String nickname);
 	
 	void setPortrait(Image portrait);

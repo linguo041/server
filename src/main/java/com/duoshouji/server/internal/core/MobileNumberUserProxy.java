@@ -96,4 +96,9 @@ public class MobileNumberUserProxy extends AbstractUser implements FullFunctiona
 		getRegisteredUser().setPortrait(portrait);
 	}
 
+	@Override
+	public void setGender(Gender gender) {
+		getRegisteredUser().setGender(gender);
+	}
+
 }

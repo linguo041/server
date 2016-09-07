@@ -119,5 +119,10 @@ public class BasicUserProxy implements FullFunctionalUser {
 	public void setPortrait(Image portrait) {
 		getRegisteredUser().setPortrait(portrait);
 	}
+
+	@Override
+	public void setGender(Gender gender) {
+		getRegisteredUser().setGender(gender);
+	}
 }
 
