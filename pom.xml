@@ -1,14 +1,15 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.duoshouji</groupId>
     <artifactId>duoshouji-server</artifactId>
-    <packaging>war</packaging>
+    <packaging>pom</packaging>
     <version>0.0.1</version>
-    <name>duoshouji-server</name>
+    <name>DuoShouJi Server</name>
 
+    <dependencyManagement>
     <dependencies>
 	    <dependency>
 		    <groupId>org.apache.maven.plugins</groupId>
@@ -163,6 +164,7 @@
 			<version>3.4</version>			
 		</dependency>	
     </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
@@ -176,25 +178,15 @@
                     <target>1.7</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>java</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <mainClass>com.duoshouji.server.Main</mainClass>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    <modules>
+    	<module>duoshouji-service</module>
+        <module>duoshouji-service-image</module>
+    	<module>duoshouji-batch</module>
+    </modules>
 </project>

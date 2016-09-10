@@ -16,8 +16,6 @@ import com.duoshouji.server.service.note.Tag;
 public class CommonResource {
 
 	private DuoShouJiFacade duoShouJiFacade;
-	
-	
 	private BrandDao brandDao;
 
 	@Autowired

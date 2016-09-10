@@ -1,0 +1,6 @@
+/target/
+/.settings
+/.classpath
+/.project
+/bin
+/src/main/webapp/images/
