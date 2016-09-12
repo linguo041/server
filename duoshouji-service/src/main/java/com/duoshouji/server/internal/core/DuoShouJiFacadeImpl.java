@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.DuoShouJiFacade;
+import com.duoshouji.server.service.common.Tag;
+import com.duoshouji.server.service.common.TagRepository;
 import com.duoshouji.server.service.interaction.UserNoteInteraction;
 import com.duoshouji.server.service.note.BasicNote;
 import com.duoshouji.server.service.note.NoteCollection;
@@ -16,8 +18,6 @@ import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NoteRepository;
 import com.duoshouji.server.service.note.PushedNote;
-import com.duoshouji.server.service.note.Tag;
-import com.duoshouji.server.service.note.TagRepository;
 import com.duoshouji.server.service.user.BasicUserAttributes;
 import com.duoshouji.server.service.user.FullFunctionalUser;
 import com.duoshouji.server.service.user.UserProfile;
@@ -137,7 +137,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 
 	@Override
 	public List<Tag> getTags() {
-		return tagRepository.listTags();
+		return tagRepository.listChannels();
 	}
 	
 	private class InnerSquareNoteRequester implements SquareNoteRequester {

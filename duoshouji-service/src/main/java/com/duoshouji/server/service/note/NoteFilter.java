@@ -2,6 +2,8 @@ package com.duoshouji.server.service.note;
 
 import java.util.Objects;
 
+import com.duoshouji.server.service.common.Tag;
+
 public class NoteFilter {
 
 	private Tag tag;
