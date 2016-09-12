@@ -104,15 +104,30 @@ public class UserResource {
 	
 	@RequestMapping(path = "/notes", method = RequestMethod.POST)
 	public PublishNoteResult publishNote(
-			@PathVariable("account-id") MobileNumber mobileNumber,
+			@PathVariable("account-id") MobileNumber accountId,
+			@RequestParam("categoryId") long categoryId,
+			@RequestParam("brandId") long brandId,
+			@RequestParam("productName") String productName,
+			@RequestParam("price") BigDecimal price,
+			@RequestParam("districtId") long districtId, 
 			@RequestParam("tag") long[] tags,
 			@RequestParam("title") String title,
-			@RequestParam("content") String content
+			@RequestParam("content") String content,
+			@RequestParam("rating") int rating,
+			@RequestParam("longitude") BigDecimal longitude,
+			@RequestParam("latitude") BigDecimal latitude
 			) {
-		NoteBuilder publisher = duoShouJiFacade.newNotePublisher(mobileNumber);
+		NoteBuilder publisher = duoShouJiFacade.newNotePublisher(accountId);
+		publisher.setCategoryId(categoryId);
+		publisher.setBrandId(brandId);
+		publisher.setProductName(productName);
+		publisher.setPrice(price);
+		publisher.setDistrictId(districtId);
 		publisher.setTitle(title);
 		publisher.setContent(content);
 		publisher.setTags(tags);
+		publisher.setRating(rating);
+		publisher.setLocation(longitude, latitude);
 		return new PublishNoteResult(publisher.publishNote());
 	}
 	

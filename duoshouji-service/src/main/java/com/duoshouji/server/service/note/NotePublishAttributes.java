@@ -1,55 +1,38 @@
 package com.duoshouji.server.service.note;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.math.BigDecimal;
 import java.util.List;
 
+import com.duoshouji.server.service.common.Brand;
+import com.duoshouji.server.service.common.Category;
+import com.duoshouji.server.service.common.District;
 import com.duoshouji.server.service.common.Tag;
+import com.duoshouji.server.util.Location;
 
-public class NotePublishAttributes {
+public interface NotePublishAttributes {
 
-	private static final int MAX_TAG_COUNT = 9;
+	public static final int MAX_TAG_COUNT = 9;
 	
-	private String title;
-	private String content;
-	private List<Tag> tags = new ArrayList<Tag>();
+	public Category getCategory();
 
-	public String getTitle() {
-		return title;
-	}
+	public Brand getBrand();
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+	public String getProductName();
 
-	public String getContent() {
-		return content;
-	}
+	public District getDistrict();
 
-	public void setContent(String content) {
-		this.content = content;
-	}
+	public BigDecimal getPrice();
 
-	public List<Tag> getTags() {
-		return Collections.unmodifiableList(tags);
-	}
+	public int getRating();
+
+	public Location getLocation();
+
+	public String getTitle();
+
+	public String getContent();
+
+	public List<Tag> getTags();
 	
-	public int getTagCount() {
-		return tags.size();
-	}
-	
-	public void addTag(Tag tag) {
-		if (tags.size() >= MAX_TAG_COUNT) {
-			throw new NotePublishException("Tag count has exceeds maximum value; maximum allowed tag count: 9");
-		}
-		tags.add(tag);
-	}
-	
-	public void checkAttributesSetup() {
-		if (title == null
-				|| content == null
-				|| tags.isEmpty()) {
-			throw new NotePublishException("Title, content, tags are all required");
-		}
-	}
+	public int getTagCount();
+
 }

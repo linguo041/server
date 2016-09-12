@@ -1,5 +1,6 @@
 package com.duoshouji.server.internal.dao;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -224,7 +225,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	}
 
 	@Override
-	public long createNote(MobileNumber mobileNumber,
+	public long createNote(final MobileNumber mobileNumber,
 			final NotePublishAttributes noteAttributes) {
 		final long userId = getUserId(mobileNumber);
 		final long time = System.currentTimeMillis();
@@ -233,14 +234,21 @@ public class MysqlUserNoteDao implements UserNoteDao {
 					@Override
 					public void setValues(PreparedStatement ps)
 							throws SQLException {
-						ps.setString(1, noteAttributes.getTitle());
-						ps.setString(2, noteAttributes.getContent());
-						ps.setLong(3, time);
-						ps.setInt(4, (int)userId);
-						ps.setLong(5, time);
-						int parameterIndex = 6;
+						ps.setBigDecimal(1, BigDecimal.valueOf(noteAttributes.getCategory().getIdentifier()));
+						ps.setBigDecimal(2, BigDecimal.valueOf(noteAttributes.getBrand().getIdentifier()));
+						ps.setString(3, noteAttributes.getProductName());
+						ps.setBigDecimal(4, noteAttributes.getPrice());
+						ps.setBigDecimal(5, BigDecimal.valueOf(noteAttributes.getDistrict().getIdentifier()));
+						ps.setBigDecimal(6, noteAttributes.getLocation().getLongitude());
+						ps.setBigDecimal(7, noteAttributes.getLocation().getLatitude());
+						ps.setString(8, noteAttributes.getTitle());
+						ps.setString(9, noteAttributes.getContent());
+						ps.setLong(10, time);
+						ps.setBigDecimal(11, BigDecimal.valueOf(mobileNumber.toLong()));
+						ps.setLong(12, time);
+						int parameterIndex = 13;
 						for (Tag tag : noteAttributes.getTags()) {
-							ps.setInt(parameterIndex++, (int)tag.getIdentifier());
+							ps.setBigDecimal(parameterIndex++, BigDecimal.valueOf(tag.getIdentifier()));
 						}
 					}
 				});
@@ -258,12 +266,12 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	
 	private String buildInsertNoteClause(int tagCount) {
 		StringBuilder sqlBuilder = new StringBuilder(
-				"insert into duoshouji.note (title, content, create_time, user_id, last_update_time");
+				"insert into duoshouji.note (category_id, brand_id, product_name, price, district_id, longitude, latitude, title, content, create_time, user_id, last_update_time");
 		for (int i = 0; i < tagCount; ++i) {
 			sqlBuilder.append(", tag_id");
 			sqlBuilder.append(i + 1);
 		}
-		sqlBuilder.append(") values(?,?,?,?,?");
+		sqlBuilder.append(") values(?,?,?,?,?,?,?,?,?,?,?,?");
 		for (int i = 0; i < tagCount; ++i) {
 			sqlBuilder.append(",?");
 		}
