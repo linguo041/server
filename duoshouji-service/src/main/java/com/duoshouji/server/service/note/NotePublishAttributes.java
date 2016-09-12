@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.duoshouji.server.service.common.Tag;
+
 public class NotePublishAttributes {
 
 	private static final int MAX_TAG_COUNT = 9;

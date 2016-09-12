@@ -13,13 +13,13 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
+import com.duoshouji.server.service.common.Tag;
 import com.duoshouji.server.service.dao.BasicUserDto;
 import com.duoshouji.server.service.dao.NoteDto;
 import com.duoshouji.server.service.dao.RegisteredUserDto;
 import com.duoshouji.server.service.dao.UserNoteDao;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
-import com.duoshouji.server.service.note.Tag;
 import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;
@@ -126,7 +126,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 			if (filter instanceof NoteFilter) {
 				final NoteFilter that = (NoteFilter) filter;
 				if (that.isTagSet()) {
-					sqlBuilder.append(" and " + buildContainsTagIdClause(that.getTag().getTagId()));
+					sqlBuilder.append(" and " + buildContainsTagIdClause(that.getTag().getIdentifier()));
 				}
 			}
 			if (filter instanceof MobileNumber) {
@@ -240,7 +240,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 						ps.setLong(5, time);
 						int parameterIndex = 6;
 						for (Tag tag : noteAttributes.getTags()) {
-							ps.setInt(parameterIndex++, (int)tag.getTagId());
+							ps.setInt(parameterIndex++, (int)tag.getIdentifier());
 						}
 					}
 				});

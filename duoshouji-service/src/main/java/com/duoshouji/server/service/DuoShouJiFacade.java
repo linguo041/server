@@ -2,8 +2,8 @@ package com.duoshouji.server.service;
 
 import java.util.List;
 
+import com.duoshouji.server.service.common.Tag;
 import com.duoshouji.server.service.note.NoteCollection;
-import com.duoshouji.server.service.note.Tag;
 import com.duoshouji.server.service.user.BasicUserAttributes;
 import com.duoshouji.server.service.user.UserProfile;
 import com.duoshouji.server.util.MobileNumber;
