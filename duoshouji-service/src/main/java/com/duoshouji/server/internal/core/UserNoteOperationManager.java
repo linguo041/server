@@ -180,7 +180,6 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	
 	@Override
 	public long publishNote(BasicUser user, NotePublishAttributes noteAttributes) {
-		noteAttributes.checkAttributesSetup();
 		final long noteId = userNoteDao.createNote(user.getMobileNumber(), noteAttributes);
 		OperationDelegatingMobileUser loadedUser = null;
 		if (user instanceof OperationDelegatingMobileUser) {

@@ -1,5 +1,6 @@
 package com.duoshouji.server.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.duoshouji.server.service.common.Tag;
@@ -29,6 +30,20 @@ public interface DuoShouJiFacade {
 		long publishNote();
 
 		void setTags(long[] tags);
+
+		void setCategoryId(long categoryId);
+
+		void setBrandId(long brandId);
+
+		void setProductName(String productName);
+
+		void setPrice(BigDecimal price);
+
+		void setDistrictId(long districtId);
+
+		void setRating(int rating);
+
+		void setLocation(BigDecimal longitude, BigDecimal latitude);
 
 	}
 

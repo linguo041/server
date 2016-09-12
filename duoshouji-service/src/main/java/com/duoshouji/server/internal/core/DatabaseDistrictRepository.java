@@ -39,6 +39,16 @@ public class DatabaseDistrictRepository implements DistrictRepository, RowMapper
 	}
 
 	@Override
+	public District getDistrict(long districtId) {
+		for (District district : districts) {
+			if (district.getIdentifier() == districtId) {
+				return district;
+			}
+		}
+		throw new IllegalArgumentException("District Id: " + districtId + " not found!");
+	}
+
+	@Override
 	public District mapRow(ResultSet rs, int rowNum) throws SQLException {
 		return new InnerDistrict(rs);
 	}
