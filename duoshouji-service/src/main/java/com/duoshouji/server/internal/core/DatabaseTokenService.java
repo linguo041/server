@@ -71,4 +71,21 @@ public class DatabaseTokenService implements UserTokenService {
 		connection.update("update duoshouji.user_wechat_login set expired = 1 where mobile = " + mobileNumber);
 	}
 
+	@Override
+	public MobileNumber fetchUserId(String token) {
+		return connection.query("select mobile from duoshouji.user_wechat_login where token = '" + token + "'"
+				, new ResultSetExtractor<MobileNumber>() {
+
+			@Override
+			public MobileNumber extractData(ResultSet rs) throws SQLException,
+					DataAccessException {
+				if (rs.next()) {
+					return MobileNumber.valueOf(rs.getLong("mobile"));
+				}
+				return null;
+			}
+			
+		});
+	}
+
 }

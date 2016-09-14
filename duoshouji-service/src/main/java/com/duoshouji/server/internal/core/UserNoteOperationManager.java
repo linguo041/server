@@ -8,12 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Service;
 
+import com.duoshouji.server.service.common.TagRepository;
+import com.duoshouji.server.service.dao.BasicNoteDto;
 import com.duoshouji.server.service.dao.BasicUserDto;
-import com.duoshouji.server.service.dao.NoteDto;
+import com.duoshouji.server.service.dao.NoteDetailDto;
 import com.duoshouji.server.service.dao.RegisteredUserDto;
 import com.duoshouji.server.service.dao.UserNoteDao;
 import com.duoshouji.server.service.interaction.UserNoteInteraction;
 import com.duoshouji.server.service.note.BasicNote;
+import com.duoshouji.server.service.note.CommentPublishAttributes;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.NoteFilter;
@@ -35,8 +38,10 @@ import com.google.common.base.MoreObjects;
 public class UserNoteOperationManager implements UserRepository, NoteRepository, UserNoteInteraction {
 
 	private UserCache userCache = new UserCache();
+	private NoteCache noteCache = new NoteCache();
 	private UserNoteDao userNoteDao;
 	private MessageProxyFactory messageProxyFactory;
+	private TagRepository tagRepository;
 
 	private final class UserCache {
 		
@@ -93,6 +98,60 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		}
 	}
 	
+	private final class NoteCache {
+		
+		private UniqueObjectCache cache = new HashMapUniqueObjectCache();
+		
+		private Note getNote(long noteId) {
+			return cache.get(Long.valueOf(noteId), Note.class);
+		}
+		
+		private Note getNote(BasicNoteDto noteDto) {
+			Note note = cache.get(Long.valueOf(noteDto.noteId), Note.class);
+			if (note == null) {
+				InMemoryBasicNote delegator = new InMemoryBasicNote(noteDto.noteId);
+				mapDto2BasicNote(delegator, noteDto);
+				note = new NoteProxyWithBasicNote(UserNoteOperationManager.this, delegator);
+				cache.put(Long.valueOf(noteDto.noteId), note);
+			}
+			return note;
+		}
+		
+		private OperationDelegatingNote getNote(NoteDetailDto noteDto) {
+			Note note = cache.get(Long.valueOf(noteDto.noteId), Note.class);
+			if (note == null || !(note instanceof OperationDelegatingNote)) {
+				OperationDelegatingNote tempNote = new OperationDelegatingNote(UserNoteOperationManager.this, noteDto.noteId);
+				mapDto2BasicNote(tempNote, noteDto);
+				tempNote.content = noteDto.content;
+				tempNote.images = noteDto.images;
+				tempNote.tags = tagRepository.findTags(noteDto.tagIds);
+				cache.put(Long.valueOf(noteDto.noteId), tempNote);
+				note = tempNote;
+			}
+			return (OperationDelegatingNote) note;
+		}
+		
+		private OperationDelegatingNote getNoteIfLoaded(long noteId) {
+			Note note = cache.get(Long.valueOf(noteId), Note.class);
+			if (note != null && (note instanceof OperationDelegatingNote)) {
+				return (OperationDelegatingNote) note;
+			}
+			return null;
+		}
+		
+		private void mapDto2BasicNote(InMemoryBasicNote note, BasicNoteDto noteDto) {
+			note.commentCount = noteDto.commentCount;
+			note.likeCount = noteDto.likeCount;
+			note.mainImage = noteDto.mainImage;
+			note.publishedTime = noteDto.publishedTime;
+			note.commentRatingSum = noteDto.commentRatingSum;
+			note.ownerRating = noteDto.ownerRating;
+			note.title = noteDto.title;
+			note.transactionCount = noteDto.transactionCount;
+			note.owner = userCache.getUser(noteDto.owner);
+		}
+	}
+	
 	@Autowired
 	@Required
 	public void setUserNoteDao(UserNoteDao userNoteDao) {
@@ -105,6 +164,12 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		this.messageProxyFactory = messageProxyFactory;
 	}
 	
+	@Autowired
+	@Required
+	public void setTagRepository(TagRepository tagRepository) {
+		this.tagRepository = tagRepository;
+	}
+
 	OperationDelegatingMobileUser loadUserIfNotExists(MobileNumber mobileNumber) {
 		FullFunctionalUser user = userCache.getUser(mobileNumber);
 		if (!(user instanceof OperationDelegatingMobileUser)) {
@@ -131,10 +196,6 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	@Override
 	public NoteCollection listNotes(NoteFilter noteFilter) {
 		return new FilteredNoteCollection(this, System.currentTimeMillis(), noteFilter);
-	}
-
-	private OperationDelegatingNote newNote(NoteDto noteDto) {
-		return new OperationDelegatingNote(this, noteDto);
 	}
 
 	Iterator<BasicNote> findNotes(long cutoff, IndexRange range, NoteFilter filter) {
@@ -196,8 +257,13 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	@Override
 	public BasicUser getOwner(BasicNote note) {
 		BasicUser user = null;
-		if (note instanceof OperationDelegatingNote) {
-			user = userCache.getUser(((OperationDelegatingNote) note).noteDto.owner);
+		if (note instanceof InMemoryBasicNote) {
+			user = ((InMemoryBasicNote) note).owner;
+		} else if (note instanceof NoteProxyWithBasicNote) {
+			BasicNote innerNote = ((NoteProxyWithBasicNote) note).getBasicNote();
+			if (innerNote instanceof InMemoryBasicNote) {
+				user = ((InMemoryBasicNote) innerNote).owner;
+			}
 		} else {
 			user = userCache.getUser(userNoteDao.findNoteOwner(note.getNoteId()));
 		}
@@ -205,14 +271,27 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	}
 
 	@Override
-	public Note getNote(long noteId) {
-		return newNote(userNoteDao.findNote(noteId));
+	public OperationDelegatingNote getNote(long noteId) {
+		OperationDelegatingNote note = noteCache.getNoteIfLoaded(noteId);
+		if (note == null) {
+			note = noteCache.getNote(userNoteDao.findNote(noteId));
+		}
+		return note;
+	}
+
+	@Override
+	public void publishComment(long noteId, CommentPublishAttributes commentAttributes, MobileNumber userId) {
+		userNoteDao.createComment(noteId, commentAttributes, userId);
+		Object note = noteCache.getNote(noteId);
+		if (note != null && (note instanceof UserNoteInteractionAware)) {
+			((UserNoteInteractionAware)note).fireAddComment(commentAttributes.getRating());
+		}
 	}
 
 	private class InnerNoteIterator implements Iterator<BasicNote> {
-		Iterator<NoteDto> noteDtoIte;
+		Iterator<BasicNoteDto> noteDtoIte;
 		
-		InnerNoteIterator(List<NoteDto> noteDtos) {
+		InnerNoteIterator(List<BasicNoteDto> noteDtos) {
 			this.noteDtoIte = noteDtos.iterator();
 		}
 		
@@ -223,7 +302,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		
 		@Override
 		public BasicNote next() {
-			return newNote(noteDtoIte.next());
+			return noteCache.getNote(noteDtoIte.next());
 		}
 	}
 }

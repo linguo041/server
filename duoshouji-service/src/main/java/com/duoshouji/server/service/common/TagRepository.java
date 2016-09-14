@@ -9,5 +9,7 @@ public interface TagRepository {
 	List<Tag> listTags();
 	
 	Tag findTag(long tagId);
+	
+	List<Tag> findTags(long[] tagIds);
 }
 

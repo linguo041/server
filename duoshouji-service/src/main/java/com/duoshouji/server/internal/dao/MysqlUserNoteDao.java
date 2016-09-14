@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,12 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.common.Tag;
+import com.duoshouji.server.service.dao.BasicNoteDto;
 import com.duoshouji.server.service.dao.BasicUserDto;
-import com.duoshouji.server.service.dao.NoteDto;
+import com.duoshouji.server.service.dao.NoteDetailDto;
 import com.duoshouji.server.service.dao.RegisteredUserDto;
 import com.duoshouji.server.service.dao.UserNoteDao;
+import com.duoshouji.server.service.note.CommentPublishAttributes;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.user.Gender;
@@ -78,50 +81,82 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	}
 	
 	@Override
-	public NoteDto findNote(long noteId) {
-		return mysqlDataSource.query("select * from duoshouji.v_square_notes where id = " + noteId
-				, new ResultSetExtractor<NoteDto>() {
+	public NoteDetailDto findNote(long noteId) {
+		NoteDetailDto noteDto = mysqlDataSource.query("select * from duoshouji.v_square_notes where id = " + noteId
+				, new ResultSetExtractor<NoteDetailDto>() {
 
 					@Override
-					public NoteDto extractData(ResultSet rs)
+					public NoteDetailDto extractData(ResultSet rs)
 							throws SQLException, DataAccessException {
-						NoteDto result = null;
+						NoteDetailDto result = null;
 						if (rs.next()) {
-							result = mapNoteDto(rs);
+							result = new NoteDetailDto();
+							mapNoteDetailDto(result, rs);
 						}
 						return result;
 					}
 			
 				});
+		if (noteDto != null) {
+			noteDto.images = mysqlDataSource.query("select * from duoshouji.note_image where note_id = " + noteId, new RowMapper<Image>() {
+
+				@Override
+				public Image mapRow(ResultSet rs, int rowNum)
+						throws SQLException {
+					return new Image(
+							rs.getInt("image_width")
+							, rs.getInt("image_height")
+							, rs.getString("image_url")
+							);
+				}
+				
+			});
+		}
+		return noteDto;
+	}
+	
+	private void mapNoteDetailDto(NoteDetailDto noteDto, ResultSet rs) throws SQLException {
+		mapNoteBriefDto(noteDto, rs);
+		noteDto.content = rs.getString("content");
+		noteDto.tagIds = new long[9];
+		int i;
+		for (i = 0; i < 9; ++i) {
+			final String column = "tag_id" + (i + 1);
+			BigDecimal tagId = rs.getBigDecimal(column);
+			if (rs.wasNull()) {
+				break;
+			}
+			noteDto.tagIds[i] = tagId.longValue();
+		}
+		noteDto.tagIds = Arrays.copyOf(noteDto.tagIds, i);
 	}
 
-	private NoteDto mapNoteDto(ResultSet rs) throws SQLException {
-		NoteDto noteDto = new NoteDto();
+	private void mapNoteBriefDto(BasicNoteDto noteDto, ResultSet rs) throws SQLException {
 		noteDto.commentCount = rs.getInt("comment_number");
 		noteDto.likeCount = rs.getInt("like_number");
-		noteDto.mainImage = new Image(rs.getInt("image1_width"), rs.getInt("image1_height"), rs.getString("image1"));
+		noteDto.mainImage = new Image(rs.getInt("main_image_width"), rs.getInt("main_image_height"), rs.getString("main_image_url"));
 		noteDto.noteId = rs.getLong("id");
 		noteDto.publishedTime = rs.getLong("create_time");
-		noteDto.rank = (int)rs.getFloat("rank");
+		noteDto.commentRatingSum = rs.getInt("comment_rating");
+		noteDto.ownerRating = rs.getInt("owner_rating");
 		noteDto.title = rs.getString("title");
 		noteDto.transactionCount = rs.getInt("order_number");
 		BasicUserDto userDto = new BasicUserDto();
 		mapBasicUserDto(userDto, rs);
 		noteDto.owner = userDto;
-		return noteDto;		
 	}
 	
 	@Override
-	public List<NoteDto> findNotes(long cutoff, IndexRange range, MobileNumber userId) {
+	public List<BasicNoteDto> findNotes(long cutoff, IndexRange range, MobileNumber userId) {
 		return findNotes(cutoff, range, (Object) userId);
 	}
 	
 	@Override
-	public List<NoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter) {
+	public List<BasicNoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter) {
 		return findNotes(cutoff, range, (Object) filter);
 	}
 	
-	private List<NoteDto> findNotes(long cutoff, IndexRange range, Object filter) {
+	private List<BasicNoteDto> findNotes(long cutoff, IndexRange range, Object filter) {
 		StringBuilder sqlBuilder = new StringBuilder("select * from duoshouji.v_square_notes where create_time < " + cutoff);
 		if (filter != null) {
 			if (filter instanceof NoteFilter) {
@@ -136,11 +171,13 @@ public class MysqlUserNoteDao implements UserNoteDao {
 			}
 		}
 		sqlBuilder.append(" order by create_time desc");
-		List<NoteDto> returnValue = mysqlDataSource.query(sqlBuilder.toString()
-				, new RowMapper<NoteDto>(){
+		List<BasicNoteDto> returnValue = mysqlDataSource.query(sqlBuilder.toString()
+				, new RowMapper<BasicNoteDto>(){
 					@Override
-					public NoteDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-						return mapNoteDto(rs);
+					public BasicNoteDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+						BasicNoteDto noteDto = new BasicNoteDto();
+						mapNoteBriefDto(noteDto, rs);
+						return noteDto;
 					}
 				});
 		if (range != null) {
@@ -246,14 +283,15 @@ public class MysqlUserNoteDao implements UserNoteDao {
 						ps.setLong(10, time);
 						ps.setBigDecimal(11, BigDecimal.valueOf(mobileNumber.toLong()));
 						ps.setLong(12, time);
-						int parameterIndex = 13;
+						ps.setInt(13, noteAttributes.getRating());
+						int parameterIndex = 14;
 						for (Tag tag : noteAttributes.getTags()) {
 							ps.setBigDecimal(parameterIndex++, BigDecimal.valueOf(tag.getIdentifier()));
 						}
 					}
 				});
 		mysqlDataSource.update("update duoshouji.user_extend set note_number = note_number + 1 where user_id = " + mobileNumber);
-		return mysqlDataSource.query("select max(id) note_id from duoshouji.note where user_id = " + userId
+		final Long noteId = mysqlDataSource.query("select max(id) note_id from duoshouji.note where user_id = " + userId
 				, new ResultSetExtractor<Long>(){
 					@Override
 					public Long extractData(ResultSet rs) throws SQLException,
@@ -262,11 +300,13 @@ public class MysqlUserNoteDao implements UserNoteDao {
 						return rs.getLong("note_id");
 					}
 				});
+		mysqlDataSource.update("insert into duoshouji.note_extend (note_id) values ("+noteId+")");
+		return noteId.longValue();
 	}
 	
 	private String buildInsertNoteClause(int tagCount) {
 		StringBuilder sqlBuilder = new StringBuilder(
-				"insert into duoshouji.note (category_id, brand_id, product_name, price, district_id, longitude, latitude, title, content, create_time, user_id, last_update_time");
+				"insert into duoshouji.note (category_id, brand_id, product_name, price, district_id, longitude, latitude, title, content, create_time, user_id, last_update_time, rating");
 		for (int i = 0; i < tagCount; ++i) {
 			sqlBuilder.append(", tag_id");
 			sqlBuilder.append(i + 1);
@@ -337,6 +377,36 @@ public class MysqlUserNoteDao implements UserNoteDao {
 						}
 						return accountId;
 					}
+				});
+	}
+
+	@Override
+	public void createComment(final long noteId, final CommentPublishAttributes commentAttributes, final MobileNumber userId) {
+		mysqlDataSource.update(
+				"insert into doushouji.comment (note_id, user_id, content, created_time, rating, longitude, latitude) values (?,?,?,?,?,?,?)"
+				, new PreparedStatementSetter() {
+
+			@Override
+			public void setValues(PreparedStatement ps) throws SQLException {
+				ps.setInt(1, (int) noteId);
+				ps.setLong(2, userId.toLong());
+				ps.setString(3, commentAttributes.getComment());
+				ps.setLong(4, System.currentTimeMillis());
+				ps.setInt(5, commentAttributes.getRating());
+				ps.setBigDecimal(6, commentAttributes.getLocation().getLongitude());
+				ps.setBigDecimal(7, commentAttributes.getLocation().getLatitude());
+			}
+			
+		});
+		mysqlDataSource.update("update duoshouji.note_extend set comment_number = comment_number + 1, rating_sum = rating_sum + ? where note_id = ?"
+				, new PreparedStatementSetter() {
+
+					@Override
+					public void setValues(PreparedStatement ps) throws SQLException {
+						ps.setInt(1, commentAttributes.getRating());
+						ps.setInt(2, (int) noteId);
+					}
+					
 				});
 	}
 

@@ -3,9 +3,8 @@ package com.duoshouji.server.internal.core;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
@@ -21,12 +20,16 @@ import com.duoshouji.server.service.common.Tag;
 import com.duoshouji.server.service.common.TagRepository;
 import com.duoshouji.server.service.interaction.UserNoteInteraction;
 import com.duoshouji.server.service.note.BasicNote;
+import com.duoshouji.server.service.note.BasicNoteAndOwner;
+import com.duoshouji.server.service.note.CommentPublishAttributes;
+import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
+import com.duoshouji.server.service.note.NoteDetailAndOwner;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NotePublishException;
 import com.duoshouji.server.service.note.NoteRepository;
-import com.duoshouji.server.service.note.PushedNote;
+import com.duoshouji.server.service.user.BasicUser;
 import com.duoshouji.server.service.user.BasicUserAttributes;
 import com.duoshouji.server.service.user.FullFunctionalUser;
 import com.duoshouji.server.service.user.UserProfile;
@@ -158,12 +161,19 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	public SquareNoteRequester newSquareNoteRequester(MobileNumber mobileNumber) {
 		return new InnerSquareNoteRequester(mobileNumber);
 	}
+	
+	@Override
+	public NoteDetailAndOwner getNote(long noteId) {
+		Note note = noteRepository.getNote(noteId);
+		final BasicUser owner = interactionFacade.getOwner(note);
+		return new NoteDetailAndOwner(note, owner);
+	}
 
 	@Override
-	public List<Tag> getTags() {
-		return tagRepository.listChannels();
+	public CommentPublisher newCommentPublisher(long noteId, MobileNumber userId) {
+		return new InnerCommentPublisher(noteId, userId);
 	}
-	
+
 	private class InnerSquareNoteRequester implements SquareNoteRequester {
 		private final MobileNumber mobileNumber;
 		private NoteFilter noteFilter;
@@ -180,43 +190,14 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		}
 
 		@Override
-		public NoteCollection pushSquareNotes(boolean refresh) {
+		public List<BasicNoteAndOwner> pushSquareNotes(boolean refresh, int loadedSize, int pageSize) {
 			NoteRepository requestor = collectionCache.getCollectionRequestor(mobileNumber, noteRepository, refresh);
-			return new PushedNoteCollection(requestor.listNotes(noteFilter));
-		}
-	}
-	
-	private class PushedNoteCollection implements NoteCollection {
-		
-		private NoteCollection delegator;
-		
-		private PushedNoteCollection(NoteCollection delegator) {
-			this.delegator = delegator;
-		}
-
-		@Override
-		public Iterator<BasicNote> iterator() {
-			return new Iterator<BasicNote>() {
-				final Iterator<BasicNote> ite = delegator.iterator();
-				@Override
-				public boolean hasNext() {
-					return ite.hasNext();
-				}
-
-				@Override
-				public BasicNote next() {
-					if (!hasNext()) {
-						throw new NoSuchElementException();
-					}
-					final BasicNote note = ite.next();
-					return new PushedNote(note, interactionFacade.getOwner(note));
-				}
-			};
-		}
-
-		@Override
-		public NoteCollection subCollection(int startIndex, int endIndex) {
-			return new PushedNoteCollection(delegator.subCollection(startIndex, endIndex));
+			List<BasicNoteAndOwner> result = new LinkedList<BasicNoteAndOwner>();
+			for (BasicNote note : requestor.listNotes(noteFilter).subCollection(loadedSize, loadedSize + pageSize)) {
+				BasicUser owner = interactionFacade.getOwner(note);
+				result.add(new BasicNoteAndOwner(note, owner));
+			}
+			return result;
 		}
 	}
 	
@@ -361,6 +342,54 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		@Override
 		public int getTagCount() {
 			return tags.size();
+		}
+	}
+	
+	private class InnerCommentPublisher implements CommentPublisher, CommentPublishAttributes {
+		private long noteId;
+		private MobileNumber userId;
+		private String comment;
+		private Location location;
+		private int rating;
+		
+		public InnerCommentPublisher(long noteId, MobileNumber userId) {
+			this.noteId = noteId;
+			this.userId = userId;
+		}
+
+		@Override
+		public void setComment(String comment) {
+			this.comment = comment;
+		}
+
+		@Override
+		public void setRating(int rating) {
+			this.rating = rating;
+		}
+		
+		@Override
+		public void setLocation(BigDecimal longitude, BigDecimal latitude) {
+			location = new Location(longitude, latitude);
+		}
+
+		@Override
+		public String getComment() {
+			return comment;
+		}
+
+		@Override
+		public int getRating() {
+			return rating;
+		}
+
+		@Override
+		public Location getLocation() {
+			return location;
+		}
+
+		@Override
+		public void publishComment() {
+			interactionFacade.publishComment(noteId, this, userId);
 		}
 	}
 }

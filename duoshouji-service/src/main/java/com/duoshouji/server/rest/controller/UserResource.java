@@ -21,8 +21,8 @@ import com.duoshouji.server.service.DuoShouJiFacade.SquareNoteRequester;
 import com.duoshouji.server.service.auth.UnauthenticatedUserException;
 import com.duoshouji.server.service.auth.UserTokenService;
 import com.duoshouji.server.service.note.BasicNote;
+import com.duoshouji.server.service.note.BasicNoteAndOwner;
 import com.duoshouji.server.service.note.NoteCollection;
-import com.duoshouji.server.service.note.PushedNote;
 import com.duoshouji.server.service.user.BasicUserAttributes;
 import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.service.user.UserProfile;
@@ -230,22 +230,22 @@ public class UserResource {
 			refresh = true;
 		}
 		List<NoteJson> returnValue = new ArrayList<NoteJson>();
-		for (BasicNote note : requester.pushSquareNotes(refresh)
-				.subCollection(loadedSize, loadedSize + pageSize)) {
-			returnValue.add(convert((PushedNote)note));
+		for (BasicNoteAndOwner noteAndOwner : requester.pushSquareNotes(refresh, loadedSize, pageSize)) {
+			returnValue.add(convert((BasicNoteAndOwner)noteAndOwner));
 		}
 		return returnValue;
 	}
 	
-	private NoteJson convert(PushedNote note) {
+	private NoteJson convert(BasicNoteAndOwner noteAndOwner) {
+		BasicNote note = noteAndOwner.getNote();
 		NoteJson noteJson = new NoteJson();
 		noteJson.setNoteId(note.getNoteId());
 		noteJson.setTitle(note.getTitle());
 		noteJson.setImage(note.getMainImage().getUrl());
 		noteJson.setImageWidth(note.getMainImage().getWidth());
 		noteJson.setImageHeight(note.getMainImage().getHeight());
-		noteJson.setPortrait(note.getOwner().getPortrait().getUrl());
-		noteJson.setRank(note.getRank());
+		noteJson.setPortrait(noteAndOwner.getOwner().getPortrait().getUrl());
+		noteJson.setRank(note.getRating());
 		noteJson.setLikeCount(note.getLikeCount());
 		noteJson.setCommentCount(note.getCommentCount());
 		return noteJson;

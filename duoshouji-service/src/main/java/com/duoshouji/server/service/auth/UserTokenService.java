@@ -8,5 +8,7 @@ public interface UserTokenService {
 
 	String newToken(MobileNumber mobileNumber);
 
+	MobileNumber fetchUserId(String token);
+	
 	void logout(MobileNumber mobileNumber);
 }
