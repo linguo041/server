@@ -16,4 +16,6 @@ public interface UserNoteInteraction {
 	BasicUser getOwner(BasicNote note);
 	
 	void publishComment(long noteId, CommentPublishAttributes commentAttributes, MobileNumber userId);
+
+	void likeNote(long noteId, MobileNumber userId);
 }

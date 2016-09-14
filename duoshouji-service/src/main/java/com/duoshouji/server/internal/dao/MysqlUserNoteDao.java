@@ -410,4 +410,18 @@ public class MysqlUserNoteDao implements UserNoteDao {
 				});
 	}
 
+	@Override
+	public void saveUserLikeNote(final long noteId, final MobileNumber userId) {
+		mysqlDataSource.update("insert into duoshouji.likes (user_id, note_id) values (?,?)"
+				, new PreparedStatementSetter() {
+
+					@Override
+					public void setValues(PreparedStatement ps) throws SQLException {
+						ps.setLong(1, userId.toLong());
+						ps.setInt(2, (int) noteId);
+					}
+					
+				});
+		mysqlDataSource.update("update duoshouji.note_extend set like_number = like_number + 1 where note_id = " + noteId);
+	}
 }

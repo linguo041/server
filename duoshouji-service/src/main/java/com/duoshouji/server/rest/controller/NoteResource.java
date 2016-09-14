@@ -117,6 +117,11 @@ public class NoteResource {
 		publisher.publishComment();
 	}
 	
+	@RequestMapping(path = "/notes/{note-id}/like", method = RequestMethod.POST)
+	public void likeNote(@PathVariable("note-id") long noteId, Model model) {
+		duoShouJiFacade.likeNote(noteId, getUserId(model));
+	}
+	
 	private MobileNumber getUserId(Model model) {
 		return (MobileNumber) model.asMap().get("userId");
 	}
