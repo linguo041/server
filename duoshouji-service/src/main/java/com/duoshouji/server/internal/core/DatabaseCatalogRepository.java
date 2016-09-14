@@ -2,6 +2,7 @@ package com.duoshouji.server.internal.core;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -228,5 +229,14 @@ public class DatabaseCatalogRepository implements CommodityCatelogRepository, Ta
 			}
 		}
 		throw new IllegalArgumentException("Tag Id: " + tagId + " not found!");
+	}
+
+	@Override
+	public List<Tag> findTags(long[] tagIds) {
+		List<Tag> tags = new ArrayList<Tag>(tagIds.length);
+		for (long tagId : tagIds) {
+			tags.add(findTag(tagId));
+		}
+		return tags;
 	}
 }

@@ -3,8 +3,9 @@ package com.duoshouji.server.service;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.duoshouji.server.service.common.Tag;
+import com.duoshouji.server.service.note.BasicNoteAndOwner;
 import com.duoshouji.server.service.note.NoteCollection;
+import com.duoshouji.server.service.note.NoteDetailAndOwner;
 import com.duoshouji.server.service.user.BasicUserAttributes;
 import com.duoshouji.server.service.user.UserProfile;
 import com.duoshouji.server.util.MobileNumber;
@@ -17,7 +18,7 @@ public interface DuoShouJiFacade {
 
 		void setTagId(long tagId);
 
-		NoteCollection pushSquareNotes(boolean refresh);
+		List<BasicNoteAndOwner> pushSquareNotes(boolean refresh, int loadedSize, int pageSize);
 
 	}
 	
@@ -47,6 +48,17 @@ public interface DuoShouJiFacade {
 
 	}
 
+	public interface CommentPublisher {
+		
+		void setComment(String comment);
+		
+		void setRating(int rating);
+		
+		void setLocation(BigDecimal longitude, BigDecimal latitude);
+		
+		void publishComment();
+	}
+	
 	void sendLoginVerificationCode(MobileNumber accountId);
 	
 	boolean verificationCodeLogin(MobileNumber accountId, VerificationCode verificationCode);
@@ -67,5 +79,7 @@ public interface DuoShouJiFacade {
 
 	SquareNoteRequester newSquareNoteRequester(MobileNumber mobileNumber);
 
-	List<Tag> getTags();
+	NoteDetailAndOwner getNote(long noteId);
+
+	CommentPublisher newCommentPublisher(long noteId, MobileNumber userId);
 }

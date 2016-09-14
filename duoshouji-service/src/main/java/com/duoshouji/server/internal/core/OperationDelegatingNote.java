@@ -1,64 +1,49 @@
 package com.duoshouji.server.internal.core;
 
-import com.duoshouji.server.service.dao.NoteDto;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import com.duoshouji.server.service.common.Tag;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.util.Image;
 
-class OperationDelegatingNote implements Note {
+class OperationDelegatingNote extends InMemoryBasicNote implements Note {
 
 	private UserNoteOperationManager operationManager;
-	NoteDto noteDto;
-
-	public OperationDelegatingNote(UserNoteOperationManager operationManager,
-			NoteDto noteDto) {
-		super();
+	String content;
+	List<Image> images;
+	List<Tag> tags;
+	
+	public OperationDelegatingNote(UserNoteOperationManager operationManager, long noteId) {
+		super(noteId);
 		this.operationManager = operationManager;
-		this.noteDto = noteDto;
-	}
-
-	@Override
-	public long getNoteId() {
-		return noteDto.noteId;
-	}
-
-	@Override
-	public String getTitle() {
-		return noteDto.title;
-	}
-
-	@Override
-	public int getRank() {
-		return noteDto.rank;
-	}
-
-	@Override
-	public Image getMainImage() {
-		return noteDto.mainImage;
 	}
 
 	@Override
 	public void setMainImage(Image mainImage) {
 		operationManager.setMainImage(this, mainImage);
-		noteDto.mainImage = mainImage;
+		this.mainImage = mainImage;
 	}
 
 	@Override
-	public int getLikeCount() {
-		return noteDto.likeCount;
+	public List<Image> getImages() {
+		List<Image> allImages = new ArrayList<Image>(images.size() + 1);
+		allImages.addAll(images);
+		allImages.add(getMainImage());
+		return allImages;
 	}
 
-	@Override
-	public int getCommentCount() {
-		return noteDto.commentCount;
-	}
 
 	@Override
-	public int getTransactionCount() {
-		return noteDto.transactionCount;
+	public List<Tag> getTags() {
+		return Collections.unmodifiableList(tags);
 	}
 
+
 	@Override
-	public long getPublishedTime() {
-		return noteDto.publishedTime;
+	public String getContent() {
+		return content;
 	}
+
 }

@@ -7,10 +7,10 @@ public interface BasicNote {
 	long getNoteId();
 
 	String getTitle();
-
+	
 	Image getMainImage();
-
-	int getRank();
+	
+	int getRating();
 
 	int getLikeCount();
 
@@ -19,5 +19,4 @@ public interface BasicNote {
 	int getTransactionCount();
 
 	long getPublishedTime();
-
 }

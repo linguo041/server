@@ -2,6 +2,7 @@ package com.duoshouji.server.service.dao;
 
 import java.util.List;
 
+import com.duoshouji.server.service.note.CommentPublishAttributes;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.user.Gender;
@@ -27,11 +28,13 @@ public interface UserNoteDao {
 
 	void saveNoteImage(long noteId, Image noteImage);
 	
-	NoteDto findNote(long noteId);
+	NoteDetailDto findNote(long noteId);
 	
-	List<NoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter);
+	List<BasicNoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter);
 	
-	List<NoteDto> findNotes(long cutoff, IndexRange range, MobileNumber userId);
+	List<BasicNoteDto> findNotes(long cutoff, IndexRange range, MobileNumber userId);
 
 	MobileNumber findNoteOwner(long noteId);
+
+	void createComment(long noteId, CommentPublishAttributes commentAttributes, MobileNumber userId);
 }
