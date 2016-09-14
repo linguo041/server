@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.duoshouji.server.rest.Constants;
 import com.duoshouji.server.service.DuoShouJiFacade;
 import com.duoshouji.server.service.DuoShouJiFacade.NoteBuilder;
+import com.duoshouji.server.service.DuoShouJiFacade.SquareNoteRequestFilter;
 import com.duoshouji.server.service.DuoShouJiFacade.SquareNoteRequester;
 import com.duoshouji.server.service.auth.UnauthenticatedUserException;
 import com.duoshouji.server.service.auth.UserTokenService;
@@ -216,6 +217,9 @@ public class UserResource {
 	@RequestMapping(path = "/pushed/notes", method = RequestMethod.GET)
 	public List<NoteJson> getPushedNotes(
 			@PathVariable("account-id") MobileNumber mobileNumber,
+			@RequestParam(value="filter", required=false) SquareNoteRequestFilter filter,
+			@RequestParam(value="longitude", required=false) BigDecimal longitude,
+			@RequestParam(value="latitude", required=false) BigDecimal latitude,
 			@RequestParam(value="tagId", required=false) Long tagId,
 			@RequestParam("loadedSize") int loadedSize,
 			@RequestParam("pageSize") int pageSize
@@ -223,6 +227,13 @@ public class UserResource {
 		SquareNoteRequester requester = duoShouJiFacade.newSquareNoteRequester(mobileNumber);
 		if (tagId != null) {
 			requester.setTagId(tagId.longValue());
+		}
+		if (filter != null) {
+			if (filter == SquareNoteRequestFilter.LOCATION) {
+				requester.setUserLocation(longitude, latitude);
+			} else {
+				requester.setIsWatchedOnly();
+			}
 		}
 		boolean refresh = false;
 		if (loadedSize < 0) {

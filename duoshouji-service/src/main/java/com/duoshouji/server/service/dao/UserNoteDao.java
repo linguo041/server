@@ -30,7 +30,7 @@ public interface UserNoteDao {
 	
 	NoteDetailDto findNote(long noteId);
 	
-	List<BasicNoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter);
+	List<BasicNoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter, MobileNumber userId);
 	
 	List<BasicNoteDto> findNotes(long cutoff, IndexRange range, MobileNumber userId);
 

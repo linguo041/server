@@ -148,30 +148,18 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	
 	@Override
 	public List<BasicNoteDto> findNotes(long cutoff, IndexRange range, MobileNumber userId) {
-		return findNotes(cutoff, range, (Object) userId);
+		return findNotes(range, new PublishedNotesSqlQueryBuilder(cutoff, userId));
 	}
 	
 	@Override
-	public List<BasicNoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter) {
-		return findNotes(cutoff, range, (Object) filter);
+	public List<BasicNoteDto> findNotes(long cutoff, IndexRange range, NoteFilter filter, MobileNumber userId) {
+		return findNotes(range, new SquareNoteSqlQueryBuilder(cutoff, userId, filter));
 	}
 	
-	private List<BasicNoteDto> findNotes(long cutoff, IndexRange range, Object filter) {
-		StringBuilder sqlBuilder = new StringBuilder("select * from duoshouji.v_square_notes where create_time < " + cutoff);
-		if (filter != null) {
-			if (filter instanceof NoteFilter) {
-				final NoteFilter that = (NoteFilter) filter;
-				if (that.isTagSet()) {
-					sqlBuilder.append(" and " + buildContainsTagIdClause(that.getTag().getIdentifier()));
-				}
-			}
-			if (filter instanceof MobileNumber) {
-				final MobileNumber that = (MobileNumber) filter;
-				sqlBuilder.append(" and mobile = " + that);
-			}
-		}
-		sqlBuilder.append(" order by create_time desc");
-		List<BasicNoteDto> returnValue = mysqlDataSource.query(sqlBuilder.toString()
+	private List<BasicNoteDto> findNotes(IndexRange range, NoteListSqlQuery sqlQuery) {
+		List<BasicNoteDto> returnValue = mysqlDataSource.query(
+				sqlQuery.buildSqlQuery()
+				, sqlQuery
 				, new RowMapper<BasicNoteDto>(){
 					@Override
 					public BasicNoteDto mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -188,15 +176,88 @@ public class MysqlUserNoteDao implements UserNoteDao {
 		return returnValue;
 	}
 
-	
-	private String buildContainsTagIdClause(long tagId) {
-		StringBuilder sqlBuilder = new StringBuilder("(");
-		sqlBuilder.append(" tag_id1 = " + tagId);
-		for (int i = 2; i <= 9; ++i) {
-			sqlBuilder.append(" or tag_id"+i+" = " + tagId);
+	private static abstract class NoteListSqlQuery implements PreparedStatementSetter {
+		private long cutoff;
+		
+		public NoteListSqlQuery(long cutoff) {
+			this.cutoff = cutoff;
 		}
-		sqlBuilder.append(")");
-		return sqlBuilder.toString();
+
+		final String buildSqlQuery() {
+			StringBuilder sqlBuilder = new StringBuilder("select * from duoshouji.v_square_notes where create_time < ?");
+			appendWhereConditions(sqlBuilder);
+			sqlBuilder.append(" order by create_time desc");
+			return sqlBuilder.toString();
+		}
+		
+		abstract void appendWhereConditions(StringBuilder sqlBuilder);
+
+		@Override
+		public void setValues(PreparedStatement ps) throws SQLException {
+			ps.setLong(1, cutoff);
+		}
+	}
+	
+	private static class PublishedNotesSqlQueryBuilder extends NoteListSqlQuery {
+		private MobileNumber userId;
+
+		public PublishedNotesSqlQueryBuilder(long cutoff, MobileNumber userId) {
+			super(cutoff);
+			this.userId = userId;
+		}
+
+		@Override
+		void appendWhereConditions(StringBuilder sqlBuilder) {
+			sqlBuilder.append(" and mobile = ?");
+		}
+
+		@Override
+		public void setValues(PreparedStatement ps) throws SQLException {
+			super.setValues(ps);
+			ps.setLong(2, userId.toLong());
+		}
+		
+	}
+	
+	private static class SquareNoteSqlQueryBuilder extends NoteListSqlQuery {
+		private MobileNumber userId;
+		private NoteFilter noteFilter;
+		
+		public SquareNoteSqlQueryBuilder(long cutoff, MobileNumber userId, NoteFilter noteFilter) {
+			super(cutoff);
+			this.userId = userId;
+			this.noteFilter = noteFilter;
+		}
+
+		@Override
+		void appendWhereConditions(StringBuilder sqlBuilder) {
+			if (noteFilter != null) {
+				if (noteFilter.isTagSet()) {
+					sqlBuilder.append(" and " + buildContainsTagIdClause(noteFilter.getTag().getIdentifier()));
+				}
+			}
+			if (userId != null) {
+				sqlBuilder.append(" and mobile in (select user_id from duoshouji.follow where fan_user_id = ?)");
+			}
+		}
+		
+		private String buildContainsTagIdClause(long tagId) {
+			StringBuilder sqlBuilder = new StringBuilder("(");
+			sqlBuilder.append(" tag_id1 = " + tagId);
+			for (int i = 2; i <= 9; ++i) {
+				sqlBuilder.append(" or tag_id"+i+" = " + tagId);
+			}
+			sqlBuilder.append(")");
+			return sqlBuilder.toString();
+		}
+
+		@Override
+		public void setValues(PreparedStatement ps) throws SQLException {
+			super.setValues(ps);
+			if (userId != null) {
+				ps.setLong(2, userId.toLong());
+			}
+		}
 	}
 	
 	@Override

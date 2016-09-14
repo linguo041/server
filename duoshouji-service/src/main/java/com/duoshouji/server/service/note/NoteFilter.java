@@ -3,32 +3,23 @@ package com.duoshouji.server.service.note;
 import java.util.Objects;
 
 import com.duoshouji.server.service.common.Tag;
+import com.duoshouji.server.util.Location;
 
-public class NoteFilter {
+public abstract class NoteFilter {
 
-	private Tag tag;
+	public abstract Tag getTag();
 	
-	public NoteFilter() {
-		super();
-	}
+	public abstract boolean isTagSet();
 	
-	public void setTag(Tag tag) {
-		this.tag = tag;
-	}
+	public abstract Location getUserLocation();
 	
-	public Tag getTag() {
-		return tag;
-	}
-	
-	public boolean isTagSet() {
-		return tag != null;
-	}
+	public abstract boolean isUserLocationSet();
 	
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(tag);
+		return Objects.hash(getTag(), getUserLocation());
 	}
-
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -38,6 +29,7 @@ public class NoteFilter {
 		if (!(obj instanceof NoteFilter))
 			return false;
 		NoteFilter that = (NoteFilter) obj;
-		return Objects.equals(tag, that.tag);
+		return Objects.equals(getTag(), that.getTag())
+				&& Objects.equals(getUserLocation(), that.getUserLocation());
 	}
 }
