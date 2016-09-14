@@ -184,30 +184,70 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		interactionFacade.likeNote(noteId, userId);
 	}
 
-	private class InnerSquareNoteRequester implements SquareNoteRequester {
+	private class InnerSquareNoteRequester extends NoteFilter implements SquareNoteRequester {
 		private final MobileNumber mobileNumber;
-		private NoteFilter noteFilter;
+		private Tag tag;
+		private Location location;
+		private boolean isWatchedOnly = false;
 		
 		private InnerSquareNoteRequester(MobileNumber mobileNumber) {
 			super();
 			this.mobileNumber = mobileNumber;
-			noteFilter = new NoteFilter();
+		}
+		
+		@Override
+		public void setTagId(long tagId) {
+			tag = tagRepository.findTag(tagId);
 		}
 
 		@Override
-		public void setTagId(long tagId) {
-			noteFilter.setTag(tagRepository.findTag(tagId));
+		public void setIsWatchedOnly() {
+			isWatchedOnly = true;
+		}
+
+		@Override
+		public void setUserLocation(BigDecimal longitude, BigDecimal latitude) {
+			location = new Location(longitude, latitude);
 		}
 
 		@Override
 		public List<BasicNoteAndOwner> pushSquareNotes(boolean refresh, int loadedSize, int pageSize) {
-			NoteRepository requestor = collectionCache.getCollectionRequestor(mobileNumber, noteRepository, refresh);
 			List<BasicNoteAndOwner> result = new LinkedList<BasicNoteAndOwner>();
-			for (BasicNote note : requestor.listNotes(noteFilter).subCollection(loadedSize, loadedSize + pageSize)) {
+			for (BasicNote note : listNotes(refresh).subCollection(loadedSize, loadedSize + pageSize)) {
 				BasicUser owner = interactionFacade.getOwner(note);
 				result.add(new BasicNoteAndOwner(note, owner));
 			}
 			return result;
+		}
+		
+		private NoteCollection listNotes(boolean refresh) {
+			if (isWatchedOnly) {
+				UserNoteInteraction requestor = collectionCache.getCollectionRequestor(mobileNumber, interactionFacade, refresh);
+				return requestor.listSquareNotes(this, mobileNumber);
+			} else {
+				NoteRepository requestor = collectionCache.getCollectionRequestor(mobileNumber, noteRepository, refresh);
+				return requestor.listSquareNotes(this);
+			}
+		}
+		
+		@Override
+		public Tag getTag() {
+			return tag;
+		}
+		
+		@Override
+		public boolean isTagSet() {
+			return tag != null;
+		}
+		
+		@Override
+		public Location getUserLocation() {
+			return location;
+		}
+
+		@Override
+		public boolean isUserLocationSet() {
+			return location != null;
 		}
 	}
 	

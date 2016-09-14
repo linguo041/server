@@ -17,9 +17,17 @@ public interface DuoShouJiFacade {
 	public interface SquareNoteRequester {
 
 		void setTagId(long tagId);
+		
+		void setIsWatchedOnly();
+		
+		void setUserLocation(BigDecimal longitude, BigDecimal latitude);
 
 		List<BasicNoteAndOwner> pushSquareNotes(boolean refresh, int loadedSize, int pageSize);
 
+	}
+	
+	public static enum SquareNoteRequestFilter {
+		WATCHED, LOCATION;
 	}
 	
 	public interface NoteBuilder {

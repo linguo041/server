@@ -194,12 +194,17 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	}
 	
 	@Override
-	public NoteCollection listNotes(NoteFilter noteFilter) {
+	public NoteCollection listSquareNotes(NoteFilter noteFilter) {
 		return new FilteredNoteCollection(this, System.currentTimeMillis(), noteFilter);
 	}
 
-	Iterator<BasicNote> findNotes(long cutoff, IndexRange range, NoteFilter filter) {
-		return new InnerNoteIterator(userNoteDao.findNotes(cutoff, range, filter));
+	@Override
+	public NoteCollection listSquareNotes(NoteFilter noteFilter, MobileNumber userId) {
+		return new FilteredNoteCollection(this, System.currentTimeMillis(), noteFilter, userId);
+	}
+
+	Iterator<BasicNote> findNotes(long cutoff, IndexRange range, NoteFilter filter, MobileNumber userId) {
+		return new InnerNoteIterator(userNoteDao.findNotes(cutoff, range, filter, userId));
 	}
 	
 	Iterator<BasicNote> findNotes(long cutoff, IndexRange range, MobileNumber userId) {
