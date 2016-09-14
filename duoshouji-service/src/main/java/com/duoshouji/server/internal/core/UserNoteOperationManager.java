@@ -288,6 +288,15 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		}
 	}
 
+	@Override
+	public void likeNote(long noteId, MobileNumber userId) {
+		userNoteDao.saveUserLikeNote(noteId, userId);
+		Object note = noteCache.getNote(noteId);
+		if (note != null && (note instanceof UserNoteInteractionAware)) {
+			((UserNoteInteractionAware)note).fireAddLike();
+		}		
+	}
+
 	private class InnerNoteIterator implements Iterator<BasicNote> {
 		Iterator<BasicNoteDto> noteDtoIte;
 		

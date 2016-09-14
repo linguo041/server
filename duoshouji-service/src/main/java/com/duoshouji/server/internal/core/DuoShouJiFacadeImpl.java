@@ -173,6 +173,11 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	public CommentPublisher newCommentPublisher(long noteId, MobileNumber userId) {
 		return new InnerCommentPublisher(noteId, userId);
 	}
+	
+	@Override
+	public void likeNote(long noteId, MobileNumber userId) {
+		interactionFacade.likeNote(noteId, userId);
+	}
 
 	private class InnerSquareNoteRequester implements SquareNoteRequester {
 		private final MobileNumber mobileNumber;

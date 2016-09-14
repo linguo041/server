@@ -37,4 +37,6 @@ public interface UserNoteDao {
 	MobileNumber findNoteOwner(long noteId);
 
 	void createComment(long noteId, CommentPublishAttributes commentAttributes, MobileNumber userId);
+
+	void saveUserLikeNote(long noteId, MobileNumber userId);
 }
