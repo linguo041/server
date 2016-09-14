@@ -3,8 +3,8 @@ package com.duoshouji.server.internal.core;
 import java.math.BigDecimal;
 
 import com.duoshouji.server.service.user.BasicUser;
-import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.service.user.FullFunctionalUser;
+import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
@@ -123,6 +123,11 @@ public class BasicUserProxy implements FullFunctionalUser {
 	@Override
 	public void setGender(Gender gender) {
 		getRegisteredUser().setGender(gender);
+	}
+
+	@Override
+	public void addFan(MobileNumber fanId) {
+		getRegisteredUser().addFan(fanId);
 	}
 }
 

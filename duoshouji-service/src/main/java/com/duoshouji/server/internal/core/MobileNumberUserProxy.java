@@ -101,4 +101,8 @@ public class MobileNumberUserProxy extends AbstractUser implements FullFunctiona
 		getRegisteredUser().setGender(gender);
 	}
 
+	@Override
+	public void addFan(MobileNumber fanId) {
+		getRegisteredUser().addFan(fanId);
+	}
 }

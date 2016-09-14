@@ -10,7 +10,7 @@ import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
-class OperationDelegatingMobileUser extends InMemoryBasicUser implements FullFunctionalUser {
+class OperationDelegatingMobileUser extends InMemoryBasicUser implements FullFunctionalUser, UserUpdateAware {
 
 	private final UserNoteOperationManager delegator;
 	String passwordDigest;
@@ -91,5 +91,15 @@ class OperationDelegatingMobileUser extends InMemoryBasicUser implements FullFun
 		this.gender = gender;
 	}
 
+	@Override
+	public void addFan(MobileNumber fanId) {
+		delegator.watchUser(fanId, this);
+		++fanCount;
+	}
+
+	@Override
+	public void fireWatchUser() {
+		++watchCount;
+	}
 }
 
