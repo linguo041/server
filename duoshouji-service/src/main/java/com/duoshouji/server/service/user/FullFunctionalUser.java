@@ -2,6 +2,7 @@ package com.duoshouji.server.service.user;
 
 import com.duoshouji.server.annotation.Unique;
 import com.duoshouji.server.util.Image;
+import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.UserMessageProxy;
 
@@ -21,4 +22,6 @@ public interface FullFunctionalUser extends UserProfile {
 	void setNickname(String nickname);
 	
 	void setPortrait(Image portrait);
+
+	void addFan(MobileNumber followerId);
 }

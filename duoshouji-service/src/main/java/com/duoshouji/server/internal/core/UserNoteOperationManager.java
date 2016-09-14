@@ -296,6 +296,11 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 			((UserNoteInteractionAware)note).fireAddLike();
 		}		
 	}
+	
+	void watchUser(MobileNumber fanId, OperationDelegatingMobileUser user) {
+		userNoteDao.addWatchConnection(fanId, user.getMobileNumber());
+		userCache.getUserIfLoaded(user.getMobileNumber()).fireWatchUser();
+	}
 
 	private class InnerNoteIterator implements Iterator<BasicNote> {
 		Iterator<BasicNoteDto> noteDtoIte;

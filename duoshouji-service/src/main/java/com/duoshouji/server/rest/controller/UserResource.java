@@ -395,4 +395,12 @@ public class UserResource {
 			return profile.getFanCount();
 		}
 	}
+	
+	@RequestMapping(path = "/follow", method = RequestMethod.POST)
+	public void watchUser(
+			@PathVariable("account-id") MobileNumber watcherId,
+			@RequestParam("userId") MobileNumber watchedId
+			) {
+		duoShouJiFacade.watchUser(watcherId, watchedId);
+	}
 }

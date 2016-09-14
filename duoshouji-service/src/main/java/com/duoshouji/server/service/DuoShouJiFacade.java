@@ -84,4 +84,6 @@ public interface DuoShouJiFacade {
 	CommentPublisher newCommentPublisher(long noteId, MobileNumber userId);
 
 	void likeNote(long noteId, MobileNumber userId);
+
+	void watchUser(MobileNumber watcherId, MobileNumber watchedId);
 }

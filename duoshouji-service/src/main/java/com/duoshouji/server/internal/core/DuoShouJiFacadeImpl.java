@@ -146,6 +146,11 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	}
 
 	@Override
+	public void watchUser(MobileNumber fanId, MobileNumber userId) {
+		userRepository.findUser(userId).addFan(fanId);
+	}
+
+	@Override
 	public NoteBuilder newNotePublisher(MobileNumber accountId) {
 		return new InnerNoteBuilder(accountId);
 	}

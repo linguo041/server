@@ -39,4 +39,6 @@ public interface UserNoteDao {
 	void createComment(long noteId, CommentPublishAttributes commentAttributes, MobileNumber userId);
 
 	void saveUserLikeNote(long noteId, MobileNumber userId);
+
+	void addWatchConnection(MobileNumber fanId, MobileNumber watchedUserId);
 }

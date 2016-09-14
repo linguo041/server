@@ -424,4 +424,19 @@ public class MysqlUserNoteDao implements UserNoteDao {
 				});
 		mysqlDataSource.update("update duoshouji.note_extend set like_number = like_number + 1 where note_id = " + noteId);
 	}
+
+	@Override
+	public void addWatchConnection(final MobileNumber fanId, final MobileNumber watchedUserId) {
+		mysqlDataSource.update("insert into duoshouji.follow (user_id, fan_user_id, created_time) values (?,?,?)"
+				, new PreparedStatementSetter() {
+
+			@Override
+			public void setValues(PreparedStatement ps) throws SQLException {
+				ps.setLong(1, watchedUserId.toLong());
+				ps.setLong(2, fanId.toLong());
+				ps.setLong(3, System.currentTimeMillis());
+			}
+			
+		});
+	}
 }
