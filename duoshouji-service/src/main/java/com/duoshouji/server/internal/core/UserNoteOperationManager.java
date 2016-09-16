@@ -323,6 +323,12 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		public BasicNote next() {
 			return noteCache.getNote(noteDtoIte.next());
 		}
+
+		@Override
+		public void remove() {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans:beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:mvc="http://www.springframework.org/schema/mvc"
 	xmlns:beans="http://www.springframework.org/schema/beans"
 	xmlns:context="http://www.springframework.org/schema/context"
@@ -23,7 +23,7 @@
 	<context:component-scan base-package="com.duoshouji.server.db.dao"/>
 	<context:component-scan base-package="com.duoshouji.server.service"/>
 	<context:component-scan base-package="com.duoshouji.server.internal.*"/>
-	<context:component-scan base-package="com.duoshouji.server.controller"/>
+	<context:component-scan base-package="com.duoshouji.server.rest.controller"/>
 
 	<!-- Handles HTTP GET requests by efficiently serving up static resources 
 	     in the corresponding directory -->
@@ -42,6 +42,7 @@
 		<beans:property name="suffix" value=".jsp" />
 	</beans:bean>
 	
+	<!-- 
     <mvc:interceptors>    
         <mvc:interceptor>
             <mvc:mapping path="/**"/>
@@ -62,5 +63,5 @@
 			</beans:bean>
 		</beans:constructor-arg>
 	</beans:bean>
-	
-</beans:beans>
+	 -->
+</beans>

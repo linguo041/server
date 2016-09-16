@@ -7,8 +7,10 @@
     <artifactId>duoshouji-server</artifactId>
     <version>0.0.1</version>
   </parent>
+  <groupId>com.duoshouji</groupId>
   <artifactId>duoshouji-service</artifactId>
   <name>DuoShouJi Service</name>
+  <packaging>war</packaging>
   
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -94,5 +96,4 @@
 		</dependency>
 		       
    </dependencies>
-
 </project>

@@ -30,7 +30,7 @@
         <dependency>
 		    <groupId>mysql</groupId>
 		    <artifactId>mysql-connector-java</artifactId>
-		    <version>6.0.3</version>
+		    <version>5.1.39</version>
 		</dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -186,7 +186,7 @@
     </properties>
     <modules>
     	<module>duoshouji-service</module>
-        <module>duoshouji-service-image</module>
+        <module>duoshouji-image</module>
     	<module>duoshouji-batch</module>
     </modules>
 </project>
