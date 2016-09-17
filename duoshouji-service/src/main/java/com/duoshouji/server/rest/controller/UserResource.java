@@ -407,7 +407,15 @@ public class UserResource {
 		}
 	}
 	
-	@RequestMapping(path = "/follow", method = RequestMethod.POST)
+	@RequestMapping(path = "/like", method = RequestMethod.POST)
+	public void likeNote(
+			@PathVariable("account-id") MobileNumber userId,
+			@RequestParam("noteId") long noteId
+			) {
+		duoShouJiFacade.likeNote(noteId, userId);
+	}
+	
+	@RequestMapping(path = "/watch", method = RequestMethod.POST)
 	public void watchUser(
 			@PathVariable("account-id") MobileNumber watcherId,
 			@RequestParam("userId") MobileNumber watchedId
