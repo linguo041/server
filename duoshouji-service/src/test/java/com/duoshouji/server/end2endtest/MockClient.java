@@ -1,5 +1,6 @@
 package com.duoshouji.server.end2endtest;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import org.json.JSONObject;
@@ -10,6 +11,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.server.util.VerificationCode;
 
 public class MockClient {
 	
@@ -23,12 +25,36 @@ public class MockClient {
 		return new SendLoginVerificationCode(mobile);
 	}
 	
-	public VerificationCodeLogin emitVerificationCodeLogin(MobileNumber mobile, String code) {
+	public VerificationCodeLogin emitVerificationCodeLogin(MobileNumber mobile, VerificationCode code) {
 		return new VerificationCodeLogin(mobile, code);
 	}
 	
 	public CredentialLogin emitCredentialLogin(MobileNumber mobile, String password) {
 		return new CredentialLogin(mobile, password);
+	}
+	
+	public CommonCategory emitCommonCategory() {
+		return new CommonCategory();
+	}
+	
+	public CommonBrand emitCommonBrand() {
+		return new CommonBrand();
+	}
+	
+	public CommonProduct emitCommonProduct() {
+		return new CommonProduct();
+	}
+	
+	public CommonDistrict emitCommonDistrict() {
+		return new CommonDistrict();
+	}
+	
+	public CommonTag emitCommonTag() {
+		return new CommonTag();
+	}
+	
+	public CommonChannel emitCommonChannel() {
+		return new CommonChannel();
 	}
 	
 	public abstract class ClientRequest {
@@ -98,9 +124,9 @@ public class MockClient {
 	
 	public class VerificationCodeLogin extends DynamicResourceRequest {
 		private MobileNumber mobile;
-		private String code;
+		private VerificationCode code;
 
-		private VerificationCodeLogin(MobileNumber mobile, String code) {
+		private VerificationCodeLogin(MobileNumber mobile, VerificationCode code) {
 			super();
 			this.mobile = mobile;
 			this.code = code;
@@ -108,7 +134,7 @@ public class MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() {
-	    	return post("/accounts/{account-id}/login/verification-code", mobile).param("code", code);
+	    	return post("/accounts/{account-id}/login/verification-code", mobile).param("code", code.toString());
 		}
 
 		@Override
@@ -148,5 +174,57 @@ public class MockClient {
 		protected SuccessJsonResultMatcher getDefaultSuccessMatcher() {
 			return CREDENTIAL_LOGIN_RESULT_MATCHER;
 		}
+	}
+	public class CommonTag extends DynamicResourceRequest {
+
+		@Override
+		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			return get("/common/tags");
+		}
+		
+	}
+	
+	public class CommonCategory extends DynamicResourceRequest {
+
+		@Override
+		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			return get("/common/commodity/categories");
+		}
+		
+	}
+	
+	public class CommonBrand extends DynamicResourceRequest {
+
+		@Override
+		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			return get("/common/commodity/brands");
+		}
+		
+	}
+	
+	public class CommonProduct extends DynamicResourceRequest {
+
+		@Override
+		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			return get("/common/commodity/products");
+		}
+		
+	}
+	
+	public class CommonDistrict extends DynamicResourceRequest {
+
+		@Override
+		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			return get("/common/geography/cities");
+		}
+	}
+	
+	public class CommonChannel extends DynamicResourceRequest {
+
+		@Override
+		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			return get("/common/channels");
+		}
+		
 	}
 }
