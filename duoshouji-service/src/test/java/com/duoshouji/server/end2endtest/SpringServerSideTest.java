@@ -61,7 +61,7 @@ public class SpringServerSideTest {
 		MockSession session2 = user2.credentialLoginAndCreateSession(mockMvc);
 		MockSession session3 = user3.credentialLoginAndCreateSession(mockMvc);
 		
-		session1.emitWatchUser(user3.getUserId());
+		session1.emitWatchUser(user3.getUserId()).performAndExpectSuccess();
 		session1.emitListSquareNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
 		session1.emitListChannelNotes(-1, DEFAULT_PAGE_SIZE, channelIds[0]).perform().expect(emptyNoteList());
 		session1.emitListWatchedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
@@ -129,24 +129,24 @@ public class SpringServerSideTest {
 		publisher.setBrandId(brandIds[2]);
 		final long note6 = publisher.performAndExpectSuccess().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
 		session3.emitUploadNoteImages(note6, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).performAndExpectSuccess();
-			
+		
 		session1.emitListSquareNotes(0, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
 		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, channelIds[0]).perform().expect(emptyNoteList());
 		session1.emitListWatchedNotes(0, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
 		session2.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
 		session3.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
-		session2.emitListPublishedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note1, note2, note3));
-		session3.emitListPublishedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note4, note5, note6));
-		session1.emitListSquareNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note1, note2, note3, note4, note5, note6));
-		session1.emitListChannelNotes(-1, DEFAULT_PAGE_SIZE, channelIds[0]).perform().expect(noteList(note1, note4));
-		session1.emitListChannelNotes(-1, DEFAULT_PAGE_SIZE, channelIds[1]).perform().expect(noteList(note1, note2, note5));
-		session1.emitListChannelNotes(-1, DEFAULT_PAGE_SIZE, channelIds[2]).perform().expect(noteList(note3, note6));
+		session2.emitListPublishedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note3, note2, note1));
+		session3.emitListPublishedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note6, note5, note4));
+		session1.emitListSquareNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note6, note5, note4, note3, note2, note1));
+		session1.emitListChannelNotes(-1, DEFAULT_PAGE_SIZE, channelIds[0]).perform().expect(noteList(note4, note1));
+		session1.emitListChannelNotes(-1, DEFAULT_PAGE_SIZE, channelIds[1]).perform().expect(noteList(note5, note2, note1));
+		session1.emitListChannelNotes(-1, DEFAULT_PAGE_SIZE, channelIds[2]).perform().expect(noteList(note6, note3, note2));
 		session1.emitListChannelNotes(-1, DEFAULT_PAGE_SIZE, channelIds[3]).perform().expect(noteList(note3));
 		session1.emitListWatchedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note6, note5, note4));
 		session1.emitListSquareNotes(4, DEFAULT_PAGE_SIZE).perform().expect(noteList(note2, note1));
 		
-		session1.emitGetUserProfile().perform().expect(new UserProfileMatcher(user1, BigDecimal.ZERO, 0, 0, 2, 0));
-		session2.emitGetUserProfile().perform().expect(new UserProfileMatcher(user2, BigDecimal.ZERO, 3, 0, 0, 1));
+		session1.emitGetUserProfile().perform().expect(new UserProfileMatcher(user1, BigDecimal.ZERO, 0, 0, 1, 0));
+		session2.emitGetUserProfile().perform().expect(new UserProfileMatcher(user2, BigDecimal.ZERO, 3, 0, 0, 0));
 		session3.emitGetUserProfile().perform().expect(new UserProfileMatcher(user3, BigDecimal.ZERO, 3, 0, 0, 1));
 	}
 
@@ -190,6 +190,7 @@ public class SpringServerSideTest {
 		public UserProfileMatcher(MockUser mockUser, BigDecimal revenue, int noteCount, int transactionCount, int watchCount, int fanCount) {
 			super();
 			this.user = mockUser;
+			this.revenue = revenue;
 			this.noteCount = noteCount;
 			this.transactionCount = transactionCount;
 			this.watchCount = watchCount;
@@ -202,7 +203,7 @@ public class SpringServerSideTest {
 			Assert.assertEquals(user.getUserId().toLong(), jsonProfile.getLong("userId"));
 			Assert.assertEquals(user.getNickname(), jsonProfile.getString("nickname"));
 			Assert.assertEquals(user.getGender(), Gender.valueOf(jsonProfile.getString("gender")));
-			Assert.assertEquals(revenue, jsonProfile.getInt("totalRevenue"));
+			Assert.assertEquals(0, revenue.compareTo(new BigDecimal(jsonProfile.getString("totalRevenue"))));
 			Assert.assertEquals(noteCount, jsonProfile.getInt("publishedNoteCount"));
 			Assert.assertEquals(transactionCount, jsonProfile.getInt("transactionCount"));
 			Assert.assertEquals(watchCount, jsonProfile.getInt("watchCount"));
