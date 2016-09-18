@@ -6,11 +6,9 @@ public interface CommodityCatelogRepository {
 	
 	List<Brand> listBrands();
 	
-	Brand getBrand(long brandId);
-	
 	List<Category> listCategories();
 	
-	Category getCategory(long categoryId);
+	Brand getBrand(long brandId);
 	
-	List<Product> findProducts(Brand brand, Category category);
+	Category getCategory(long categoryId);
 }

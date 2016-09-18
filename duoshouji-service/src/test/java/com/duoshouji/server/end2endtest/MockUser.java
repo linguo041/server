@@ -3,7 +3,6 @@ package com.duoshouji.server.end2endtest;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.duoshouji.server.MockConstants;
-import com.duoshouji.server.TestUtils;
 import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.util.MobileNumber;
 
@@ -48,7 +47,7 @@ public class MockUser {
 		session.emitSendResetPasswordVerificationCode().performAndExpectSuccess();
 		session.emitResetPassword(messageReceiver.findHistory(getUserId()), getPassword()).performAndExpectSuccess();
 		session.emitUpdateProfile(getNickname(), getGender()).performAndExpectSuccess();
-		session.emitUploadPortrait(TestUtils.getImageBytes(MockConstants.MOCK_USER_PORTRAIT)).performAndExpectSuccess();
+		session.emitUploadPortrait(userId, MockConstants.MOCK_LOGO_IMAGE).performAndExpectSuccess();
 		session.emitLogout().performAndExpectSuccess();
 	}
 	

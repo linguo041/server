@@ -123,7 +123,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 				OperationDelegatingNote tempNote = new OperationDelegatingNote(UserNoteOperationManager.this, noteDto.noteId);
 				mapDto2BasicNote(tempNote, noteDto);
 				tempNote.content = noteDto.content;
-				tempNote.images = noteDto.images;
+				tempNote.otherImages = noteDto.images;
 				tempNote.tags = tagRepository.findTags(noteDto.tagIds);
 				cache.put(Long.valueOf(noteDto.noteId), tempNote);
 				note = tempNote;
@@ -231,8 +231,8 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		userNoteDao.savePortrait(user.getMobileNumber(), portrait);
 	}
 
-	public void setMainImage(OperationDelegatingNote note, Image mainImage) {
-		userNoteDao.saveNoteImage(note.getNoteId(), mainImage);
+	void setImages(OperationDelegatingNote note, Image[] images) {
+		userNoteDao.saveNoteImages(note.getNoteId(), images);
 	}
 	
 	public void setGender(OperationDelegatingMobileUser user, Gender gender) {

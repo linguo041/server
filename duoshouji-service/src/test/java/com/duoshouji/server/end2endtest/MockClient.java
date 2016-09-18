@@ -3,6 +3,9 @@ package com.duoshouji.server.end2endtest;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
 import org.json.JSONObject;
 import org.junit.Assert;
 import org.springframework.test.web.servlet.MockMvc;
@@ -10,6 +13,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.VerificationCode;
 
@@ -33,6 +37,14 @@ public class MockClient {
 		return new CredentialLogin(mobile, password);
 	}
 	
+	public UploadPortrait emitUploadPortrait(MobileNumber userId, Image image) {
+		return new UploadPortrait(userId, image);
+	}
+	
+	public UploadNoteImages emitUploadNoteImages(long noteId, Image[] images) {
+		return new UploadNoteImages(noteId, images);
+	}
+	
 	public CommonCategory emitCommonCategory() {
 		return new CommonCategory();
 	}
@@ -49,8 +61,8 @@ public class MockClient {
 		return new CommonDistrict();
 	}
 	
-	public CommonTag emitCommonTag() {
-		return new CommonTag();
+	public CommonTag emitCommonTag(long categoryId, long brandId) {
+		return new CommonTag(categoryId, brandId);
 	}
 	
 	public CommonChannel emitCommonChannel() {
@@ -175,13 +187,65 @@ public class MockClient {
 			return CREDENTIAL_LOGIN_RESULT_MATCHER;
 		}
 	}
-	public class CommonTag extends DynamicResourceRequest {
+	
+	public class UploadPortrait extends DynamicResourceRequest {
+		private Image image;
+		private MobileNumber userId;
+		
+		private UploadPortrait(MobileNumber userId, Image image) {
+			super();
+			this.userId = userId;
+			this.image = image;
+		}
+
+		@Override
+		protected MockHttpServletRequestBuilder getBuilder() throws FileNotFoundException, IOException {
+			return post("/callback/accounts/{account-id}/settings/profile/protrait", userId)
+					.param("imageUrl", image.getUrl())
+					.param("imageWidth", Integer.toString(image.getWidth()))
+					.param("imageHeight", Integer.toString(image.getHeight()));
+		}
+	}
+	
+	public class UploadNoteImages extends DynamicResourceRequest {
+		private long noteId;
+		private Image[] images;
+
+		private UploadNoteImages(long noteId, Image[] images) {
+			this.noteId = noteId;
+			this.images = images;
+		}
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return get("/common/tags");
+			MockHttpServletRequestBuilder builder = post("/callback/notes/{note-id}/images", noteId)
+					.param("imageCount", Integer.toString(images.length));
+			for (Image image : images) {
+				builder.param("imageUrl", image.getUrl())
+				.param("imageWidth", Integer.toString(image.getWidth()))
+				.param("imageHeight", Integer.toString(image.getHeight()));
+			}
+			return builder;
 		}
 		
+	}	
+	
+	public class CommonTag extends DynamicResourceRequest {
+		private long categoryId;
+		private long brandId;
+		
+		private CommonTag(long categoryId, long brandId) {
+			super();
+			this.categoryId = categoryId;
+			this.brandId = brandId;
+		}
+		
+		@Override
+		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			return get("/common/tags")
+					.param("categoryId", Long.toString(categoryId))
+					.param("brandId", Long.toString(brandId));
+		}
 	}
 	
 	public class CommonCategory extends DynamicResourceRequest {

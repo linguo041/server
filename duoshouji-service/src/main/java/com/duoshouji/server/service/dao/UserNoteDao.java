@@ -26,7 +26,7 @@ public interface UserNoteDao {
 	
 	long createNote(MobileNumber mobileNumber, NotePublishAttributes noteAttributes);
 
-	void saveNoteImage(long noteId, Image noteImage);
+	void saveNoteImages(long noteId, Image[] noteImages);
 	
 	NoteDetailDto findNote(long noteId);
 	

@@ -1,5 +1,6 @@
 package com.duoshouji.server.rest.controller;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +14,6 @@ import com.duoshouji.server.service.common.Category;
 import com.duoshouji.server.service.common.CommodityCatelogRepository;
 import com.duoshouji.server.service.common.District;
 import com.duoshouji.server.service.common.DistrictRepository;
-import com.duoshouji.server.service.common.Product;
 import com.duoshouji.server.service.common.Tag;
 import com.duoshouji.server.service.common.TagRepository;
 
@@ -35,8 +35,13 @@ public class CommonResource {
 	}
 
 	@RequestMapping(path = "/common/tags", method = RequestMethod.GET)
-	public List<Tag> getTags() {
-		return tagRepository.listTags();
+	public List<Tag> getTags(
+			@RequestParam("categoryId") long categoryId,
+			@RequestParam("brandId") long brandId
+			) {
+		final Category category = commodityCatelogRepository.getCategory(categoryId);
+		final Brand brand = commodityCatelogRepository.getBrand(brandId);
+		return tagRepository.listTags(category, brand);
 	}
 
 	@RequestMapping(path = "/common/channels", method = RequestMethod.GET)
@@ -51,17 +56,7 @@ public class CommonResource {
 	
 	@RequestMapping(path = "/common/commodity/categories", method = RequestMethod.GET)
 	public List<Category> getCategories() {
-		return commodityCatelogRepository.listCategories();
-	}
-
-	@RequestMapping(path = "/common/commodity/products", method = RequestMethod.GET)
-	public List<Product> getProducts(
-			@RequestParam("categoryId") long categoryId,
-			@RequestParam("brandId") long brandId
-			) {
-		final Brand brand = commodityCatelogRepository.getBrand(brandId);
-		final Category category = commodityCatelogRepository.getCategory(categoryId);
-		return commodityCatelogRepository.findProducts(brand, category);
+		return new LinkedList<Category>(commodityCatelogRepository.listCategories());
 	}
 	
 	@RequestMapping(path = "/common/geography/cities", method = RequestMethod.GET)

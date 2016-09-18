@@ -6,7 +6,7 @@ public interface TagRepository {
 
 	List<Tag> listChannels();
 
-	List<Tag> listTags();
+	List<Tag> listTags(Category category, Brand brand);
 	
 	Tag findTag(long tagId);
 	

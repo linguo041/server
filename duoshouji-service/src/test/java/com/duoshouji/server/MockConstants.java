@@ -1,6 +1,7 @@
 package com.duoshouji.server;
 
 import com.duoshouji.server.service.user.Gender;
+import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
@@ -17,4 +18,5 @@ public class MockConstants {
 	public static final String MOCK_NOTE_MAIN_IMAGE = "note.gif";
 	public static final String MOCK_NOTE_TITLE = "MOCK_NOTE_TITLE";
 	public static final int MOCK_TAG_ID = 1;
+	public static final Image MOCK_LOGO_IMAGE = new Image(100, 100, "https://avatars2.githubusercontent.com/u/19884155?v=3&s=200");
 }
