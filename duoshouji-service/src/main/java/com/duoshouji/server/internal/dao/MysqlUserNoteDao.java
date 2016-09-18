@@ -1,7 +1,6 @@
 package com.duoshouji.server.internal.dao;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,8 +9,8 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
@@ -85,7 +84,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	
 	@Override
 	public NoteDetailDto findNote(long noteId) {
-		NoteDetailDto noteDto = mysqlDataSource.query("select * from duoshouji.v_square_notes where id = " + noteId
+		NoteDetailDto noteDto = mysqlDataSource.query("select * from duoshouji.v_square_notes where note_id = " + noteId
 				, new ResultSetExtractor<NoteDetailDto>() {
 
 					@Override
@@ -138,7 +137,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 		noteDto.commentCount = rs.getInt("comment_number");
 		noteDto.likeCount = rs.getInt("like_number");
 		noteDto.mainImage = new Image(rs.getInt("main_image_width"), rs.getInt("main_image_height"), rs.getString("main_image_url"));
-		noteDto.noteId = rs.getLong("id");
+		noteDto.noteId = rs.getLong("note_id");
 		noteDto.publishedTime = rs.getLong("create_time");
 		noteDto.commentRatingSum = rs.getInt("comment_rating");
 		noteDto.ownerRating = rs.getInt("owner_rating");
@@ -367,7 +366,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 			sqlBuilder.append(", tag_id");
 			sqlBuilder.append(i + 1);
 		}
-		sqlBuilder.append(") values(?,?,?,?,?,?,?,?,?,?,?,?");
+		sqlBuilder.append(") values(?,?,?,?,?,?,?,?,?,?,?,?,?,?");
 		for (int i = 0; i < tagCount; ++i) {
 			sqlBuilder.append(",?");
 		}
@@ -405,22 +404,26 @@ public class MysqlUserNoteDao implements UserNoteDao {
 						ps.setLong(4, noteId);
 					}
 				});
-		mysqlDataSource.update(new PreparedStatementCreator() {
-			@Override
-			public PreparedStatement createPreparedStatement(Connection con)
-					throws SQLException {
-				PreparedStatement pstat = con.prepareStatement("insert into duoshouji.note_image values (?,?,?,?)");
-				for (int i = 1; i < noteImages.length; ++i) {
-					pstat.setLong(1, noteId);
-					pstat.setString(2, noteImages[i].getUrl());
-					pstat.setInt(3, noteImages[i].getWidth());
-					pstat.setInt(4, noteImages[i].getHeight());
-					pstat.addBatch();
+		if (noteImages.length > 1) {
+			mysqlDataSource.batchUpdate("insert into duoshouji.note_image values (?,?,?,?)"
+					, new BatchPreparedStatementSetter() {
+						
+				@Override
+				public void setValues(PreparedStatement ps, int i)
+						throws SQLException {
+					ps.setLong(1, noteId);
+					ps.setString(2, noteImages[i + 1].getUrl());
+					ps.setInt(3, noteImages[i + 1].getWidth());
+					ps.setInt(4, noteImages[i + 1].getHeight());
 				}
-				pstat.executeBatch();
-				return pstat;
-			}
-		});
+	
+				@Override
+				public int getBatchSize() {
+					return noteImages.length - 1;
+				}
+				
+			});
+		}
 	}
 
 	@Override

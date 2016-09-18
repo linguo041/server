@@ -261,7 +261,7 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return super.getBuilder().param("channelId", Long.toString(channelId));
+			return super.getBuilder().param("tagId", Long.toString(channelId));
 		}
 	}
 	
@@ -343,17 +343,17 @@ public class MockSession extends MockClient {
 	}
 	
 	public class WatchUser extends DynamicResourceRequest {
-		private MobileNumber userId;
+		private MobileNumber followedUserId;
 		
 		public WatchUser(MobileNumber userId) {
 			super();
-			this.userId = userId;
+			this.followedUserId = userId;
 		}
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
 			return post("/accounts/{account-id}/watch", userId)
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
-					.param("userId", userId.toString());
+					.param("userId", followedUserId.toString());
 		}
 		
 	}

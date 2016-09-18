@@ -93,7 +93,7 @@ class OperationDelegatingMobileUser extends InMemoryBasicUser implements FullFun
 
 	@Override
 	public void addFan(MobileNumber fanId) {
-		delegator.watchUser(fanId, this);
+		delegator.connectUser(fanId, this);
 		++fanCount;
 	}
 

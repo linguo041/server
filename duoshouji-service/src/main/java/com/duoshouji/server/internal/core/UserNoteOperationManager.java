@@ -302,9 +302,9 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		}		
 	}
 	
-	void watchUser(MobileNumber fanId, OperationDelegatingMobileUser user) {
-		userNoteDao.addWatchConnection(fanId, user.getMobileNumber());
-		userCache.getUserIfLoaded(user.getMobileNumber()).fireWatchUser();
+	void connectUser(MobileNumber fanId, OperationDelegatingMobileUser watchedUser) {
+		userNoteDao.addWatchConnection(fanId, watchedUser.getMobileNumber());
+		userCache.getUserIfLoaded(fanId).fireWatchUser();
 	}
 
 	private class InnerNoteIterator implements Iterator<BasicNote> {
