@@ -17,9 +17,9 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.duoshouji.server.MockConstants;
-import com.duoshouji.server.TestUtils;
 import com.duoshouji.server.end2endtest.MockSession.PublishNote;
 import com.duoshouji.server.service.user.Gender;
+import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.Location;
 import com.duoshouji.server.util.MessageProxyFactory;
 import com.duoshouji.server.util.MobileNumber;
@@ -78,7 +78,7 @@ public class SpringServerSideTest {
 		publisher.setCategoryId(categoryIds[1]);
 		publisher.setBrandId(brandIds[1]);
 		final long note1 = publisher.performAndExpectSuccess().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
-		session2.emitUploadNoteMainImage(note1, TestUtils.getImageBytes(MockConstants.MOCK_NOTE_MAIN_IMAGE)).performAndExpectSuccess();
+		session2.emitUploadNoteImages(note1, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).performAndExpectSuccess();
 		publisher = session2.emitPublishNote(MockNoteContent.CONTENT2);
 		publisher.setTags(new long[]{channelIds[1], channelIds[2]});
 		publisher.setRating(5);
@@ -88,7 +88,7 @@ public class SpringServerSideTest {
 		publisher.setCategoryId(categoryIds[1]);
 		publisher.setBrandId(brandIds[1]);
 		final long note2 = publisher.performAndExpectSuccess().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
-		session2.emitUploadNoteMainImage(note2, TestUtils.getImageBytes(MockConstants.MOCK_NOTE_MAIN_IMAGE)).performAndExpectSuccess();
+		session2.emitUploadNoteImages(note2, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).performAndExpectSuccess();
 		publisher = session2.emitPublishNote(MockNoteContent.CONTENT3);
 		publisher.setTags(new long[]{channelIds[2], channelIds[3]});
 		publisher.setRating(5);
@@ -98,7 +98,7 @@ public class SpringServerSideTest {
 		publisher.setCategoryId(categoryIds[1]);
 		publisher.setBrandId(brandIds[1]);
 		final long note3 = publisher.performAndExpectSuccess().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
-		session2.emitUploadNoteMainImage(note3, TestUtils.getImageBytes(MockConstants.MOCK_NOTE_MAIN_IMAGE)).performAndExpectSuccess();
+		session2.emitUploadNoteImages(note3, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).performAndExpectSuccess();
 		publisher = session3.emitPublishNote(MockNoteContent.CONTENT4);
 		publisher.setTags(new long[]{channelIds[0]});
 		publisher.setRating(5);
@@ -108,7 +108,7 @@ public class SpringServerSideTest {
 		publisher.setCategoryId(categoryIds[2]);
 		publisher.setBrandId(brandIds[2]);
 		final long note4 = publisher.performAndExpectSuccess().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
-		session3.emitUploadNoteMainImage(note4, TestUtils.getImageBytes(MockConstants.MOCK_NOTE_MAIN_IMAGE)).performAndExpectSuccess();
+		session3.emitUploadNoteImages(note4, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).performAndExpectSuccess();
 		publisher = session3.emitPublishNote(MockNoteContent.CONTENT5);
 		publisher.setTags(new long[]{channelIds[1]});
 		publisher.setRating(5);
@@ -118,7 +118,7 @@ public class SpringServerSideTest {
 		publisher.setCategoryId(categoryIds[2]);
 		publisher.setBrandId(brandIds[2]);
 		final long note5 = publisher.performAndExpectSuccess().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
-		session3.emitUploadNoteMainImage(note5, TestUtils.getImageBytes(MockConstants.MOCK_NOTE_MAIN_IMAGE)).performAndExpectSuccess();
+		session3.emitUploadNoteImages(note5, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).performAndExpectSuccess();
 		publisher = session3.emitPublishNote(MockNoteContent.CONTENT6);
 		publisher.setTags(new long[]{channelIds[2]});
 		publisher.setRating(5);
@@ -128,7 +128,7 @@ public class SpringServerSideTest {
 		publisher.setCategoryId(categoryIds[2]);
 		publisher.setBrandId(brandIds[2]);
 		final long note6 = publisher.performAndExpectSuccess().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
-		session3.emitUploadNoteMainImage(note6, TestUtils.getImageBytes(MockConstants.MOCK_NOTE_MAIN_IMAGE)).performAndExpectSuccess();
+		session3.emitUploadNoteImages(note6, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).performAndExpectSuccess();
 			
 		session1.emitListSquareNotes(0, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
 		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, channelIds[0]).perform().expect(emptyNoteList());

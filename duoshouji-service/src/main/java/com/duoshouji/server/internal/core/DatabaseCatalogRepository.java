@@ -10,21 +10,22 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.common.Brand;
 import com.duoshouji.server.service.common.CatalogItem;
 import com.duoshouji.server.service.common.Category;
 import com.duoshouji.server.service.common.CommodityCatelogRepository;
-import com.duoshouji.server.service.common.Product;
 import com.duoshouji.server.service.common.Tag;
 import com.duoshouji.server.service.common.TagRepository;
 
+@Service
 public class DatabaseCatalogRepository implements CommodityCatelogRepository, TagRepository {
 	
 	private List<Tag> tags;
 	private List<Category> categories;
 	private List<Brand> brands;
-	private List<Product> products;
+	private List<Mapping> mapping;
 	
 	private static final RowMapper<Tag> tagLoader = new RowMapper<Tag>() {
 				
@@ -32,18 +33,13 @@ public class DatabaseCatalogRepository implements CommodityCatelogRepository, Ta
 		public Tag mapRow(ResultSet rs, int rowNum) throws SQLException {
 			return new InnerTag(rs);
 		}
-		
 	};
 	
 	private static final RowMapper<Category> categoryLoader = new RowMapper<Category>() {
 		
 		@Override
 		public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
-			if (rs.getBoolean("is_tag")) {
-				return new InnerCategory(rs);
-			} else {
-				return new InnerTagCategory(rs);
-			}
+			return new InnerCategory(rs);
 		}
 		
 	};
@@ -57,11 +53,11 @@ public class DatabaseCatalogRepository implements CommodityCatelogRepository, Ta
 		
 	};
 	
-	private static final RowMapper<Product> productLoader = new RowMapper<Product>() {
-		
+	private static final RowMapper<Mapping> mappingLoader = new RowMapper<Mapping>() {
+
 		@Override
-		public Product mapRow(ResultSet rs, int rowNum) throws SQLException {
-			return new InnerProduct(rs);
+		public Mapping mapRow(ResultSet rs, int rowNum) throws SQLException {
+			return new Mapping(rs);
 		}
 		
 	};
@@ -101,9 +97,11 @@ public class DatabaseCatalogRepository implements CommodityCatelogRepository, Ta
 	}
 	
 	private static class InnerTag extends BasicCatalogItem implements Tag {
+		final boolean isChannel;
+		
 		private InnerTag(ResultSet rs) throws SQLException {
 			super(rs.getLong("tag_id"), rs.getString("tag_name"));
-			rs.getBoolean("is_channel");
+			isChannel = rs.getBoolean("is_channel");
 		}
 	}
 	
@@ -114,34 +112,21 @@ public class DatabaseCatalogRepository implements CommodityCatelogRepository, Ta
 		}
 	}
 	
-	private static class InnerTagCategory extends InnerCategory implements Tag {
-		
-		private InnerTagCategory(ResultSet rs) throws SQLException {
-			super(rs);
-		}
-	}
-	
-	
 	private static class InnerBrand extends BasicCatalogItem implements Brand {
 		
 		private InnerBrand(ResultSet rs) throws SQLException {
 			super(rs.getLong("brand_id"), rs.getString("brand_name"));
 		}
-		
 	}
 	
-	private static class InnerProduct extends BasicCatalogItem implements Product {
-		private long categoryId;
-		private long brandId;
-		
-		private InnerProduct(ResultSet rs) throws SQLException {
-			super(rs.getLong("product_id"), rs.getString("product_name"));
-			categoryId = rs.getLong("category_id");
-			brandId = rs.getLong("brand_id");
-		}
-		
-		boolean belongTo(Category category, Brand brand) {
-			return category.getIdentifier() == categoryId && brand.getIdentifier() == brandId;
+	private static class Mapping {
+		long categoryId, brandId, tagId;
+
+		public Mapping(ResultSet rs) throws SQLException {
+			super();
+			this.categoryId = rs.getLong("category_id");
+			this.brandId = rs.getLong("brand_id");
+			this.tagId = rs.getLong("tag_id");
 		}
 	}
 	
@@ -153,21 +138,16 @@ public class DatabaseCatalogRepository implements CommodityCatelogRepository, Ta
 	
 	private void init(JdbcTemplate jdbcTemplate) {
 		tags = jdbcTemplate.query("select tag_id, tag_name, is_channel from duoshouji.tag order by tag_id", tagLoader);
-		categories = jdbcTemplate.query("select category_id, category_name, is_tag from duoshouji.category order by category_id", categoryLoader);
-		for (Category category : categories) {
-			if (category instanceof InnerTagCategory) {
-				tags.add((InnerTagCategory)category);
-			}
-		}
+		categories = jdbcTemplate.query("select category_id, category_name from duoshouji.category order by category_id", categoryLoader);
 		brands = jdbcTemplate.query("select brand_id, brand_name from duoshouji.brand order by brand_id", brandLoader);
-		products = jdbcTemplate.query("select * from duoshouji.product order by product_id", productLoader);
+		mapping = jdbcTemplate.query("select * from duoshouji.catalog_tag_map", mappingLoader);
 	}
 	
 	private void setUnmodifiable() {
 		tags = Collections.unmodifiableList(tags);
 		categories = Collections.unmodifiableList(categories);
 		brands = Collections.unmodifiableList(brands);
-		products = Collections.unmodifiableList(products);
+		mapping = Collections.unmodifiableList(mapping);
 	}
 	
 	@Override
@@ -200,24 +180,26 @@ public class DatabaseCatalogRepository implements CommodityCatelogRepository, Ta
 		return categories.get(index);
 	}
 
-	@Override
-	public List<Product> findProducts(Brand brand, Category category) {
-		List<Product> filteredProducts = new LinkedList<Product>();
-		for (Product product : products) {
-			if (((InnerProduct)product).belongTo(category, brand)) {
-				filteredProducts.add(product);
-			}
-		}
-		return filteredProducts;
-	}
 
 	@Override
 	public List<Tag> listChannels() {
-		return tags;
+		List<Tag> channels = new LinkedList<Tag>();
+		for (Tag tag : tags) {
+			if (((InnerTag)tag).isChannel) {
+				channels.add(tag);
+			}
+		}
+		return channels;
 	}
 	
 	@Override
-	public List<Tag> listTags() {
+	public List<Tag> listTags(Category category, Brand brand) {
+		List<Tag> tags = new LinkedList<Tag>();
+		for (Mapping m : mapping) {
+			if (m.categoryId == category.getIdentifier() && m.brandId == brand.getIdentifier()) {
+				tags.add(findTag(m.tagId));
+			}
+		}
 		return tags;
 	}
 	

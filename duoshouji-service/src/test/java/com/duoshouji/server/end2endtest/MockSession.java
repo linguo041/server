@@ -1,15 +1,10 @@
 package com.duoshouji.server.end2endtest;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
 
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
@@ -50,16 +45,8 @@ public class MockSession extends MockClient {
 		return new GetUserProfile();
 	}
 	
-	public UploadPortrait emitUploadPortrait(InputStream imageFile) {
-		return new UploadPortrait(imageFile);
-	}
-	
 	public PublishNote emitPublishNote(MockNoteContent content) {
 		return new PublishNote(content);
-	}
-	
-	public UploadNoteMainImage emitUploadNoteMainImage(long noteId, InputStream imageFile) {
-		return new UploadNoteMainImage(noteId, imageFile);
 	}
 	
 	public ListSquareNotes emitListSquareNotes(int loadedSize, int pageSize) {
@@ -166,21 +153,6 @@ public class MockSession extends MockClient {
 		}
 	}
 	
-	public class UploadPortrait extends DynamicResourceRequest {
-		private InputStream imageFile;
-		
-		private UploadPortrait(InputStream imageFile) {
-			super();
-			this.imageFile = imageFile;
-		}
-
-		@Override
-		protected MockHttpServletRequestBuilder getBuilder() throws FileNotFoundException, IOException {
-			return fileUpload("/accounts/{account-id}/settings/profile/protrait", userId)
-					.file(new MockMultipartFile("image", imageFile));
-		}
-	}
-	
 	public class PublishNote extends DynamicResourceRequest {
 		private final String title;
 		private final String content;
@@ -248,23 +220,6 @@ public class MockSession extends MockClient {
 			}
 			return stringTags;
 		}
-	}
-	
-	public class UploadNoteMainImage extends DynamicResourceRequest {
-		private long noteId;
-		private InputStream imageFile;
-
-		private UploadNoteMainImage(long noteId, InputStream imageFile) {
-			this.noteId = noteId;
-			this.imageFile = imageFile;
-		}
-
-		@Override
-		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return fileUpload("/notes/{note-id}/images/main-image", noteId)
-					.file(new MockMultipartFile("image", imageFile));
-		}
-		
 	}
 	
 	public class ListSquareNotes extends DynamicResourceRequest {
