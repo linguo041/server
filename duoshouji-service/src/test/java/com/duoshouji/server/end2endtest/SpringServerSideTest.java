@@ -26,7 +26,7 @@ import com.duoshouji.server.util.MobileNumber;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration("test-context.xml")
+@ContextConfiguration("/test-context.xml")
 public class SpringServerSideTest {
 	
 	private static final int DEFAULT_PAGE_SIZE = 10;
