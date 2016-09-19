@@ -9,6 +9,7 @@
   </parent>
   <artifactId>duoshouji-service</artifactId>
   <name>DuoShouJi Service</name>
+  <packaging>war</packaging>
   
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
