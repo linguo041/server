@@ -24,7 +24,7 @@ import com.duoshouji.server.util.Image;
 @Service
 public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallback {
 
-	private static final String CALLBACK_HOST = "localhost";
+	private static final String CALLBACK_HOST = "restapi.share68.com";
 	
 	private CloseableHttpClient httpClient;
 	
