@@ -2,15 +2,12 @@ package com.duoshouji.server.end2endtest;
 
 import java.util.HashMap;
 
-import org.springframework.stereotype.Service;
-
 import com.duoshouji.server.service.user.FullFunctionalUser;
 import com.duoshouji.server.util.MessageProxyFactory;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.UserMessageProxy;
 import com.duoshouji.server.util.VerificationCode;
 
-@Service
 public class MockMessageSender implements MessageProxyFactory {
 	
 	private HashMap<MobileNumber, Proxy> proxies = new HashMap<MobileNumber, Proxy>();
