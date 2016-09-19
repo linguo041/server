@@ -14,15 +14,12 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import org.springframework.stereotype.Service;
-
 import com.duoshouji.server.service.user.FullFunctionalUser;
 import com.duoshouji.server.util.MessageProxyFactory;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.UserMessageProxy;
 import com.duoshouji.server.util.VerificationCode;
 
-@Service
 public class EmailMessageReceiver implements MessageProxyFactory {
 
 	private static final String SMTP_SERVER_NAME = "smtp.163.com";
