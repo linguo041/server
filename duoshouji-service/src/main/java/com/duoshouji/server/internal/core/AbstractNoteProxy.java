@@ -70,5 +70,10 @@ abstract class AbstractNoteProxy implements Note, UserNoteInteractionAware {
 	public final void setImages(Image[] images) {
 		getDelegator().setImages(images);
 	}
+
+	@Override
+	public String getProductName() {
+		return getDelegator().getProductName();
+	}
 }
 
