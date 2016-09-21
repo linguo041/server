@@ -14,6 +14,7 @@ class OperationDelegatingNote extends InMemoryBasicNote implements Note {
 	String content;
 	List<Image> otherImages;
 	List<Tag> tags;
+	String productName;
 	
 	public OperationDelegatingNote(UserNoteOperationManager operationManager, long noteId) {
 		super(noteId);
@@ -49,5 +50,10 @@ class OperationDelegatingNote extends InMemoryBasicNote implements Note {
 	@Override
 	public String getContent() {
 		return content;
+	}
+
+	@Override
+	public String getProductName() {
+		return productName;
 	}
 }

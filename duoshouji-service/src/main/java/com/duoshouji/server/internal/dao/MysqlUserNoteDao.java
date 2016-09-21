@@ -131,6 +131,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 			noteDto.tagIds[i] = tagId.longValue();
 		}
 		noteDto.tagIds = Arrays.copyOf(noteDto.tagIds, i);
+		noteDto.productName = rs.getString("product_name");
 	}
 
 	private void mapNoteBriefDto(BasicNoteDto noteDto, ResultSet rs) throws SQLException {
@@ -348,12 +349,26 @@ public class MysqlUserNoteDao implements UserNoteDao {
 						ps.setBigDecimal(12, BigDecimal.valueOf(mobileNumber.toLong()));
 						ps.setLong(13, time);
 						ps.setInt(14, noteAttributes.getRating());
-						int parameterIndex = 15;
+						ps.setString(15, noteAttributes.getProductName());
+						int parameterIndex = 16;
 						for (Tag tag : noteAttributes.getTags()) {
 							ps.setBigDecimal(parameterIndex++, BigDecimal.valueOf(tag.getIdentifier()));
 						}
 					}
 				});
+		mysqlDataSource.update(
+				"insert into duoshouji.note_keyword values(?,?,?)"
+				, new PreparedStatementSetter() {
+
+					@Override
+					public void setValues(PreparedStatement ps)
+							throws SQLException {
+						ps.setBigDecimal(1, BigDecimal.valueOf(noteId));
+						ps.setString(2, noteAttributes.getProductName());
+						ps.setInt(3, 1);
+					}
+			
+		});
 		mysqlDataSource.update("update duoshouji.user_extend set note_number = note_number + 1 where user_id = " + mobileNumber);
 		mysqlDataSource.update("insert into duoshouji.note_extend (note_id) values ("+noteId+")");
 		return noteId;
@@ -361,12 +376,12 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	
 	private String buildInsertNoteClause(int tagCount) {
 		StringBuilder sqlBuilder = new StringBuilder(
-				"insert into duoshouji.note (note_id, category_id, brand_id, product_name, price, district_id, longitude, latitude, title, content, create_time, user_id, last_update_time, rating");
+				"insert into duoshouji.note (note_id, category_id, brand_id, product_name, price, district_id, longitude, latitude, title, content, create_time, user_id, last_update_time, rating, keyword");
 		for (int i = 0; i < tagCount; ++i) {
 			sqlBuilder.append(", tag_id");
 			sqlBuilder.append(i + 1);
 		}
-		sqlBuilder.append(") values(?,?,?,?,?,?,?,?,?,?,?,?,?,?");
+		sqlBuilder.append(") values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?");
 		for (int i = 0; i < tagCount; ++i) {
 			sqlBuilder.append(",?");
 		}

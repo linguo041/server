@@ -7,4 +7,6 @@ import com.duoshouji.server.util.Image;
 public interface Note extends NoteDetail {
 
 	void setImages(Image[] images);
+	
+	String getProductName();
 }

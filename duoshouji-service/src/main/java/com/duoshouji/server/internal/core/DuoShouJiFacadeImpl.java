@@ -29,6 +29,8 @@ import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NotePublishException;
 import com.duoshouji.server.service.note.NoteRepository;
+import com.duoshouji.server.service.note.recommand.EcommerceItem;
+import com.duoshouji.server.service.note.recommand.NoteRecommendService;
 import com.duoshouji.server.service.user.BasicUser;
 import com.duoshouji.server.service.user.BasicUserAttributes;
 import com.duoshouji.server.service.user.FullFunctionalUser;
@@ -47,6 +49,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	private NoteRepository noteRepository;
 	private UserRepository userRepository;
 	private UserNoteInteraction interactionFacade;
+	private NoteRecommendService noteRecommendService;
 	private TagRepository tagRepository;
 	private CommodityCatelogRepository commodityCatelogRepository;
 	private DistrictRepository districtRepository;
@@ -81,6 +84,12 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	@Required
 	public void setInteractionFacade(UserNoteInteraction interactionFacade) {
 		this.interactionFacade = interactionFacade;
+	}
+
+	@Autowired
+	@Required
+	public void setNoteRecommendService(NoteRecommendService noteRecommendService) {
+		this.noteRecommendService = noteRecommendService;
 	}
 
 	@Autowired
@@ -182,6 +191,11 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	@Override
 	public void likeNote(long noteId, MobileNumber userId) {
 		interactionFacade.likeNote(noteId, userId);
+	}
+
+	@Override
+	public List<EcommerceItem> getNoteRecommendations(long noteId) {
+		return noteRecommendService.recommendEcommerceItems(noteRepository.getNote(noteId));
 	}
 
 	private class InnerSquareNoteRequester extends NoteFilter implements SquareNoteRequester {

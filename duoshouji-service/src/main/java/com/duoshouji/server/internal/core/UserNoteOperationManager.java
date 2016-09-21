@@ -125,6 +125,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 				tempNote.content = noteDto.content;
 				tempNote.otherImages = noteDto.images;
 				tempNote.tags = tagRepository.findTags(noteDto.tagIds);
+				tempNote.productName = noteDto.productName;
 				cache.put(Long.valueOf(noteDto.noteId), tempNote);
 				note = tempNote;
 			}
