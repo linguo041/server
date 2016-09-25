@@ -4,12 +4,9 @@ import com.duoshouji.server.annotation.Unique;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
-import com.duoshouji.server.util.UserMessageProxy;
 
 @Unique
 public interface FullFunctionalUser extends UserProfile {
-
-	UserMessageProxy getMessageProxy();
 
 	boolean verifyPassword(Password password);
 
@@ -23,5 +20,7 @@ public interface FullFunctionalUser extends UserProfile {
 	
 	void setPortrait(Image portrait);
 
-	void addFan(MobileNumber followerId);
+	void invitePeopleFromAddressBook(MobileNumber[] mobileNumberOfContacts);
+
+	void follow(MobileNumber userId);
 }

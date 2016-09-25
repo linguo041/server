@@ -1,7 +1,9 @@
 package com.duoshouji.server.util;
 
-public interface UserMessageProxy {
+public interface MessageProxy {
 
 	void sendVerificationCode(VerificationCode verificationCode);
+
+	void sendInvitationMessage(MobileNumber inviterMobileNumber);
 
 }

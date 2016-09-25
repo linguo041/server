@@ -399,7 +399,7 @@ public class UserResource {
 		}
 		
 		public int getWatchCount() {
-			return profile.getWatchCount();
+			return profile.getFollowCount();
 		}
 		
 		public int getFanCount() {
@@ -415,11 +415,19 @@ public class UserResource {
 		duoShouJiFacade.likeNote(noteId, userId);
 	}
 	
-	@RequestMapping(path = "/watch", method = RequestMethod.POST)
+	@RequestMapping(path = "/follow", method = RequestMethod.POST)
 	public void watchUser(
-			@PathVariable("account-id") MobileNumber watcherId,
-			@RequestParam("userId") MobileNumber watchedId
+			@PathVariable("account-id") MobileNumber followerId,
+			@RequestParam("userId") MobileNumber followedId
 			) {
-		duoShouJiFacade.watchUser(watcherId, watchedId);
+		duoShouJiFacade.buildFollowConnection(followerId, followedId);
+	}
+	
+	@RequestMapping(path = "/invite", method = RequestMethod.POST)
+	public void inviteFriends(
+			@PathVariable("account-id") MobileNumber userId,
+			@RequestParam("mobile") MobileNumber[] mobileNumbers
+			) {
+		duoShouJiFacade.inviteFriends(userId, mobileNumbers);
 	}
 }

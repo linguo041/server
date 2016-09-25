@@ -145,9 +145,31 @@ public class SpringServerSideTest {
 		session1.emitListWatchedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note6, note5, note4));
 		session1.emitListSquareNotes(4, DEFAULT_PAGE_SIZE).perform().expect(noteList(note2, note1));
 		
+		session1.emitLikeNote(note6);
+		session2.emitLikeNote(note6);
+		session2.emitCommentNote(note6, "comment", MockConstants.MOCK_LONGITUDE, MockConstants.MOCK_LATITUDE, 5);
+		session3.emitDisplayNote(note6).perform().expect(likeCount(2)).expect(commentCount(1));
+		
 		session1.emitGetUserProfile().perform().expect(new UserProfileMatcher(user1, BigDecimal.ZERO, 0, 0, 1, 0));
 		session2.emitGetUserProfile().perform().expect(new UserProfileMatcher(user2, BigDecimal.ZERO, 3, 0, 0, 0));
 		session3.emitGetUserProfile().perform().expect(new UserProfileMatcher(user3, BigDecimal.ZERO, 3, 0, 0, 1));
+		
+		MockUser user4 = new MockUser(MobileNumber.valueOf(13816918000l), Gender.MALE);
+		session1.emitInviteContactsFromAddressBook(new MobileNumber[]{user4.getUserId()});
+		user4.registerAndSetupProfile(mockMvc, messageReceiver);
+		MockSession session4 = user4.credentialLoginAndCreateSession(mockMvc);
+		publisher = session4.emitPublishNote(MockNoteContent.CONTENT7);
+		publisher.setTags(new long[]{channelIds[0]});
+		publisher.setRating(5);
+		publisher.setPrice(BigDecimal.TEN);
+		publisher.setLocation(MockConstants.MOCK_LOCATION);
+		publisher.setDistrictId(districtIds[0]);
+		publisher.setCategoryId(categoryIds[0]);
+		publisher.setBrandId(brandIds[0]);
+		final long note7 = publisher.perform().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
+		session4.emitUploadNoteImages(note7, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).perform();
+		session1.emitListWatchedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note7, note6, note5, note4));
+		session1.emitGetUserProfile().perform().expect(watchCount(2));
 	}
 
 	
@@ -157,6 +179,18 @@ public class SpringServerSideTest {
 	
 	private NoteIdMatcher noteList(long... noteIds) {
 		return new NoteIdMatcher(noteIds);
+	}
+	
+	private NoteLikeCountMatcher likeCount(int likeCount) {
+		return new NoteLikeCountMatcher(likeCount);
+	}
+	
+	private NoteCommentCountMatcher commentCount(int commentCount) {
+		return new NoteCommentCountMatcher(commentCount);
+	}
+	
+	private WatchCountMatcher watchCount(int watchCount) {
+		return new WatchCountMatcher(watchCount);
 	}
 	
 	private static class NoteIdMatcher extends SuccessJsonResultMatcher {
@@ -177,6 +211,36 @@ public class SpringServerSideTest {
 				Assert.assertEquals(noteIds[i], actualNoteId);
 			}
 		}
+	}
+	
+	private static class NoteLikeCountMatcher extends SuccessJsonResultMatcher {
+		private final int likeCount;
+		
+		public NoteLikeCountMatcher(int likeCount) {
+			super();
+			this.likeCount = likeCount;
+		}
+		
+		@Override
+		protected void verifyJsonResult(JSONObject json) throws Exception {
+			JSONObject jsonNoteDetail = json.getJSONObject("resultValues");
+			Assert.assertEquals(likeCount, jsonNoteDetail.getInt("likeCount"));
+		}
+	}
+	
+	private static class NoteCommentCountMatcher extends SuccessJsonResultMatcher {
+		private final int commentCount;
+
+		public NoteCommentCountMatcher(int commentCount) {
+			super();
+			this.commentCount = commentCount;
+		}
+
+		@Override
+		protected void verifyJsonResult(JSONObject json) throws Exception {
+			JSONObject jsonNoteDetail = json.getJSONObject("resultValues");
+			Assert.assertEquals(commentCount, jsonNoteDetail.getInt("commentCount"));			
+		}		
 	}
 	
 	private static class UserProfileMatcher extends SuccessJsonResultMatcher {
@@ -208,6 +272,21 @@ public class SpringServerSideTest {
 			Assert.assertEquals(transactionCount, jsonProfile.getInt("transactionCount"));
 			Assert.assertEquals(watchCount, jsonProfile.getInt("watchCount"));
 			Assert.assertEquals(fanCount, jsonProfile.getInt("fanCount"));
+		}
+	}
+	
+	private static class WatchCountMatcher extends SuccessJsonResultMatcher {
+		private final int watchCount;
+
+		public WatchCountMatcher(int watchCount) {
+			super();
+			this.watchCount = watchCount;
+		}
+		
+		@Override
+		protected void verifyJsonResult(JSONObject json) throws Exception {
+			JSONObject jsonProfile = json.getJSONObject("resultValues");
+			Assert.assertEquals(watchCount, jsonProfile.getInt("watchCount"));
 		}
 	}
 }

@@ -37,7 +37,6 @@ import com.duoshouji.server.service.user.FullFunctionalUser;
 import com.duoshouji.server.service.user.UserProfile;
 import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.service.verify.SecureAccessFacade;
-import com.duoshouji.server.service.verify.SecureChecker;
 import com.duoshouji.server.util.Location;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
@@ -105,15 +104,13 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	}
 	
 	@Override
-	public void sendLoginVerificationCode(MobileNumber mobileNumber) {
-		FullFunctionalUser user = userRepository.findUser(mobileNumber);
-		secureAccessFacade.getSecureChecker(user).sendVerificationCode();
+	public void sendLoginVerificationCode(MobileNumber accountId) {
+		secureAccessFacade.getSecureChecker(accountId).sendVerificationCode();
 	}
 
 	@Override
-	public boolean verificationCodeLogin(MobileNumber mobileNumber, VerificationCode verificationCode) {
-		SecureChecker checker = secureAccessFacade.getSecureChecker(userRepository.findUser(mobileNumber));
-		return checker.verify(verificationCode);
+	public boolean verificationCodeLogin(MobileNumber accountId, VerificationCode verificationCode) {
+		return secureAccessFacade.getSecureChecker(accountId).verify(verificationCode);
 	}
 
 	@Override
@@ -131,7 +128,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 			, VerificationCode verificationCode, Password password) {
 		final FullFunctionalUser user = userRepository.findUser(accountId);
 		boolean isSuccess = false;
-		if (secureAccessFacade.getSecureChecker(user).verify(verificationCode)) {
+		if (secureAccessFacade.getSecureChecker(accountId).verify(verificationCode)) {
 			user.setPassword(password);
 			isSuccess = true;
 		}
@@ -140,7 +137,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 
 	@Override
 	public void sendResetPasswordVerificationCode(MobileNumber accountId) {
-		secureAccessFacade.getSecureChecker(userRepository.findUser(accountId)).sendVerificationCode();
+		secureAccessFacade.getSecureChecker(accountId).sendVerificationCode();
 	}
 
 	@Override
@@ -155,8 +152,9 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	}
 
 	@Override
-	public void watchUser(MobileNumber fanId, MobileNumber userId) {
-		userRepository.findUser(userId).addFan(fanId);
+	public void buildFollowConnection(MobileNumber followerId, MobileNumber followedId) {
+		final FullFunctionalUser follower = userRepository.findUser(followerId);
+		follower.follow(followedId);
 	}
 
 	@Override
@@ -196,6 +194,11 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	@Override
 	public List<EcommerceItem> getNoteRecommendations(long noteId) {
 		return noteRecommendService.recommendEcommerceItems(noteRepository.getNote(noteId));
+	}
+
+	@Override
+	public void inviteFriends(MobileNumber userId, MobileNumber[] mobileNumbers) {
+		userRepository.findUser(userId).invitePeopleFromAddressBook(mobileNumbers);
 	}
 
 	private class InnerSquareNoteRequester extends NoteFilter implements SquareNoteRequester {

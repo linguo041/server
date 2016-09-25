@@ -2,12 +2,11 @@ package com.duoshouji.server.internal.core;
 
 import java.math.BigDecimal;
 
-import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.service.user.FullFunctionalUser;
+import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
-import com.duoshouji.server.util.UserMessageProxy;
 
 public class MobileNumberUserProxy extends AbstractUser implements FullFunctionalUser {
 
@@ -52,8 +51,8 @@ public class MobileNumberUserProxy extends AbstractUser implements FullFunctiona
 	}
 
 	@Override
-	public int getWatchCount() {
-		return getRegisteredUser().getWatchCount();
+	public int getFollowCount() {
+		return getRegisteredUser().getFollowCount();
 	}
 
 	@Override
@@ -64,11 +63,6 @@ public class MobileNumberUserProxy extends AbstractUser implements FullFunctiona
 	@Override
 	public Gender getGender() {
 		return getRegisteredUser().getGender();
-	}
-
-	@Override
-	public UserMessageProxy getMessageProxy() {
-		return getRegisteredUser().getMessageProxy();
 	}
 
 	@Override
@@ -102,7 +96,12 @@ public class MobileNumberUserProxy extends AbstractUser implements FullFunctiona
 	}
 
 	@Override
-	public void addFan(MobileNumber fanId) {
-		getRegisteredUser().addFan(fanId);
+	public void follow(MobileNumber userId) {
+		getRegisteredUser().follow(userId);
+	}
+
+	@Override
+	public void invitePeopleFromAddressBook(MobileNumber[] mobileNumbers) {
+		getRegisteredUser().invitePeopleFromAddressBook(mobileNumbers);
 	}
 }

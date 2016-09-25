@@ -85,6 +85,10 @@ public class MockSession extends MockClient {
 		return new LikeNote(noteId);
 	}
 	
+	public InviteContactsFromAddressBook emitInviteContactsFromAddressBook(MobileNumber[] contactList) {
+		return new InviteContactsFromAddressBook(contactList);
+	}
+	
 	public class Logout extends DynamicResourceRequest {
 		
 		@Override
@@ -373,4 +377,25 @@ public class MockSession extends MockClient {
 		}
 	}
 	
+	public class InviteContactsFromAddressBook extends DynamicResourceRequest {
+
+		private MobileNumber[] contactList;
+		
+		public InviteContactsFromAddressBook(MobileNumber[] contactList) {
+			super();
+			this.contactList = contactList;
+		}
+
+		@Override
+		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			MockHttpServletRequestBuilder builder =
+					post("/accounts/{account-id}/invite")
+					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
+			for (MobileNumber mobile : contactList) {
+				builder.param("mobile", mobile.toString());
+			}
+			return builder;
+		}
+		
+	}
 }

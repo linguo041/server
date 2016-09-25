@@ -10,7 +10,7 @@ public interface UserProfile extends BasicUser {
 	
 	int getTransactionCount();
 	
-	int getWatchCount();
+	int getFollowCount();
 	
 	int getFanCount();
 }

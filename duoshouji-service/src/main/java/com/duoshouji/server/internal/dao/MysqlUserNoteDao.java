@@ -240,7 +240,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 				}
 			}
 			if (userId != null) {
-				sqlBuilder.append(" and mobile in (select user_id from duoshouji.follow where fan_user_id = ?)");
+				sqlBuilder.append(" and mobile in (select user_id from duoshouji.follow where is_activated = 1 and fan_user_id = ?)");
 			}
 		}
 		
@@ -503,15 +503,50 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	}
 
 	@Override
-	public void addWatchConnection(final MobileNumber fanId, final MobileNumber watchedUserId) {
-		mysqlDataSource.update("insert into duoshouji.follow (user_id, fan_user_id, created_time) values (?,?,?)"
-				, new PreparedStatementSetter() {
+	public void insertFollowConnection(MobileNumber follerId, MobileNumber[] followedIds) {
+		insertFollowConnection(follerId, followedIds, true);
+	}
+	
+	@Override
+	public void insertFollowConnection(final MobileNumber followerId, final MobileNumber[] followedIds, final boolean isActivated) {
+		mysqlDataSource.batchUpdate(
+				"insert into duoshouji.follow values(?,?,?,?)"
+				, new BatchPreparedStatementSetter() {
 
 			@Override
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setLong(1, watchedUserId.toLong());
-				ps.setLong(2, fanId.toLong());
+			public void setValues(PreparedStatement ps, int i)
+					throws SQLException {
+				ps.setLong(1, followedIds[i].toLong());
+				ps.setLong(2, followerId.toLong());
 				ps.setLong(3, System.currentTimeMillis());
+				ps.setBoolean(4, isActivated);
+			}
+
+			@Override
+			public int getBatchSize() {
+				return followedIds.length;
+			}
+			
+		});
+	}
+
+	@Override
+	public void activateFollows(MobileNumber userId) {
+		final int fanCount = mysqlDataSource.update("update duoshouji.follow set is_activated = 1 where user_id = " + userId);
+		mysqlDataSource.update("update duoshouji.user_extend set followed_number = " + fanCount + " where user_id = " + userId);
+		mysqlDataSource.update("update duoshouji.user_extend set follow_number = follow_number + 1 where user_id in (select fan_user_id from duoshouji.follow where user_id = " + userId + ")");
+	}
+
+	@Override
+	public List<MobileNumber> findFollowerIds(final MobileNumber followedId) {
+		return mysqlDataSource.query(
+				"select fan_user_id from duoshouji.follow where user_id = " + followedId
+				, new RowMapper<MobileNumber>() {
+
+			@Override
+			public MobileNumber mapRow(ResultSet rs, int rowNum)
+					throws SQLException {
+				return MobileNumber.valueOf(rs.getLong("fan_user_id"));
 			}
 			
 		});
