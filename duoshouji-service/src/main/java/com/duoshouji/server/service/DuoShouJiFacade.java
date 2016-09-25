@@ -93,8 +93,10 @@ public interface DuoShouJiFacade {
 	CommentPublisher newCommentPublisher(long noteId, MobileNumber userId);
 
 	void likeNote(long noteId, MobileNumber userId);
-
-	void watchUser(MobileNumber watcherId, MobileNumber watchedId);
+	
+	void buildFollowConnection(MobileNumber followerId, MobileNumber followedId);
 
 	List<EcommerceItem> getNoteRecommendations(long noteId);
+
+	void inviteFriends(MobileNumber userId, MobileNumber[] mobileNumbers);
 }

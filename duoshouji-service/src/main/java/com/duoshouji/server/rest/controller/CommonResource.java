@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,21 +17,39 @@ import com.duoshouji.server.service.common.District;
 import com.duoshouji.server.service.common.DistrictRepository;
 import com.duoshouji.server.service.common.Tag;
 import com.duoshouji.server.service.common.TagRepository;
+import com.duoshouji.server.service.user.UserRepository;
+import com.duoshouji.server.util.MobileNumber;
 
 @RestController
 public class CommonResource {
 
+	private UserRepository userRepository;
 	private TagRepository tagRepository;
 	private CommodityCatelogRepository commodityCatelogRepository;
 	private DistrictRepository districtRepository;
 
 	@Autowired
-	public CommonResource(TagRepository tagRepository,
-			CommodityCatelogRepository commodityCatelogRepository,
-			DistrictRepository districtRepository) {
-		super();
+	@Required
+	public void setUserRepository(UserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
+
+	@Autowired
+	@Required
+	public void setTagRepository(TagRepository tagRepository) {
 		this.tagRepository = tagRepository;
+	}
+
+	@Autowired
+	@Required
+	public void setCommodityCatelogRepository(
+			CommodityCatelogRepository commodityCatelogRepository) {
 		this.commodityCatelogRepository = commodityCatelogRepository;
+	}
+
+	@Autowired
+	@Required
+	public void setDistrictRepository(DistrictRepository districtRepository) {
 		this.districtRepository = districtRepository;
 	}
 
@@ -62,5 +81,35 @@ public class CommonResource {
 	@RequestMapping(path = "/common/geography/cities", method = RequestMethod.GET)
 	public List<District> getCities() {
 		return districtRepository.listDistricts();
+	}
+	
+	@RequestMapping(path = "/accounts/check-exist", method = RequestMethod.GET)
+	public AccountExistResult[] checkAccountsExist(
+			@RequestParam("mobiles") MobileNumber[] mobileNumbers) {
+		AccountExistResult[] results = new AccountExistResult[mobileNumbers.length];
+		for (int i = 0; i < mobileNumbers.length; ++i) {
+			final MobileNumber mobileNumber = mobileNumbers[i];
+			results[i] = new AccountExistResult(mobileNumber, userRepository.isMobileNumberRegistered(mobileNumber));
+		}
+		return results;
+	}
+	
+	public static class AccountExistResult {
+		private MobileNumber mobileNumbers;
+		private boolean isExists;
+		
+		private AccountExistResult(MobileNumber mobileNumbers, boolean isExists) {
+			super();
+			this.mobileNumbers = mobileNumbers;
+			this.isExists = isExists;
+		}
+		
+		public long getMobile() {
+			return mobileNumbers.toLong();
+		}
+		
+		public boolean isExists() {
+			return isExists;
+		}
 	}
 }

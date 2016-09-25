@@ -1,8 +1,8 @@
 package com.duoshouji.server.service.verify;
 
-import com.duoshouji.server.service.user.FullFunctionalUser;
+import com.duoshouji.server.util.MobileNumber;
 
 public interface SecureAccessFacade {
 
-	SecureChecker getSecureChecker(FullFunctionalUser user);
+	SecureChecker getSecureChecker(MobileNumber userId);
 }

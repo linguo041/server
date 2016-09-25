@@ -2,22 +2,21 @@ package com.duoshouji.server.internal.core;
 
 import java.math.BigDecimal;
 
-import com.duoshouji.server.service.user.PasswordNotSetException;
 import com.duoshouji.server.service.user.FullFunctionalUser;
 import com.duoshouji.server.service.user.Gender;
+import com.duoshouji.server.service.user.PasswordNotSetException;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
-import com.duoshouji.server.util.UserMessageProxy;
 
-class OperationDelegatingMobileUser extends InMemoryBasicUser implements FullFunctionalUser, UserUpdateAware {
+class OperationDelegatingMobileUser extends InMemoryBasicUser implements FullFunctionalUser, FollowAware {
 
 	private final UserNoteOperationManager delegator;
 	String passwordDigest;
 	BigDecimal totalRevenue;
 	int publishedNoteCount;
 	int transactionCount;
-	int watchCount;
+	int followCount;
 	int fanCount;
 	
 	OperationDelegatingMobileUser(MobileNumber mobile, UserNoteOperationManager delegator) {
@@ -41,8 +40,8 @@ class OperationDelegatingMobileUser extends InMemoryBasicUser implements FullFun
 	}
 
 	@Override
-	public int getWatchCount() {
-		return watchCount;
+	public int getFollowCount() {
+		return followCount;
 	}
 
 	@Override
@@ -60,11 +59,6 @@ class OperationDelegatingMobileUser extends InMemoryBasicUser implements FullFun
 	@Override
 	public boolean hasPassword() {
 		return passwordDigest != null;
-	}
-
-	@Override
-	public UserMessageProxy getMessageProxy() {
-		return delegator.getMessageProxy(this);
 	}
 
 	@Override
@@ -92,14 +86,24 @@ class OperationDelegatingMobileUser extends InMemoryBasicUser implements FullFun
 	}
 
 	@Override
-	public void addFan(MobileNumber fanId) {
-		delegator.connectUser(fanId, this);
-		++fanCount;
+	public void follow(MobileNumber followedId) {
+		delegator.buildFollowConnection(followedId, this);
+		++followCount;
 	}
 
 	@Override
-	public void fireWatchUser() {
-		++watchCount;
+	public void fireBeingFollowed() {
+		++fanCount;
+	}
+	
+	@Override
+	public void fireActivateFollow() {
+		++followCount;
+	}
+
+	@Override
+	public void invitePeopleFromAddressBook(MobileNumber[] mobileNumbers) {
+		delegator.inviteFriends(this, mobileNumbers);
 	}
 }
 

@@ -28,10 +28,10 @@ import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;
+import com.duoshouji.server.util.MessageProxy;
 import com.duoshouji.server.util.MessageProxyFactory;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
-import com.duoshouji.server.util.UserMessageProxy;
 import com.google.common.base.MoreObjects;
 
 @Service
@@ -47,7 +47,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		
 		private UniqueObjectCache cache = new HashMapUniqueObjectCache();
 		
-		private OperationDelegatingMobileUser getUserIfLoaded(MobileNumber mobileNumber) {
+		OperationDelegatingMobileUser getUserIfLoaded(MobileNumber mobileNumber) {
 			FullFunctionalUser user = cache.get(mobileNumber, FullFunctionalUser.class);
 			if (user instanceof OperationDelegatingMobileUser) {
 				return (OperationDelegatingMobileUser) user;
@@ -55,7 +55,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 			return null;
 		}
 		
-		private FullFunctionalUser getUser(MobileNumber mobileNumber) {
+		FullFunctionalUser getUser(MobileNumber mobileNumber) {
 			FullFunctionalUser user = cache.get(mobileNumber, FullFunctionalUser.class);
 			if (user == null) {
 				user = new MobileNumberUserProxy(mobileNumber, UserNoteOperationManager.this);
@@ -64,7 +64,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 			return user;
 		}
 		
-		private FullFunctionalUser getUser(BasicUserDto basicUserDto) {
+		FullFunctionalUser getUser(BasicUserDto basicUserDto) {
 			FullFunctionalUser user = cache.get(basicUserDto.mobileNumber, FullFunctionalUser.class);
 			if (user instanceof MobileNumberUserProxy) {
 				InMemoryBasicUser userAttributes = new InMemoryBasicUser(basicUserDto.mobileNumber);
@@ -78,7 +78,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 
 		}
 		
-		private FullFunctionalUser getUser(RegisteredUserDto userDto) {
+		FullFunctionalUser putUser(RegisteredUserDto userDto) {
 			FullFunctionalUser user = cache.get(userDto.mobileNumber, FullFunctionalUser.class);
 			if (!(user instanceof OperationDelegatingMobileUser)) {
 				OperationDelegatingMobileUser tempUser = new OperationDelegatingMobileUser(userDto.mobileNumber, UserNoteOperationManager.this);
@@ -89,9 +89,9 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 				tempUser.totalRevenue = MoreObjects.firstNonNull(userDto.totalRevenue, BigDecimal.ZERO);
 				tempUser.publishedNoteCount = userDto.publishedNoteCount;
 				tempUser.transactionCount = userDto.transactionCount;
-				tempUser.watchCount = userDto.watchCount;
+				tempUser.followCount = userDto.watchCount;
 				tempUser.fanCount = userDto.fanCount;
-				cache.put(user.getMobileNumber(), tempUser);
+				cache.put(tempUser.getMobileNumber(), tempUser);
 				user = tempUser;
 			}
 			return user;
@@ -174,7 +174,7 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	OperationDelegatingMobileUser loadUserIfNotExists(MobileNumber mobileNumber) {
 		FullFunctionalUser user = userCache.getUser(mobileNumber);
 		if (!(user instanceof OperationDelegatingMobileUser)) {
-			user = userCache.getUser(loadUserFromDao(mobileNumber));
+			user = userCache.putUser(loadUserFromDao(mobileNumber));
 		}
 		return (OperationDelegatingMobileUser) user;
 	}
@@ -183,10 +183,21 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		RegisteredUserDto userDto = userNoteDao.findUser(mobileNumber);
 		if (userDto == null) {
 			userNoteDao.createUser(mobileNumber);
+			activateFollows(mobileNumber);
 			userDto = new RegisteredUserDto();
 			userDto.mobileNumber = mobileNumber;
 		}
 		return userDto;		
+	}
+	
+	private void activateFollows(MobileNumber userId) {	
+		userNoteDao.activateFollows(userId);
+		for (MobileNumber followerId : userNoteDao.findFollowerIds(userId)) {
+			OperationDelegatingMobileUser follower = userCache.getUserIfLoaded(followerId);
+			if (follower != null) {
+				follower.fireActivateFollow();
+			}
+		}
 	}
 	
 	@Override
@@ -194,6 +205,19 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		return userCache.getUser(mobileNumber);
 	}
 	
+	@Override
+	public boolean isMobileNumberRegistered(MobileNumber mobileNumber) {
+		if (userCache.getUserIfLoaded(mobileNumber) != null) {
+			return true;
+		}
+		RegisteredUserDto userDto = userNoteDao.findUser(mobileNumber);
+		if (userDto != null) {
+			userCache.putUser(userDto);
+			return true;
+		}
+		return false;
+	}
+
 	@Override
 	public NoteCollection listSquareNotes(NoteFilter noteFilter) {
 		return new FilteredNoteCollection(this, System.currentTimeMillis(), noteFilter);
@@ -212,8 +236,8 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		return new InnerNoteIterator(userNoteDao.findNotes(cutoff, range, userId));
 	}	
 	
-	UserMessageProxy getMessageProxy(OperationDelegatingMobileUser user) {
-		return messageProxyFactory.getMessageProxy(user);
+	MessageProxy getMessageProxy(OperationDelegatingMobileUser user) {
+		return messageProxyFactory.getMessageProxy(user.getMobileNumber());
 	}
 
 	boolean verifyPassword(OperationDelegatingMobileUser user, Password password) {
@@ -302,12 +326,19 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 			((UserNoteInteractionAware)note).fireAddLike();
 		}		
 	}
-	
-	void connectUser(MobileNumber fanId, OperationDelegatingMobileUser watchedUser) {
-		userNoteDao.addWatchConnection(fanId, watchedUser.getMobileNumber());
-		userCache.getUserIfLoaded(fanId).fireWatchUser();
+
+	void buildFollowConnection(MobileNumber followedId, OperationDelegatingMobileUser follower) {
+		userNoteDao.insertFollowConnection(follower.getMobileNumber(), new MobileNumber[]{followedId});
+		userCache.getUserIfLoaded(followedId).fireBeingFollowed();
 	}
 
+	void inviteFriends(OperationDelegatingMobileUser inviter, MobileNumber[] invitedContactMobiles) {
+		for (MobileNumber mobileNumber : invitedContactMobiles) {
+			messageProxyFactory.getMessageProxy(mobileNumber).sendInvitationMessage(inviter.getMobileNumber());
+		}
+		userNoteDao.insertFollowConnection(inviter.getMobileNumber(), invitedContactMobiles, false);
+	}
+	
 	private class InnerNoteIterator implements Iterator<BasicNote> {
 		Iterator<BasicNoteDto> noteDtoIte;
 		

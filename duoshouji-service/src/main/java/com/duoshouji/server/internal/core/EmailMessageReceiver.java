@@ -14,10 +14,9 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
-import com.duoshouji.server.service.user.FullFunctionalUser;
 import com.duoshouji.server.util.MessageProxyFactory;
 import com.duoshouji.server.util.MobileNumber;
-import com.duoshouji.server.util.UserMessageProxy;
+import com.duoshouji.server.util.MessageProxy;
 import com.duoshouji.server.util.VerificationCode;
 
 public class EmailMessageReceiver implements MessageProxyFactory {
@@ -34,8 +33,8 @@ public class EmailMessageReceiver implements MessageProxyFactory {
 				}
 	};
 	@Override
-	public UserMessageProxy getMessageProxy(FullFunctionalUser user) {
-		return new InnerUserMessageProxy(user.getMobileNumber());
+	public MessageProxy getMessageProxy(MobileNumber mobileNumber) {
+		return new InnerUserMessageProxy(mobileNumber);
 	}
 
 	private void sendTextMessage(String subject, String content) {	
@@ -93,7 +92,7 @@ public class EmailMessageReceiver implements MessageProxyFactory {
 		}
 	}
 	
-	private class InnerUserMessageProxy implements UserMessageProxy {
+	private class InnerUserMessageProxy implements MessageProxy {
 		private MobileNumber mobileNumber;
 		
 		private InnerUserMessageProxy(MobileNumber mobileNumber) {
@@ -102,6 +101,11 @@ public class EmailMessageReceiver implements MessageProxyFactory {
 		@Override
 		public void sendVerificationCode(VerificationCode verificationCode) {
 			sendTextMessage(mobileNumber.toString(), verificationCode.toString());
+		}
+		
+		@Override
+		public void sendInvitationMessage(MobileNumber inviterMobileNumber) {
+			sendTextMessage(mobileNumber.toString(), inviterMobileNumber + " invite you donwload duoshouji app.");
 		}
 	}
 }

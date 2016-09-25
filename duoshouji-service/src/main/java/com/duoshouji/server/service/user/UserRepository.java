@@ -5,5 +5,7 @@ import com.duoshouji.server.util.MobileNumber;
 public interface UserRepository {
 
 	FullFunctionalUser findUser(MobileNumber mobileNumber);
+
+	boolean isMobileNumberRegistered(MobileNumber mobileNumber);
 		
 }
