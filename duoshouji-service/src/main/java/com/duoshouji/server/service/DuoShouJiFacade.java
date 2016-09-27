@@ -94,4 +94,6 @@ public interface DuoShouJiFacade {
 	void likeNote(long noteId, MobileNumber userId);
 
 	void watchUser(MobileNumber watcherId, MobileNumber watchedId);
+	
+	void addInvitedUsers (MobileNumber inviter, List<MobileNumber> invitees);
 }

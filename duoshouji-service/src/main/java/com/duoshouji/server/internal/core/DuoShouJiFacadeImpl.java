@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Service;
 
@@ -67,7 +68,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 
 	@Autowired
 	@Required
-	public void setCommodityCatelogRepository(CommodityCatelogRepository commodityCatelogRepository) {
+	public void setCommodityCatelogRepository(@Qualifier("databaseCatalogRepository") CommodityCatelogRepository commodityCatelogRepository) {
 		this.commodityCatelogRepository = commodityCatelogRepository;
 	}
 
@@ -85,7 +86,7 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 
 	@Autowired
 	@Required
-	public void setTagRepository(TagRepository tagRepository) {
+	public void setTagRepository(@Qualifier("databaseCatalogRepository") TagRepository tagRepository) {
 		this.tagRepository = tagRepository;
 	}
 	

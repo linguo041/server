@@ -414,4 +414,14 @@ public class UserResource {
 			) {
 		duoShouJiFacade.watchUser(watcherId, watchedId);
 	}
+
+	@RequestMapping(path = "/invite", method = RequestMethod.POST)
+	public void invite(
+			@PathVariable("account-id") MobileNumber accountId,
+			@RequestParam("userIds") List<MobileNumber> invitedUsers
+			) {
+		// send messages to the invited users
+		// store users in user table
+	}
+	
 }
