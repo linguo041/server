@@ -7,9 +7,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.duoshouji.server.service.user.FullFunctionalUser;
 import com.duoshouji.server.service.verify.SecureAccessFacade;
 import com.duoshouji.server.service.verify.SecureChecker;
+import com.duoshouji.server.util.MessageProxyFactory;
+import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.VerificationCode;
 import com.duoshouji.server.util.VerificationCodeGenerator;
 
@@ -18,12 +19,14 @@ public class SecureAccessFacadeImpl implements SecureAccessFacade {
 	
 	private List<InnerSecureChecker> checkers;
 	private VerificationCodeGenerator codeGenerator;
+	private MessageProxyFactory messageProxyFactory;
 
 	@Autowired
-	public SecureAccessFacadeImpl(VerificationCodeGenerator codeGenerator) {
+	public SecureAccessFacadeImpl(VerificationCodeGenerator codeGenerator, MessageProxyFactory messageProxyFactory) {
 		super();
 		this.checkers = new LinkedList<InnerSecureChecker>();
 		this.codeGenerator = codeGenerator;
+		this.messageProxyFactory = messageProxyFactory;
 	}
 
 	private void detachChecker(InnerSecureChecker checker) {
@@ -37,19 +40,19 @@ public class SecureAccessFacadeImpl implements SecureAccessFacade {
 	}
 
 	@Override
-	public SecureChecker getSecureChecker(FullFunctionalUser user) {
+	public SecureChecker getSecureChecker(MobileNumber userId) {
 		InnerSecureChecker returnValue = null;
 		boolean found = false;
 		Iterator<InnerSecureChecker> ite = checkers.iterator();
 		while (ite.hasNext()) {
 			returnValue = ite.next();
-			if (returnValue.user.equals(user)) {
+			if (returnValue.userId.equals(userId)) {
 				found = true;
 				break;
 			}
 		}
 		if (!found) {
-			returnValue = new InnerSecureChecker(user);
+			returnValue = new InnerSecureChecker(userId);
 			checkers.add(returnValue);
 		}
 		return returnValue;
@@ -63,14 +66,14 @@ public class SecureAccessFacadeImpl implements SecureAccessFacade {
 	
 	private class InnerSecureChecker implements SecureChecker {
 
-		private FullFunctionalUser user;
+		private MobileNumber userId;
 		private State state;
 		private VerificationCode verificationCode;
 		
-		public InnerSecureChecker(FullFunctionalUser user) {
+		public InnerSecureChecker(MobileNumber userId) {
 			super();
 			state = State.INIT;
-			this.user = user;
+			this.userId = userId;
 		}
 		
 		@Override
@@ -79,7 +82,7 @@ public class SecureAccessFacadeImpl implements SecureAccessFacade {
 				throw new IllegalStateException("Can't send verificaton code after authentication has completed.");
 			}
 			verificationCode = codeGenerator.generate();
-			user.getMessageProxy().sendVerificationCode(verificationCode);
+			messageProxyFactory.getMessageProxy(userId).sendVerificationCode(verificationCode);
 			state = State.NOTIFIED;
 		}
 		

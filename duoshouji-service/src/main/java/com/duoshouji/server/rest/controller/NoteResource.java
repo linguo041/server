@@ -20,6 +20,7 @@ import com.duoshouji.server.service.auth.UserTokenService;
 import com.duoshouji.server.service.common.Tag;
 import com.duoshouji.server.service.note.NoteDetail;
 import com.duoshouji.server.service.note.NoteDetailAndOwner;
+import com.duoshouji.server.service.note.recommand.EcommerceItem;
 import com.duoshouji.server.service.user.BasicUser;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
@@ -101,6 +102,11 @@ public class NoteResource {
 		}
 	}
 	
+	@RequestMapping(path = "/notes/{note-id}/recommendations", method = RequestMethod.POST)
+	public List<EcommerceItem> getNoteRecommandations(@PathVariable("note-id") long noteId) {
+		return duoShouJiFacade.getNoteRecommendations(noteId);
+	}
+	
 	@RequestMapping(path = "/notes/{note-id}/comment", method = RequestMethod.POST)
 	public void addComment(
 			@PathVariable("note-id") long noteId,
@@ -115,11 +121,6 @@ public class NoteResource {
 		publisher.setLocation(longitude, latitude);
 		publisher.setRating(rating);
 		publisher.publishComment();
-	}
-	
-	@RequestMapping(path = "/notes/{note-id}/like", method = RequestMethod.POST)
-	public void likeNote(@PathVariable("note-id") long noteId, Model model) {
-		duoShouJiFacade.likeNote(noteId, getUserId(model));
 	}
 	
 	private MobileNumber getUserId(Model model) {

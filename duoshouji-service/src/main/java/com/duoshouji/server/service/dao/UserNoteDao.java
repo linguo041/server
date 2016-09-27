@@ -26,7 +26,7 @@ public interface UserNoteDao {
 	
 	long createNote(MobileNumber mobileNumber, NotePublishAttributes noteAttributes);
 
-	void saveNoteImage(long noteId, Image noteImage);
+	void saveNoteImages(long noteId, Image[] noteImages);
 	
 	NoteDetailDto findNote(long noteId);
 	
@@ -39,6 +39,12 @@ public interface UserNoteDao {
 	void createComment(long noteId, CommentPublishAttributes commentAttributes, MobileNumber userId);
 
 	void saveUserLikeNote(long noteId, MobileNumber userId);
+	
+	void insertFollowConnection(MobileNumber follerId, MobileNumber[] followedIds);
+	
+	void insertFollowConnection(MobileNumber follerId, MobileNumber[] followedIds, boolean isActivated);
 
-	void addWatchConnection(MobileNumber fanId, MobileNumber watchedUserId);
+	void activateFollows(MobileNumber userId);
+
+	List<MobileNumber> findFollowerIds(MobileNumber followedId);
 }

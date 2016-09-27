@@ -8,4 +8,5 @@ public class NoteDetailDto extends BasicNoteDto {
 	public String content;
 	public long[] tagIds;
 	public List<Image> images;
+	public String productName;
 }

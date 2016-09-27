@@ -8,7 +8,6 @@ import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
-import com.duoshouji.server.util.UserMessageProxy;
 
 public class BasicUserProxy implements FullFunctionalUser {
 	
@@ -76,8 +75,8 @@ public class BasicUserProxy implements FullFunctionalUser {
 	}
 
 	@Override
-	public int getWatchCount() {
-		return getRegisteredUser().getWatchCount();
+	public int getFollowCount() {
+		return getRegisteredUser().getFollowCount();
 	}
 
 	@Override
@@ -88,11 +87,6 @@ public class BasicUserProxy implements FullFunctionalUser {
 	@Override
 	public Gender getGender() {
 		return getRegisteredUser().getGender();
-	}
-
-	@Override
-	public UserMessageProxy getMessageProxy() {
-		return getRegisteredUser().getMessageProxy();
 	}
 
 	@Override
@@ -126,8 +120,13 @@ public class BasicUserProxy implements FullFunctionalUser {
 	}
 
 	@Override
-	public void addFan(MobileNumber fanId) {
-		getRegisteredUser().addFan(fanId);
+	public void follow(MobileNumber userId) {
+		getRegisteredUser().follow(userId);
+	}
+
+	@Override
+	public void invitePeopleFromAddressBook(MobileNumber[] mobileNumbers) {
+		getRegisteredUser().invitePeopleFromAddressBook(mobileNumbers);
 	}
 }
 

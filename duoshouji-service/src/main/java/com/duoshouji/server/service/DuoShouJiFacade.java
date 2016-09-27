@@ -6,6 +6,7 @@ import java.util.List;
 import com.duoshouji.server.service.note.BasicNoteAndOwner;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.note.NoteDetailAndOwner;
+import com.duoshouji.server.service.note.recommand.EcommerceItem;
 import com.duoshouji.server.service.user.BasicUserAttributes;
 import com.duoshouji.server.service.user.UserProfile;
 import com.duoshouji.server.util.MobileNumber;
@@ -92,8 +93,10 @@ public interface DuoShouJiFacade {
 	CommentPublisher newCommentPublisher(long noteId, MobileNumber userId);
 
 	void likeNote(long noteId, MobileNumber userId);
-
-	void watchUser(MobileNumber watcherId, MobileNumber watchedId);
 	
-	void addInvitedUsers (MobileNumber inviter, List<MobileNumber> invitees);
+	void buildFollowConnection(MobileNumber followerId, MobileNumber followedId);
+
+	List<EcommerceItem> getNoteRecommendations(long noteId);
+
+	void inviteFriends(MobileNumber userId, MobileNumber[] mobileNumbers);
 }

@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -32,6 +33,7 @@ import com.duoshouji.server.util.MobileNumber;
 @Service
 public class MysqlUserNoteDao implements UserNoteDao {
 
+	private static final long BASE_NOTE_ID = 1000000000000l;
 	private JdbcTemplate mysqlDataSource;
 
 	@Autowired
@@ -82,7 +84,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	
 	@Override
 	public NoteDetailDto findNote(long noteId) {
-		NoteDetailDto noteDto = mysqlDataSource.query("select * from duoshouji.v_square_notes where id = " + noteId
+		NoteDetailDto noteDto = mysqlDataSource.query("select * from duoshouji.v_square_notes where note_id = " + noteId
 				, new ResultSetExtractor<NoteDetailDto>() {
 
 					@Override
@@ -129,13 +131,14 @@ public class MysqlUserNoteDao implements UserNoteDao {
 			noteDto.tagIds[i] = tagId.longValue();
 		}
 		noteDto.tagIds = Arrays.copyOf(noteDto.tagIds, i);
+		noteDto.productName = rs.getString("product_name");
 	}
 
 	private void mapNoteBriefDto(BasicNoteDto noteDto, ResultSet rs) throws SQLException {
 		noteDto.commentCount = rs.getInt("comment_number");
 		noteDto.likeCount = rs.getInt("like_number");
 		noteDto.mainImage = new Image(rs.getInt("main_image_width"), rs.getInt("main_image_height"), rs.getString("main_image_url"));
-		noteDto.noteId = rs.getLong("id");
+		noteDto.noteId = rs.getLong("note_id");
 		noteDto.publishedTime = rs.getLong("create_time");
 		noteDto.commentRatingSum = rs.getInt("comment_rating");
 		noteDto.ownerRating = rs.getInt("owner_rating");
@@ -237,7 +240,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 				}
 			}
 			if (userId != null) {
-				sqlBuilder.append(" and mobile in (select user_id from duoshouji.follow where fan_user_id = ?)");
+				sqlBuilder.append(" and mobile in (select user_id from duoshouji.follow where is_activated = 1 and fan_user_id = ?)");
 			}
 		}
 		
@@ -325,72 +328,65 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	@Override
 	public long createNote(final MobileNumber mobileNumber,
 			final NotePublishAttributes noteAttributes) {
-		final long userId = getUserId(mobileNumber);
 		final long time = System.currentTimeMillis();
+		final long noteId = BASE_NOTE_ID + mysqlDataSource.queryForObject("select count(*) from duoshouji.note", Integer.class);
 		mysqlDataSource.update(buildInsertNoteClause(noteAttributes.getTagCount())
 				, new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
 							throws SQLException {
-						ps.setBigDecimal(1, BigDecimal.valueOf(noteAttributes.getCategory().getIdentifier()));
-						ps.setBigDecimal(2, BigDecimal.valueOf(noteAttributes.getBrand().getIdentifier()));
-						ps.setString(3, noteAttributes.getProductName());
-						ps.setBigDecimal(4, noteAttributes.getPrice());
-						ps.setBigDecimal(5, BigDecimal.valueOf(noteAttributes.getDistrict().getIdentifier()));
-						ps.setBigDecimal(6, noteAttributes.getLocation().getLongitude());
-						ps.setBigDecimal(7, noteAttributes.getLocation().getLatitude());
-						ps.setString(8, noteAttributes.getTitle());
-						ps.setString(9, noteAttributes.getContent());
-						ps.setLong(10, time);
-						ps.setBigDecimal(11, BigDecimal.valueOf(mobileNumber.toLong()));
-						ps.setLong(12, time);
-						ps.setInt(13, noteAttributes.getRating());
-						int parameterIndex = 14;
+						ps.setBigDecimal(1, BigDecimal.valueOf(noteId));
+						ps.setBigDecimal(2, BigDecimal.valueOf(noteAttributes.getCategory().getIdentifier()));
+						ps.setBigDecimal(3, BigDecimal.valueOf(noteAttributes.getBrand().getIdentifier()));
+						ps.setString(4, noteAttributes.getProductName());
+						ps.setBigDecimal(5, noteAttributes.getPrice());
+						ps.setBigDecimal(6, BigDecimal.valueOf(noteAttributes.getDistrict().getIdentifier()));
+						ps.setBigDecimal(7, noteAttributes.getLocation().getLongitude());
+						ps.setBigDecimal(8, noteAttributes.getLocation().getLatitude());
+						ps.setString(9, noteAttributes.getTitle());
+						ps.setString(10, noteAttributes.getContent());
+						ps.setLong(11, time);
+						ps.setBigDecimal(12, BigDecimal.valueOf(mobileNumber.toLong()));
+						ps.setLong(13, time);
+						ps.setInt(14, noteAttributes.getRating());
+						ps.setString(15, noteAttributes.getProductName());
+						int parameterIndex = 16;
 						for (Tag tag : noteAttributes.getTags()) {
 							ps.setBigDecimal(parameterIndex++, BigDecimal.valueOf(tag.getIdentifier()));
 						}
 					}
 				});
-		mysqlDataSource.update("update duoshouji.user_extend set note_number = note_number + 1 where user_id = " + mobileNumber);
-		final Long noteId = mysqlDataSource.query("select max(id) note_id from duoshouji.note where user_id = " + userId
-				, new ResultSetExtractor<Long>(){
+		mysqlDataSource.update(
+				"insert into duoshouji.note_keyword values(?,?,?)"
+				, new PreparedStatementSetter() {
+
 					@Override
-					public Long extractData(ResultSet rs) throws SQLException,
-							DataAccessException {
-						rs.next();
-						return rs.getLong("note_id");
+					public void setValues(PreparedStatement ps)
+							throws SQLException {
+						ps.setBigDecimal(1, BigDecimal.valueOf(noteId));
+						ps.setString(2, noteAttributes.getProductName());
+						ps.setInt(3, 1);
 					}
-				});
+			
+		});
+		mysqlDataSource.update("update duoshouji.user_extend set note_number = note_number + 1 where user_id = " + mobileNumber);
 		mysqlDataSource.update("insert into duoshouji.note_extend (note_id) values ("+noteId+")");
-		return noteId.longValue();
+		return noteId;
 	}
 	
 	private String buildInsertNoteClause(int tagCount) {
 		StringBuilder sqlBuilder = new StringBuilder(
-				"insert into duoshouji.note (category_id, brand_id, product_name, price, district_id, longitude, latitude, title, content, create_time, user_id, last_update_time, rating");
+				"insert into duoshouji.note (note_id, category_id, brand_id, product_name, price, district_id, longitude, latitude, title, content, create_time, user_id, last_update_time, rating, keyword");
 		for (int i = 0; i < tagCount; ++i) {
 			sqlBuilder.append(", tag_id");
 			sqlBuilder.append(i + 1);
 		}
-		sqlBuilder.append(") values(?,?,?,?,?,?,?,?,?,?,?,?");
+		sqlBuilder.append(") values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?");
 		for (int i = 0; i < tagCount; ++i) {
 			sqlBuilder.append(",?");
 		}
 		sqlBuilder.append(")");
 		return sqlBuilder.toString();
-	}
-	
-	private long getUserId(MobileNumber mobileNumber) {
-		return mysqlDataSource.query("select id from duoshouji.user where mobile = " + mobileNumber
-				, new ResultSetExtractor<Long>(){
-					@Override
-					public Long extractData(ResultSet rs) throws SQLException,
-							DataAccessException {
-						rs.next();
-						return rs.getLong("id");
-					}
-					
-				}).longValue();
 	}
 
 	@Override
@@ -410,19 +406,39 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	}
 
 	@Override
-	public void saveNoteImage(final long noteId, final Image noteImage) {
+	public void saveNoteImages(final long noteId, final Image[] noteImages) {
 		mysqlDataSource.update(
-				"update duoshouji.note set image1 = ?, image1_width = ?, image1_height = ? where id = ?"
+				"update duoshouji.note set main_image_url = ?, main_image_width = ?, main_image_height = ? where note_id = ?"
 				,new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
 							throws SQLException {
-						ps.setString(1, noteImage.getUrl());
-						ps.setInt(2, noteImage.getWidth());
-						ps.setInt(3, noteImage.getHeight());
+						ps.setString(1, noteImages[0].getUrl());
+						ps.setInt(2, noteImages[0].getWidth());
+						ps.setInt(3, noteImages[0].getHeight());
 						ps.setLong(4, noteId);
 					}
-				});		
+				});
+		if (noteImages.length > 1) {
+			mysqlDataSource.batchUpdate("insert into duoshouji.note_image values (?,?,?,?)"
+					, new BatchPreparedStatementSetter() {
+						
+				@Override
+				public void setValues(PreparedStatement ps, int i)
+						throws SQLException {
+					ps.setLong(1, noteId);
+					ps.setString(2, noteImages[i + 1].getUrl());
+					ps.setInt(3, noteImages[i + 1].getWidth());
+					ps.setInt(4, noteImages[i + 1].getHeight());
+				}
+	
+				@Override
+				public int getBatchSize() {
+					return noteImages.length - 1;
+				}
+				
+			});
+		}
 	}
 
 	@Override
@@ -487,15 +503,50 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	}
 
 	@Override
-	public void addWatchConnection(final MobileNumber fanId, final MobileNumber watchedUserId) {
-		mysqlDataSource.update("insert into duoshouji.follow (user_id, fan_user_id, created_time) values (?,?,?)"
-				, new PreparedStatementSetter() {
+	public void insertFollowConnection(MobileNumber follerId, MobileNumber[] followedIds) {
+		insertFollowConnection(follerId, followedIds, true);
+	}
+	
+	@Override
+	public void insertFollowConnection(final MobileNumber followerId, final MobileNumber[] followedIds, final boolean isActivated) {
+		mysqlDataSource.batchUpdate(
+				"insert into duoshouji.follow values(?,?,?,?)"
+				, new BatchPreparedStatementSetter() {
 
 			@Override
-			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setLong(1, watchedUserId.toLong());
-				ps.setLong(2, fanId.toLong());
+			public void setValues(PreparedStatement ps, int i)
+					throws SQLException {
+				ps.setLong(1, followedIds[i].toLong());
+				ps.setLong(2, followerId.toLong());
 				ps.setLong(3, System.currentTimeMillis());
+				ps.setBoolean(4, isActivated);
+			}
+
+			@Override
+			public int getBatchSize() {
+				return followedIds.length;
+			}
+			
+		});
+	}
+
+	@Override
+	public void activateFollows(MobileNumber userId) {
+		final int fanCount = mysqlDataSource.update("update duoshouji.follow set is_activated = 1 where user_id = " + userId);
+		mysqlDataSource.update("update duoshouji.user_extend set followed_number = " + fanCount + " where user_id = " + userId);
+		mysqlDataSource.update("update duoshouji.user_extend set follow_number = follow_number + 1 where user_id in (select fan_user_id from duoshouji.follow where user_id = " + userId + ")");
+	}
+
+	@Override
+	public List<MobileNumber> findFollowerIds(final MobileNumber followedId) {
+		return mysqlDataSource.query(
+				"select fan_user_id from duoshouji.follow where user_id = " + followedId
+				, new RowMapper<MobileNumber>() {
+
+			@Override
+			public MobileNumber mapRow(ResultSet rs, int rowNum)
+					throws SQLException {
+				return MobileNumber.valueOf(rs.getLong("fan_user_id"));
 			}
 			
 		});

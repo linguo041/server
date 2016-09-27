@@ -10,10 +10,12 @@ import java.util.List;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.common.District;
 import com.duoshouji.server.service.common.DistrictRepository;
 
+@Service
 public class DatabaseDistrictRepository implements DistrictRepository, RowMapper<District> {
 
 	private final List<District> districts;
@@ -81,7 +83,11 @@ public class DatabaseDistrictRepository implements DistrictRepository, RowMapper
 
 		@Override
 		public String getName() {
-			return findState(this).getName() + "/" + districtName;
+			String name = districtName;
+			if (!isState()) {
+				name = findState(this).getName() + "/" + name;
+			}
+			return name;
 		}
 		
 		private boolean isState() {

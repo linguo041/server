@@ -12,8 +12,9 @@ class OperationDelegatingNote extends InMemoryBasicNote implements Note {
 
 	private UserNoteOperationManager operationManager;
 	String content;
-	List<Image> images;
+	List<Image> otherImages;
 	List<Tag> tags;
+	String productName;
 	
 	public OperationDelegatingNote(UserNoteOperationManager operationManager, long noteId) {
 		super(noteId);
@@ -21,15 +22,21 @@ class OperationDelegatingNote extends InMemoryBasicNote implements Note {
 	}
 
 	@Override
-	public void setMainImage(Image mainImage) {
-		operationManager.setMainImage(this, mainImage);
-		this.mainImage = mainImage;
+	public void setImages(Image[] images) {
+		if (images.length == 0) {
+			return;
+		}
+		operationManager.setImages(this, images);
+		this.mainImage = images[0];
+		for (int i = 1; i < images.length; ++i) {
+			otherImages.add(images[i]);
+		}
 	}
 
 	@Override
 	public List<Image> getImages() {
-		List<Image> allImages = new ArrayList<Image>(images.size() + 1);
-		allImages.addAll(images);
+		List<Image> allImages = new ArrayList<Image>(otherImages.size() + 1);
+		allImages.addAll(otherImages);
 		allImages.add(getMainImage());
 		return allImages;
 	}
@@ -40,10 +47,13 @@ class OperationDelegatingNote extends InMemoryBasicNote implements Note {
 		return Collections.unmodifiableList(tags);
 	}
 
-
 	@Override
 	public String getContent() {
 		return content;
 	}
 
+	@Override
+	public String getProductName() {
+		return productName;
+	}
 }

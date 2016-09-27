@@ -6,5 +6,7 @@ import com.duoshouji.server.util.Image;
 @Unique
 public interface Note extends NoteDetail {
 
-	void setMainImage(Image mainImage);
+	void setImages(Image[] images);
+	
+	String getProductName();
 }
