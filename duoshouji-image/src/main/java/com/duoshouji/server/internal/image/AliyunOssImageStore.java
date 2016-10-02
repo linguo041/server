@@ -18,7 +18,7 @@ import com.duoshouji.util.MobileNumber;
 public class AliyunOssImageStore implements ImageStore {
 	private static final String ACCESS_KEY_ID = "REQ4WWCYXaNWqTBZ";
 	private static final String ACCESS_KEY_SECRET = "aC1RtnoiQ4xj96R7U4nFfJPxO9tSeT";
-	private static final String END_POINT = "image.share68.com";
+	private static final String END_POINT = "images.share68.com";
 	private static final String BUCKET_NAME = "duoshouji-test";
 	
 	private OSSClient client;
