@@ -7,7 +7,7 @@
     <artifactId>duoshouji-server</artifactId>
     <version>0.0.1</version>
   </parent>
-  <artifactId>duoshouji-service-image</artifactId>
+  <artifactId>duoshouji-image</artifactId>
   <name>DuoShouJi Image Service</name>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
