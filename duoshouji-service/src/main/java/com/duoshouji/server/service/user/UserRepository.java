@@ -1,6 +1,6 @@
 package com.duoshouji.server.service.user;
 
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.util.MobileNumber;
 
 public interface UserRepository {
 

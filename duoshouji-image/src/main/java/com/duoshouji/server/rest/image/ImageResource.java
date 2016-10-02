@@ -21,8 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.duoshouji.server.service.image.ImageStore;
 import com.duoshouji.server.service.image.ImageUploadCallback;
 import com.duoshouji.server.service.image.StoreImageException;
-import com.duoshouji.server.util.Image;
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.util.Image;
+import com.duoshouji.util.MobileNumber;
 
 @RestController
 public class ImageResource {

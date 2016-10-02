@@ -15,7 +15,7 @@
    <dependencies>
        <dependency>
            <groupId>com.duoshouji</groupId>
-           <artifactId>duoshouji-service</artifactId>
+           <artifactId>duoshouji-api</artifactId>
            <version>0.0.1</version>
        </dependency>
        <dependency>
@@ -96,4 +96,7 @@
             <artifactId>aliyun-sdk-oss</artifactId>
         </dependency>
    </dependencies>
+   <build>
+     <finalName>service-image</finalName>
+   </build>
 </project>

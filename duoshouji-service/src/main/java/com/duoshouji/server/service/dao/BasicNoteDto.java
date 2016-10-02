@@ -1,6 +1,6 @@
 package com.duoshouji.server.service.dao;
 
-import com.duoshouji.server.util.Image;
+import com.duoshouji.util.Image;
 
 
 public class BasicNoteDto {

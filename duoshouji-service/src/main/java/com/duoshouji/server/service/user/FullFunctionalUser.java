@@ -1,9 +1,9 @@
 package com.duoshouji.server.service.user;
 
 import com.duoshouji.server.annotation.Unique;
-import com.duoshouji.server.util.Image;
-import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
+import com.duoshouji.util.Image;
+import com.duoshouji.util.MobileNumber;
 
 @Unique
 public interface FullFunctionalUser extends UserProfile {

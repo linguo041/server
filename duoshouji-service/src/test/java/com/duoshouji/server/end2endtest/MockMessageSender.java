@@ -3,9 +3,9 @@ package com.duoshouji.server.end2endtest;
 import java.util.HashMap;
 
 import com.duoshouji.server.util.MessageProxyFactory;
-import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.MessageProxy;
 import com.duoshouji.server.util.VerificationCode;
+import com.duoshouji.util.MobileNumber;
 
 public class MockMessageSender implements MessageProxyFactory {
 	

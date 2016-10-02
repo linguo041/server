@@ -13,9 +13,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.duoshouji.server.util.Image;
-import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.VerificationCode;
+import com.duoshouji.util.Image;
+import com.duoshouji.util.MobileNumber;
 
 public class MockClient {
 	

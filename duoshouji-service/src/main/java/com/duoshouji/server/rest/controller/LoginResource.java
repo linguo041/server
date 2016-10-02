@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.duoshouji.server.service.DuoShouJiFacade;
 import com.duoshouji.server.service.auth.UserTokenService;
 import com.duoshouji.server.service.user.PasswordNotSetException;
-import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
+import com.duoshouji.util.MobileNumber;
 
 @RestController
 public class LoginResource {

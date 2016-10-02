@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.image.ImageUploadCallback;
 import com.duoshouji.server.service.image.StoreImageException;
-import com.duoshouji.server.util.Image;
+import com.duoshouji.util.Image;
 
 @Service
 public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallback {

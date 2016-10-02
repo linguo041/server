@@ -26,6 +26,6 @@
         </beans:constructor-arg>
     </beans:bean>
     
-    <beans:bean class="com.duoshouji.server.internal.core.EmailMessageReceiver"/>
+    <beans:bean class="com.duoshouji.server.internal.core.NullMessageReceiver"/>
     
 </beans:beans>

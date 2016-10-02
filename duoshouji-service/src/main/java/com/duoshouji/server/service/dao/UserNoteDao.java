@@ -6,9 +6,9 @@ import com.duoshouji.server.service.note.CommentPublishAttributes;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.user.Gender;
-import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.util.Image;
+import com.duoshouji.util.MobileNumber;
 
 public interface UserNoteDao {
 
@@ -47,4 +47,6 @@ public interface UserNoteDao {
 	void activateFollows(MobileNumber userId);
 
 	List<MobileNumber> findFollowerIds(MobileNumber followedId);
+
+	List<NoteCommentDto> getNoteComments(long noteId);
 }

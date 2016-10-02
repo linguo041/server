@@ -110,7 +110,11 @@
 		    <artifactId>javax.mail</artifactId>
 		    <version>1.5.6</version>
 		</dependency>
-               
+        <dependency>
+          <groupId>com.duoshouji</groupId>
+          <artifactId>duoshouji-api</artifactId>
+          <version>0.0.1</version>
+        </dependency>      
    </dependencies>
 
 </project>

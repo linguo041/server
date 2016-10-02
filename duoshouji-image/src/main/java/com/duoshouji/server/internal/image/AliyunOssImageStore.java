@@ -12,13 +12,13 @@ import org.springframework.stereotype.Service;
 import com.aliyun.oss.OSSClient;
 import com.duoshouji.server.service.image.ImageStore;
 import com.duoshouji.server.service.image.StoreImageException;
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.util.MobileNumber;
 
 @Service
 public class AliyunOssImageStore implements ImageStore {
 	private static final String ACCESS_KEY_ID = "REQ4WWCYXaNWqTBZ";
 	private static final String ACCESS_KEY_SECRET = "aC1RtnoiQ4xj96R7U4nFfJPxO9tSeT";
-	private static final String END_POINT = "oss-cn-shanghai.aliyuncs.com";
+	private static final String END_POINT = "image.share68.com";
 	private static final String BUCKET_NAME = "duoshouji-test";
 	
 	private OSSClient client;

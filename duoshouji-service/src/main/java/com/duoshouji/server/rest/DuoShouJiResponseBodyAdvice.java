@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import com.google.common.net.HttpHeaders;
+
 @RestControllerAdvice
 public class DuoShouJiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
@@ -23,6 +25,7 @@ public class DuoShouJiResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 	public Object beforeBodyWrite(Object body, MethodParameter returnType, MediaType selectedContentType,
 			Class<? extends HttpMessageConverter<?>> selectedConverterType, ServerHttpRequest request,
 			ServerHttpResponse response) {
+		response.getHeaders().add(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
 		if (body instanceof Exception) {
 			return StandardJsonResponse.wrapResponse((Exception)body);
 		}

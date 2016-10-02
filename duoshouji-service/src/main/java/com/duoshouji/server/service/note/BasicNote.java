@@ -1,6 +1,6 @@
 package com.duoshouji.server.service.note;
 
-import com.duoshouji.server.util.Image;
+import com.duoshouji.util.Image;
 
 public interface BasicNote {
 

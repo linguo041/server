@@ -1,7 +1,6 @@
 package com.duoshouji.server.rest.controller;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,21 +15,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.duoshouji.server.rest.Constants;
 import com.duoshouji.server.service.DuoShouJiFacade;
+import com.duoshouji.server.service.DuoShouJiFacade.CommentPublisher;
 import com.duoshouji.server.service.DuoShouJiFacade.NoteBuilder;
-import com.duoshouji.server.service.DuoShouJiFacade.SquareNoteRequestFilter;
-import com.duoshouji.server.service.DuoShouJiFacade.SquareNoteRequester;
 import com.duoshouji.server.service.auth.UnauthenticatedUserException;
 import com.duoshouji.server.service.auth.UserTokenService;
 import com.duoshouji.server.service.note.BasicNote;
-import com.duoshouji.server.service.note.BasicNoteAndOwner;
 import com.duoshouji.server.service.note.NoteCollection;
 import com.duoshouji.server.service.user.BasicUserAttributes;
 import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.service.user.UserProfile;
-import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
 import com.duoshouji.server.util.VerificationCodeNotMatchException;
+import com.duoshouji.util.MobileNumber;
 
 @RestController
 @RequestMapping(path = "/accounts/{account-id}")
@@ -64,19 +61,19 @@ public class UserResource {
 	
 	@RequestMapping(path = "/message/verification-code/reset-password", method = RequestMethod.POST)
 	public void sendResetPasswordVerificationCode(
-			@PathVariable("account-id") MobileNumber mobileNumber
+			@PathVariable("account-id") MobileNumber userId
 			) {
-		duoShouJiFacade.sendResetPasswordVerificationCode(mobileNumber);
+		duoShouJiFacade.sendResetPasswordVerificationCode(userId);
 	}
 	
 	@RequestMapping(path = "/settings/security/password", method = RequestMethod.POST)
 	public void resetPassword(
-			@PathVariable("account-id") MobileNumber mobileNumber,
+			@PathVariable("account-id") MobileNumber userId,
 			@RequestParam("code") String code,
 			@RequestParam("password") String password
 			) {
 		Password acceptedPassword = Password.valueOf(password);
-		boolean success = duoShouJiFacade.resetPassword(mobileNumber, VerificationCode.valueOf(code), acceptedPassword);
+		boolean success = duoShouJiFacade.resetPassword(userId, VerificationCode.valueOf(code), acceptedPassword);
 		if (!success) {
 			throw new VerificationCodeNotMatchException();
 		}
@@ -84,11 +81,11 @@ public class UserResource {
 	
 	@RequestMapping(path = "/settings/profile", method = RequestMethod.POST)
 	public void updateProfile(
-			@PathVariable("account-id") MobileNumber accountId,
+			@PathVariable("account-id") MobileNumber userId,
 			@RequestParam(value="nickname", required=false) final String nickname,
 			@RequestParam(value="gender", required=false) final Gender gender
 			) {
-		duoShouJiFacade.updateProfile(accountId, new BasicUserAttributes() {
+		duoShouJiFacade.updateProfile(userId, new BasicUserAttributes() {
 
 			@Override
 			public String getNickname() {
@@ -214,140 +211,6 @@ public class UserResource {
 		}
 	}
 	
-	@RequestMapping(path = "/pushed/notes", method = RequestMethod.GET)
-	public List<NoteJson> getPushedNotes(
-			@PathVariable("account-id") MobileNumber mobileNumber,
-			@RequestParam(value="filter", required=false) SquareNoteRequestFilter filter,
-			@RequestParam(value="longitude", required=false) BigDecimal longitude,
-			@RequestParam(value="latitude", required=false) BigDecimal latitude,
-			@RequestParam(value="tagId", required=false) Long tagId,
-			@RequestParam("loadedSize") int loadedSize,
-			@RequestParam("pageSize") int pageSize
-			) {
-		SquareNoteRequester requester = duoShouJiFacade.newSquareNoteRequester(mobileNumber);
-		if (tagId != null) {
-			requester.setTagId(tagId.longValue());
-		}
-		if (filter != null) {
-			if (filter == SquareNoteRequestFilter.LOCATION) {
-				requester.setUserLocation(longitude, latitude);
-			} else {
-				requester.setIsWatchedOnly();
-			}
-		}
-		boolean refresh = false;
-		if (loadedSize < 0) {
-			loadedSize = 0;
-			refresh = true;
-		}
-		List<NoteJson> returnValue = new ArrayList<NoteJson>();
-		for (BasicNoteAndOwner noteAndOwner : requester.pushSquareNotes(refresh, loadedSize, pageSize)) {
-			returnValue.add(convert((BasicNoteAndOwner)noteAndOwner));
-		}
-		return returnValue;
-	}
-	
-	private NoteJson convert(BasicNoteAndOwner noteAndOwner) {
-		BasicNote note = noteAndOwner.getNote();
-		NoteJson noteJson = new NoteJson();
-		noteJson.setNoteId(note.getNoteId());
-		noteJson.setTitle(note.getTitle());
-		noteJson.setImage(note.getMainImage().getUrl());
-		noteJson.setImageWidth(note.getMainImage().getWidth());
-		noteJson.setImageHeight(note.getMainImage().getHeight());
-		noteJson.setPortrait(noteAndOwner.getOwner().getPortrait().getUrl());
-		noteJson.setRank(note.getRating());
-		noteJson.setLikeCount(note.getLikeCount());
-		noteJson.setCommentCount(note.getCommentCount());
-		return noteJson;
-	}
-
-	public class NoteJson {
-
-		private long noteId;
-		private String title;
-		private String image;
-		private int imageWidth;
-		private int imageHeight;
-		private String portrait;
-		private int rank;
-		private int likeCount;
-		private int commentCount;
-
-		public long getNoteId() {
-			return noteId;
-		}
-
-		public String getTitle() {
-			return title;
-		}
-
-		public String getImage() {
-			return image;
-		}
-
-		public int getImageWidth() {
-			return imageWidth;
-		}
-
-		public int getImageHeight() {
-			return imageHeight;
-		}
-
-		public String getPortrait() {
-			return portrait;
-		}
-
-		public int getRank() {
-			return rank;
-		}
-
-		public int getLikeCount() {
-			return likeCount;
-		}
-
-		public int getCommentCount() {
-			return commentCount;
-		}
-
-		void setNoteId(long noteId) {
-			this.noteId = noteId;
-		}
-
-		void setTitle(String title) {
-			this.title = title;
-		}
-
-		void setImage(String image) {
-			this.image = image;
-		}
-
-		void setImageWidth(int imageWidth) {
-			this.imageWidth = imageWidth;
-		}
-
-		void setImageHeight(int imageHeight) {
-			this.imageHeight = imageHeight;
-		}
-
-		void setPortrait(String portrait) {
-			this.portrait = portrait;
-		}
-
-		void setRank(int rank) {
-			this.rank = rank;
-		}
-
-		void setLikeCount(int likeCount) {
-			this.likeCount = likeCount;
-		}
-
-		void setCommentCount(int commentCount) {
-			this.commentCount = commentCount;
-		}
-
-	}
-
 	
 	@RequestMapping(path = "/profile", method = RequestMethod.GET)
 	public UserProfileView getUserProfile(@PathVariable("account-id") MobileNumber mobileNumber) {
@@ -407,23 +270,39 @@ public class UserResource {
 		}
 	}
 	
-	@RequestMapping(path = "/like", method = RequestMethod.POST)
+	@RequestMapping(path = "/likes/{note-id}", method = RequestMethod.POST)
 	public void likeNote(
 			@PathVariable("account-id") MobileNumber userId,
-			@RequestParam("noteId") long noteId
+			@PathVariable("note-id") long noteId
 			) {
 		duoShouJiFacade.likeNote(noteId, userId);
 	}
 	
-	@RequestMapping(path = "/follow", method = RequestMethod.POST)
+	@RequestMapping(path = "/comments/{note-id}", method = RequestMethod.POST)
+	public void addComment(
+			@PathVariable("note-id") long noteId,
+			@PathVariable("account-id") MobileNumber userId,
+			@RequestParam("comment") String comment,
+			@RequestParam("longitude") BigDecimal longitude,
+			@RequestParam("latitude") BigDecimal latitude,
+			@RequestParam("rating") int rating
+			) {
+		CommentPublisher publisher = duoShouJiFacade.newCommentPublisher(noteId, userId);
+		publisher.setComment(comment);
+		publisher.setLocation(longitude, latitude);
+		publisher.setRating(rating);
+		publisher.publishComment();
+	}
+	
+	@RequestMapping(path = "/connections/{followed-id}", method = RequestMethod.POST)
 	public void watchUser(
 			@PathVariable("account-id") MobileNumber followerId,
-			@RequestParam("userId") MobileNumber followedId
+			@PathVariable("followed-id") MobileNumber followedId
 			) {
 		duoShouJiFacade.buildFollowConnection(followerId, followedId);
 	}
 	
-	@RequestMapping(path = "/invite", method = RequestMethod.POST)
+	@RequestMapping(path = "/invitations", method = RequestMethod.POST)
 	public void inviteFriends(
 			@PathVariable("account-id") MobileNumber userId,
 			@RequestParam("mobile") MobileNumber[] mobileNumbers

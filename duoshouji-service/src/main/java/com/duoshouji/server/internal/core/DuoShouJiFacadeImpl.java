@@ -18,13 +18,15 @@ import com.duoshouji.server.service.common.District;
 import com.duoshouji.server.service.common.DistrictRepository;
 import com.duoshouji.server.service.common.Tag;
 import com.duoshouji.server.service.common.TagRepository;
+import com.duoshouji.server.service.interaction.BasicNoteAndOwner;
+import com.duoshouji.server.service.interaction.NoteCommentAndAuthor;
+import com.duoshouji.server.service.interaction.NoteDetailAndOwner;
 import com.duoshouji.server.service.interaction.UserNoteInteraction;
 import com.duoshouji.server.service.note.BasicNote;
-import com.duoshouji.server.service.note.BasicNoteAndOwner;
 import com.duoshouji.server.service.note.CommentPublishAttributes;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
-import com.duoshouji.server.service.note.NoteDetailAndOwner;
+import com.duoshouji.server.service.note.NoteComment;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NotePublishException;
@@ -38,9 +40,9 @@ import com.duoshouji.server.service.user.UserProfile;
 import com.duoshouji.server.service.user.UserRepository;
 import com.duoshouji.server.service.verify.SecureAccessFacade;
 import com.duoshouji.server.util.Location;
-import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
+import com.duoshouji.util.MobileNumber;
 
 @Service
 public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
@@ -170,8 +172,8 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	}
 	
 	@Override
-	public SquareNoteRequester newSquareNoteRequester(MobileNumber mobileNumber) {
-		return new InnerSquareNoteRequester(mobileNumber);
+	public SquareNoteRequester newSquareNoteRequester() {
+		return new InnerSquareNoteRequester();
 	}
 	
 	@Override
@@ -186,6 +188,15 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		return new InnerCommentPublisher(noteId, userId);
 	}
 	
+	@Override
+	public List<NoteCommentAndAuthor> getNoteComments(long noteId) {
+		List<NoteCommentAndAuthor> results = new LinkedList<NoteCommentAndAuthor>();
+		for (NoteComment comment : noteRepository.getNoteComments(noteId)) {
+			results.add(new NoteCommentAndAuthor(comment, interactionFacade.getAuthor(comment)));
+		}
+		return results;
+	}
+
 	@Override
 	public void likeNote(long noteId, MobileNumber userId) {
 		interactionFacade.likeNote(noteId, userId);
@@ -202,14 +213,12 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 	}
 
 	private class InnerSquareNoteRequester extends NoteFilter implements SquareNoteRequester {
-		private final MobileNumber mobileNumber;
 		private Tag tag;
 		private Location location;
-		private boolean isWatchedOnly = false;
+		private MobileNumber userId;
 		
-		private InnerSquareNoteRequester(MobileNumber mobileNumber) {
+		private InnerSquareNoteRequester() {
 			super();
-			this.mobileNumber = mobileNumber;
 		}
 		
 		@Override
@@ -218,8 +227,8 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		}
 
 		@Override
-		public void setIsWatchedOnly() {
-			isWatchedOnly = true;
+		public void setWatchedOnly(MobileNumber userId) {
+			this.userId = userId;
 		}
 
 		@Override
@@ -228,22 +237,20 @@ public class DuoShouJiFacadeImpl implements DuoShouJiFacade {
 		}
 
 		@Override
-		public List<BasicNoteAndOwner> pushSquareNotes(boolean refresh, int loadedSize, int pageSize) {
+		public List<BasicNoteAndOwner> getSquareNotes(long timestamp, int loadedSize, int pageSize) {
 			List<BasicNoteAndOwner> result = new LinkedList<BasicNoteAndOwner>();
-			for (BasicNote note : listNotes(refresh).subCollection(loadedSize, loadedSize + pageSize)) {
+			for (BasicNote note : listNotes(timestamp).subCollection(loadedSize, loadedSize + pageSize)) {
 				BasicUser owner = interactionFacade.getOwner(note);
 				result.add(new BasicNoteAndOwner(note, owner));
 			}
 			return result;
 		}
 		
-		private NoteCollection listNotes(boolean refresh) {
-			if (isWatchedOnly) {
-				UserNoteInteraction requestor = collectionCache.getCollectionRequestor(mobileNumber, interactionFacade, refresh);
-				return requestor.listSquareNotes(this, mobileNumber);
+		private NoteCollection listNotes(long timestamp) {
+			if (userId != null) {
+				return interactionFacade.listSquareNotes(this, timestamp, userId);
 			} else {
-				NoteRepository requestor = collectionCache.getCollectionRequestor(mobileNumber, noteRepository, refresh);
-				return requestor.listSquareNotes(this);
+				return noteRepository.listSquareNotes(this, timestamp);
 			}
 		}
 		
