@@ -4,7 +4,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.duoshouji.server.MockConstants;
 import com.duoshouji.server.service.user.Gender;
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.util.MobileNumber;
 
 public class MockUser {
 

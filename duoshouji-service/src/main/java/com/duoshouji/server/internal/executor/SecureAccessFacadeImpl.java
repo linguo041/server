@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 import com.duoshouji.server.service.verify.SecureAccessFacade;
 import com.duoshouji.server.service.verify.SecureChecker;
 import com.duoshouji.server.util.MessageProxyFactory;
-import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.VerificationCode;
 import com.duoshouji.server.util.VerificationCodeGenerator;
+import com.duoshouji.util.MobileNumber;
 
 @Service
 public class SecureAccessFacadeImpl implements SecureAccessFacade {

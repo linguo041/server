@@ -2,7 +2,7 @@ package com.duoshouji.server.internal.core;
 
 import com.duoshouji.server.service.note.BasicNote;
 import com.duoshouji.server.service.user.BasicUser;
-import com.duoshouji.server.util.Image;
+import com.duoshouji.util.Image;
 
 class InMemoryBasicNote implements BasicNote, UserNoteInteractionAware {
 

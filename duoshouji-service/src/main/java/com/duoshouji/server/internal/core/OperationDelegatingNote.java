@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.duoshouji.server.service.common.Tag;
 import com.duoshouji.server.service.note.Note;
-import com.duoshouji.server.util.Image;
+import com.duoshouji.util.Image;
 
 class OperationDelegatingNote extends InMemoryBasicNote implements Note {
 

@@ -2,7 +2,7 @@ package com.duoshouji.server.service.image;
 
 import javax.servlet.ServletRequest;
 
-import com.duoshouji.server.util.Image;
+import com.duoshouji.util.Image;
 
 public interface ImageUploadCallback {
 

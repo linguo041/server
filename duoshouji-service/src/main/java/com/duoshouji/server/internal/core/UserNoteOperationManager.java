@@ -2,6 +2,7 @@ package com.duoshouji.server.internal.core;
 
 import java.math.BigDecimal;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.duoshouji.server.service.common.TagRepository;
 import com.duoshouji.server.service.dao.BasicNoteDto;
 import com.duoshouji.server.service.dao.BasicUserDto;
+import com.duoshouji.server.service.dao.NoteCommentDto;
 import com.duoshouji.server.service.dao.NoteDetailDto;
 import com.duoshouji.server.service.dao.RegisteredUserDto;
 import com.duoshouji.server.service.dao.UserNoteDao;
@@ -19,6 +21,7 @@ import com.duoshouji.server.service.note.BasicNote;
 import com.duoshouji.server.service.note.CommentPublishAttributes;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteCollection;
+import com.duoshouji.server.service.note.NoteComment;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.note.NoteRepository;
@@ -26,12 +29,12 @@ import com.duoshouji.server.service.user.BasicUser;
 import com.duoshouji.server.service.user.FullFunctionalUser;
 import com.duoshouji.server.service.user.Gender;
 import com.duoshouji.server.service.user.UserRepository;
-import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;
 import com.duoshouji.server.util.MessageProxy;
 import com.duoshouji.server.util.MessageProxyFactory;
-import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
+import com.duoshouji.util.Image;
+import com.duoshouji.util.MobileNumber;
 import com.google.common.base.MoreObjects;
 
 @Service
@@ -183,21 +186,23 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		RegisteredUserDto userDto = userNoteDao.findUser(mobileNumber);
 		if (userDto == null) {
 			userNoteDao.createUser(mobileNumber);
-			activateFollows(mobileNumber);
 			userDto = new RegisteredUserDto();
 			userDto.mobileNumber = mobileNumber;
+			userDto.fanCount = activateFollows(mobileNumber);
 		}
 		return userDto;		
 	}
 	
-	private void activateFollows(MobileNumber userId) {	
+	private int activateFollows(MobileNumber userId) {	
 		userNoteDao.activateFollows(userId);
-		for (MobileNumber followerId : userNoteDao.findFollowerIds(userId)) {
+		List<MobileNumber> followerIds = userNoteDao.findFollowerIds(userId);
+		for (MobileNumber followerId : followerIds) {
 			OperationDelegatingMobileUser follower = userCache.getUserIfLoaded(followerId);
 			if (follower != null) {
 				follower.fireActivateFollow();
 			}
 		}
+		return followerIds.size();
 	}
 	
 	@Override
@@ -219,13 +224,13 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 	}
 
 	@Override
-	public NoteCollection listSquareNotes(NoteFilter noteFilter) {
-		return new FilteredNoteCollection(this, System.currentTimeMillis(), noteFilter);
+	public NoteCollection listSquareNotes(NoteFilter noteFilter, long timestamp) {
+		return new FilteredNoteCollection(this, timestamp, noteFilter);
 	}
 
 	@Override
-	public NoteCollection listSquareNotes(NoteFilter noteFilter, MobileNumber userId) {
-		return new FilteredNoteCollection(this, System.currentTimeMillis(), noteFilter, userId);
+	public NoteCollection listSquareNotes(NoteFilter noteFilter, long timestamp, MobileNumber userId) {
+		return new FilteredNoteCollection(this, timestamp, noteFilter, userId);
 	}
 
 	Iterator<BasicNote> findNotes(long cutoff, IndexRange range, NoteFilter filter, MobileNumber userId) {
@@ -316,6 +321,24 @@ public class UserNoteOperationManager implements UserRepository, NoteRepository,
 		if (note != null && (note instanceof UserNoteInteractionAware)) {
 			((UserNoteInteractionAware)note).fireAddComment(commentAttributes.getRating());
 		}
+	}
+
+	@Override
+	public BasicUser getAuthor(NoteComment noteComment) {
+		MobileNumber authorId = null;
+		if (noteComment instanceof AuthorIdAttachedNoteComment) {
+			authorId = ((AuthorIdAttachedNoteComment) noteComment).getAuthorId();
+		}
+		return findUser(authorId);
+	}
+
+	@Override
+	public List<NoteComment> getNoteComments(long noteId) {
+		List<NoteComment> results = new LinkedList<NoteComment>();
+		for (NoteCommentDto commentDto : userNoteDao.getNoteComments(noteId)) {
+			results.add(new AuthorIdAttachedNoteComment(commentDto.authorId, commentDto.comment));
+		}
+		return results;
 	}
 
 	@Override

@@ -13,7 +13,6 @@ import java.util.Map;
 import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.annotation.Collection;
-import com.duoshouji.server.util.MobileNumber;
 
 @Service
 public class CollectionCache {
@@ -21,7 +20,7 @@ public class CollectionCache {
 	private static HashSet<Class<?>> compiledClasses = new HashSet<Class<?>>();
 	private static HashSet<Method> proxiedMethods = new HashSet<Method>();
 	
-	private HashMap<MobileNumber, List<InvocationResultHolder>> cache;
+	private HashMap<Object, List<InvocationResultHolder>> cache;
 	
 	private static void compile(Class<?> requestorClass) {
 		if (compiledClasses.contains(requestorClass)) {
@@ -39,16 +38,16 @@ public class CollectionCache {
 	}
 	
 	public CollectionCache() {
-		cache = new HashMap<MobileNumber, List<InvocationResultHolder>>();
+		cache = new HashMap<Object, List<InvocationResultHolder>>();
 	}
 	
 	@SuppressWarnings("unchecked")
-	public <T> T getCollectionRequestor(MobileNumber callerId, T requestor, boolean refresh) {
+	public <T> T getCollectionRequestor(Object accessKey, T requestor, boolean refresh) {
 		compile(requestor.getClass());
-		List<InvocationResultHolder> handlers = cache.get(callerId);
+		List<InvocationResultHolder> handlers = cache.get(accessKey);
 		if (handlers == null) {
 			handlers = new LinkedList<InvocationResultHolder>();
-			cache.put(callerId, handlers);
+			cache.put(accessKey, handlers);
 		}
 		InvocationResultHolder targetHandler = null;
 		for (InvocationResultHolder handler : handlers) {

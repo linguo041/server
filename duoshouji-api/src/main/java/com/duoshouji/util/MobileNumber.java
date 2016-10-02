@@ -1,4 +1,4 @@
-package com.duoshouji.server.util;
+package com.duoshouji.util;
 
 public class MobileNumber {
 

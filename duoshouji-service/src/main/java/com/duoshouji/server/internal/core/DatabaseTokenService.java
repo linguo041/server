@@ -13,7 +13,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.auth.UserTokenService;
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.util.MobileNumber;
 
 @Service
 public class DatabaseTokenService implements UserTokenService {

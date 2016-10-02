@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.duoshouji.server.service.image.StoreImageException;
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.util.MobileNumber;
 
 public class AliyunOssImageStoreTest {
 

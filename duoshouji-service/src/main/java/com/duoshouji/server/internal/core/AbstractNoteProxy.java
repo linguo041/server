@@ -6,7 +6,7 @@ import com.duoshouji.server.service.common.Tag;
 import com.duoshouji.server.service.note.BasicNote;
 import com.duoshouji.server.service.note.Note;
 import com.duoshouji.server.service.note.NoteDetail;
-import com.duoshouji.server.util.Image;
+import com.duoshouji.util.Image;
 
 abstract class AbstractNoteProxy implements Note, UserNoteInteractionAware {
 

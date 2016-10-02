@@ -5,7 +5,7 @@ import java.util.Iterator;
 import com.duoshouji.server.service.note.BasicNote;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.util.IndexRange;
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.util.MobileNumber;
 
 public class FilteredNoteCollection extends AbstractOperationDelegatingNoteCollection {
 

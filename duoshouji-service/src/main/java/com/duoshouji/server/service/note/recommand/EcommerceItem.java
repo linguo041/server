@@ -2,7 +2,7 @@ package com.duoshouji.server.service.note.recommand;
 
 import java.math.BigDecimal;
 
-import com.duoshouji.server.util.Image;
+import com.duoshouji.util.Image;
 
 public interface EcommerceItem {
 

@@ -1,129 +1,198 @@
 package com.duoshouji.server.rest.controller;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.duoshouji.server.rest.Constants;
 import com.duoshouji.server.service.DuoShouJiFacade;
-import com.duoshouji.server.service.DuoShouJiFacade.CommentPublisher;
-import com.duoshouji.server.service.auth.UnauthenticatedUserException;
-import com.duoshouji.server.service.auth.UserTokenService;
+import com.duoshouji.server.service.DuoShouJiFacade.SquareNoteRequester;
 import com.duoshouji.server.service.common.Tag;
-import com.duoshouji.server.service.note.NoteDetail;
-import com.duoshouji.server.service.note.NoteDetailAndOwner;
+import com.duoshouji.server.service.interaction.BasicNoteAndOwner;
+import com.duoshouji.server.service.interaction.NoteCommentAndAuthor;
+import com.duoshouji.server.service.interaction.NoteDetailAndOwner;
 import com.duoshouji.server.service.note.recommand.EcommerceItem;
-import com.duoshouji.server.service.user.BasicUser;
-import com.duoshouji.server.util.Image;
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.util.Image;
+import com.duoshouji.util.MobileNumber;
 
 @RestController
 public class NoteResource {
 	
 	private DuoShouJiFacade duoShouJiFacade;
-	private UserTokenService anthentication;
 	
-	@ModelAttribute
-	public void setupUserInModel(
-			@RequestHeader(name=Constants.APP_TOKEN_HTTP_HEADER_NAME) String token, Model model)
-					throws UnauthenticatedUserException {
-		final MobileNumber userId = anthentication.fetchUserId(token);
-		model.addAttribute("userId", userId);
+	@Autowired
+	public NoteResource(DuoShouJiFacade duoShouJiFacade) {
+		this.duoShouJiFacade = duoShouJiFacade;
 	}
+
+	@RequestMapping(path = "/notes", method = RequestMethod.GET)
+	public List<ResultBasicNote> getNotes(
+			@RequestParam(value="timestamp") long timestamp,
+			@RequestParam(value="accountId", required=false) MobileNumber accountId,
+			@RequestParam(value="longitude", required=false) BigDecimal longitude,
+			@RequestParam(value="latitude", required=false) BigDecimal latitude,
+			@RequestParam(value="tagId", required=false) Long tagId,
+			@RequestParam("loadedSize") int loadedSize,
+			@RequestParam("pageSize") int pageSize
+			) {
+		SquareNoteRequester requester = duoShouJiFacade.newSquareNoteRequester();
+		if (accountId != null) {
+			requester.setWatchedOnly(accountId);
+		}
+		if (tagId != null) {
+			requester.setTagId(tagId.longValue());
+		}
+		if (longitude != null && latitude != null) {
+			requester.setUserLocation(longitude, latitude);
+		}
+		List<ResultBasicNote> resultBasicNotes = new ArrayList<ResultBasicNote>();
+		for (BasicNoteAndOwner noteAndOwner : requester.getSquareNotes(timestamp, loadedSize, pageSize)) {
+			resultBasicNotes.add(new ResultBasicNote(noteAndOwner));
+		}
+		return resultBasicNotes;
+	}
+
+	public class ResultBasicNote {
+		private BasicNoteAndOwner delegator;
+
+		private ResultBasicNote(BasicNoteAndOwner delegator) {
+			this.delegator = delegator;
+		}
+
+		public long getNoteId() {
+			return delegator.getNote().getNoteId();
+		}
+
+		public String getTitle() {
+			return delegator.getNote().getTitle();
+		}
+
+		public String getImage() {
+			return delegator.getNote().getMainImage().getUrl();
+		}
+
+		public int getImageWidth() {
+			return delegator.getNote().getMainImage().getWidth();
+		}
+
+		public int getImageHeight() {
+			return delegator.getNote().getMainImage().getHeight();
+		}
+
+		public String getPortrait() {
+			return delegator.getOwner().getPortrait().getUrl();
+		}
+
+		public int getRank() {
+			return delegator.getNote().getRating();
+		}
+
+		public int getLikeCount() {
+			return delegator.getNote().getLikeCount();
+		}
+
+		public int getCommentCount() {
+			return delegator.getNote().getCommentCount();
+		}
+	}
+
 	
 	@RequestMapping(path = "/notes/{note-id}", method = RequestMethod.GET)
-	public NoteView getNote(@PathVariable("note-id") long noteId) {
-		return new NoteView(duoShouJiFacade.getNote(noteId));
+	public ResultNoteDetial getNote(@PathVariable("note-id") long noteId) {
+		return new ResultNoteDetial(duoShouJiFacade.getNote(noteId));
 	}
 	
-	public class NoteView {
-		private NoteDetail note;
-		private BasicUser owner;
+	public class ResultNoteDetial {
+		private NoteDetailAndOwner delegator;
 		
-		public NoteView(NoteDetailAndOwner noteAndOwner) {
-			this.note = noteAndOwner.getNote();
-			this.owner = noteAndOwner.getOwner();
+		private ResultNoteDetial(NoteDetailAndOwner delegator) {
+			this.delegator = delegator;
 		}
 		
 		public long getUserId() {
-			return owner.getMobileNumber().toLong();
+			return delegator.getOwner().getMobileNumber().toLong();
 		}
 		
 		public String getNickname() {
-			return owner.getNickname();
+			return delegator.getOwner().getNickname();
 		}
 		
 		public String getPortrait() {
-			return owner.getPortrait().getUrl();
+			return delegator.getOwner().getPortrait().getUrl();
 		}
 		
 		public long getNoteId() {
-			return note.getNoteId();
+			return delegator.getNote().getNoteId();
 		}
 		
 		public long getPublishTime() {
-			return note.getPublishedTime();
+			return delegator.getNote().getPublishedTime();
 		}
 		
 		public List<Image> getImages() {
-			return note.getImages();
+			return delegator.getNote().getImages();
 		}
 		
 		public String getContent() {
-			return note.getContent();
+			return delegator.getNote().getContent();
 		}
 		
 		public List<Tag> getTags() {
-			return note.getTags();
+			return delegator.getNote().getTags();
 		}
 		
 		public int getLikeCount() {
-			return note.getLikeCount();
+			return delegator.getNote().getLikeCount();
 		}
 		
 		public int getCommentCount() {
-			return note.getCommentCount();
+			return delegator.getNote().getCommentCount();
 		}
 		
 		public int getTransactionCount() {
-			return note.getTransactionCount();
+			return delegator.getNote().getTransactionCount();
 		}
 		
 		public int getRating() {
-			return note.getRating();
+			return delegator.getNote().getRating();
 		}
 	}
 	
-	@RequestMapping(path = "/notes/{note-id}/recommendations", method = RequestMethod.POST)
+	@RequestMapping(path = "/notes/{note-id}/recommendations", method = RequestMethod.GET)
 	public List<EcommerceItem> getNoteRecommandations(@PathVariable("note-id") long noteId) {
 		return duoShouJiFacade.getNoteRecommendations(noteId);
 	}
-	
-	@RequestMapping(path = "/notes/{note-id}/comment", method = RequestMethod.POST)
-	public void addComment(
-			@PathVariable("note-id") long noteId,
-			@RequestParam("comment") String comment,
-			@RequestParam("longitude") BigDecimal longitude,
-			@RequestParam("latitude") BigDecimal latitude,
-			@RequestParam("rating") int rating,
-			Model model
-			) {
-		CommentPublisher publisher = duoShouJiFacade.newCommentPublisher(noteId, getUserId(model));
-		publisher.setComment(comment);
-		publisher.setLocation(longitude, latitude);
-		publisher.setRating(rating);
-		publisher.publishComment();
+
+	@RequestMapping(path = "/notes/{note-id}/comments", method = RequestMethod.GET)
+	public List<ResultNoteComment> getNoteComments(@PathVariable("note-id") long noteId) {
+		List<ResultNoteComment> results = new LinkedList<ResultNoteComment>();
+		for (NoteCommentAndAuthor comment : duoShouJiFacade.getNoteComments(noteId)) {
+			results.add(new ResultNoteComment(comment));
+		}
+		return results;
 	}
 	
-	private MobileNumber getUserId(Model model) {
-		return (MobileNumber) model.asMap().get("userId");
+	public class ResultNoteComment {
+		private NoteCommentAndAuthor delegator;
+
+		private ResultNoteComment(NoteCommentAndAuthor delegator) {
+			super();
+			this.delegator = delegator;
+		}
+		
+		public String getComment() {
+			return delegator.getNoteComment().getComment();
+		}
+		
+		public String getAuthorNickname() {
+			return delegator.getAuthor().getNickname();
+		}
 	}
 }

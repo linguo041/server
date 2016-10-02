@@ -2,7 +2,7 @@ package com.duoshouji.server.service.dao;
 
 import java.util.List;
 
-import com.duoshouji.server.util.Image;
+import com.duoshouji.util.Image;
 
 public class NoteDetailDto extends BasicNoteDto {
 	public String content;

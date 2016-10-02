@@ -10,7 +10,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.note.recommand.EcommerceItem;
-import com.duoshouji.server.util.Image;
+import com.duoshouji.util.Image;
 
 @Service
 public class DatabaseKeywordBasedNoteRecommendService extends

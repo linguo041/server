@@ -5,9 +5,9 @@ import java.math.BigDecimal;
 import com.duoshouji.server.service.user.BasicUser;
 import com.duoshouji.server.service.user.FullFunctionalUser;
 import com.duoshouji.server.service.user.Gender;
-import com.duoshouji.server.util.Image;
-import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
+import com.duoshouji.util.Image;
+import com.duoshouji.util.MobileNumber;
 
 public class BasicUserProxy implements FullFunctionalUser {
 	

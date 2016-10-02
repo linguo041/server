@@ -18,7 +18,7 @@ import com.duoshouji.server.service.common.DistrictRepository;
 import com.duoshouji.server.service.common.Tag;
 import com.duoshouji.server.service.common.TagRepository;
 import com.duoshouji.server.service.user.UserRepository;
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.util.MobileNumber;
 
 @RestController
 public class CommonResource {

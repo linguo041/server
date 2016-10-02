@@ -1,8 +1,8 @@
 package com.duoshouji.server.service.dao;
 
 import com.duoshouji.server.service.user.Gender;
-import com.duoshouji.server.util.Image;
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.util.Image;
+import com.duoshouji.util.MobileNumber;
 
 public class BasicUserDto {
 	public MobileNumber mobileNumber;

@@ -1,5 +1,6 @@
-package com.duoshouji.server.service.note;
+package com.duoshouji.server.service.interaction;
 
+import com.duoshouji.server.service.note.BasicNote;
 import com.duoshouji.server.service.user.BasicUser;
 
 public class BasicNoteAndOwner {

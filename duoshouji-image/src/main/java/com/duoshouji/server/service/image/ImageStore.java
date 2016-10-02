@@ -3,7 +3,7 @@ package com.duoshouji.server.service.image;
 import java.io.InputStream;
 import java.net.URL;
 
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.util.MobileNumber;
 
 public interface ImageStore {
 

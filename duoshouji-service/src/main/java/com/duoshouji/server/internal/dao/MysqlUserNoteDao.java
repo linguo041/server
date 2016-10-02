@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.duoshouji.server.service.common.Tag;
 import com.duoshouji.server.service.dao.BasicNoteDto;
 import com.duoshouji.server.service.dao.BasicUserDto;
+import com.duoshouji.server.service.dao.NoteCommentDto;
 import com.duoshouji.server.service.dao.NoteDetailDto;
 import com.duoshouji.server.service.dao.RegisteredUserDto;
 import com.duoshouji.server.service.dao.UserNoteDao;
@@ -26,9 +27,9 @@ import com.duoshouji.server.service.note.CommentPublishAttributes;
 import com.duoshouji.server.service.note.NoteFilter;
 import com.duoshouji.server.service.note.NotePublishAttributes;
 import com.duoshouji.server.service.user.Gender;
-import com.duoshouji.server.util.Image;
 import com.duoshouji.server.util.IndexRange;
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.util.Image;
+import com.duoshouji.util.MobileNumber;
 
 @Service
 public class MysqlUserNoteDao implements UserNoteDao {
@@ -460,12 +461,12 @@ public class MysqlUserNoteDao implements UserNoteDao {
 	@Override
 	public void createComment(final long noteId, final CommentPublishAttributes commentAttributes, final MobileNumber userId) {
 		mysqlDataSource.update(
-				"insert into doushouji.comment (note_id, user_id, content, created_time, rating, longitude, latitude) values (?,?,?,?,?,?,?)"
+				"insert into duoshouji.comment (note_id, user_id, content, created_time, rating, longitude, latitude) values (?,?,?,?,?,?,?)"
 				, new PreparedStatementSetter() {
 
 			@Override
 			public void setValues(PreparedStatement ps) throws SQLException {
-				ps.setInt(1, (int) noteId);
+				ps.setLong(1, noteId);
 				ps.setLong(2, userId.toLong());
 				ps.setString(3, commentAttributes.getComment());
 				ps.setLong(4, System.currentTimeMillis());
@@ -481,10 +482,28 @@ public class MysqlUserNoteDao implements UserNoteDao {
 					@Override
 					public void setValues(PreparedStatement ps) throws SQLException {
 						ps.setInt(1, commentAttributes.getRating());
-						ps.setInt(2, (int) noteId);
+						ps.setLong(2, noteId);
 					}
 					
 				});
+	}
+
+	@Override
+	public List<NoteCommentDto> getNoteComments(long noteId) {
+		return mysqlDataSource.query(
+				"select user_id, content from duoshouji.comment where note_id = " + noteId
+				, new RowMapper<NoteCommentDto>() {
+
+			@Override
+			public NoteCommentDto mapRow(ResultSet rs, int rowNum)
+					throws SQLException {
+				NoteCommentDto commentDto = new NoteCommentDto();
+				commentDto.authorId = MobileNumber.valueOf(rs.getLong("user_id"));
+				commentDto.comment = rs.getString("content");
+				return commentDto;
+			}
+			
+		});
 	}
 
 	@Override
@@ -495,7 +514,7 @@ public class MysqlUserNoteDao implements UserNoteDao {
 					@Override
 					public void setValues(PreparedStatement ps) throws SQLException {
 						ps.setLong(1, userId.toLong());
-						ps.setInt(2, (int) noteId);
+						ps.setLong(2, noteId);
 					}
 					
 				});

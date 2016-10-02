@@ -3,15 +3,16 @@ package com.duoshouji.server.service;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.duoshouji.server.service.note.BasicNoteAndOwner;
+import com.duoshouji.server.service.interaction.BasicNoteAndOwner;
+import com.duoshouji.server.service.interaction.NoteCommentAndAuthor;
+import com.duoshouji.server.service.interaction.NoteDetailAndOwner;
 import com.duoshouji.server.service.note.NoteCollection;
-import com.duoshouji.server.service.note.NoteDetailAndOwner;
 import com.duoshouji.server.service.note.recommand.EcommerceItem;
 import com.duoshouji.server.service.user.BasicUserAttributes;
 import com.duoshouji.server.service.user.UserProfile;
-import com.duoshouji.server.util.MobileNumber;
 import com.duoshouji.server.util.Password;
 import com.duoshouji.server.util.VerificationCode;
+import com.duoshouji.util.MobileNumber;
 
 public interface DuoShouJiFacade {
 	
@@ -19,16 +20,12 @@ public interface DuoShouJiFacade {
 
 		void setTagId(long tagId);
 		
-		void setIsWatchedOnly();
+		void setWatchedOnly(MobileNumber userId);
 		
 		void setUserLocation(BigDecimal longitude, BigDecimal latitude);
 
-		List<BasicNoteAndOwner> pushSquareNotes(boolean refresh, int loadedSize, int pageSize);
+		List<BasicNoteAndOwner> getSquareNotes(long timestamp, int loadedSize, int pageSize);
 
-	}
-	
-	public static enum SquareNoteRequestFilter {
-		WATCHED, LOCATION;
 	}
 	
 	public interface NoteBuilder {
@@ -86,12 +83,12 @@ public interface DuoShouJiFacade {
 
 	NoteCollection getUserPublishedNotes(MobileNumber accountId, boolean refresh);
 
-	SquareNoteRequester newSquareNoteRequester(MobileNumber mobileNumber);
+	SquareNoteRequester newSquareNoteRequester();
 
 	NoteDetailAndOwner getNote(long noteId);
 
 	CommentPublisher newCommentPublisher(long noteId, MobileNumber userId);
-
+	
 	void likeNote(long noteId, MobileNumber userId);
 	
 	void buildFollowConnection(MobileNumber followerId, MobileNumber followedId);
@@ -99,4 +96,6 @@ public interface DuoShouJiFacade {
 	List<EcommerceItem> getNoteRecommendations(long noteId);
 
 	void inviteFriends(MobileNumber userId, MobileNumber[] mobileNumbers);
+
+	List<NoteCommentAndAuthor> getNoteComments(long noteId);
 }

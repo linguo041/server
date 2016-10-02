@@ -199,5 +199,6 @@
     	<module>duoshouji-service</module>
         <module>duoshouji-service-image</module>
     	<module>duoshouji-batch</module>
+    	<module>duoshouji-api</module>
     </modules>
 </project>

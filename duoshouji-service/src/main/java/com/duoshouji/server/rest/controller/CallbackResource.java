@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.duoshouji.server.service.note.NoteRepository;
 import com.duoshouji.server.service.user.UserRepository;
-import com.duoshouji.server.util.Image;
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.util.Image;
+import com.duoshouji.util.MobileNumber;
 
 @RestController
 @RequestMapping(path = "/callback")

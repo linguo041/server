@@ -1,7 +1,7 @@
 package com.duoshouji.server.internal.core;
 
 import com.duoshouji.server.service.user.BasicUser;
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.util.MobileNumber;
 
 public abstract class AbstractUser implements BasicUser {
 
