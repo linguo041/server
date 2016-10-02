@@ -9,6 +9,7 @@
   </parent>
   <artifactId>duoshouji-image</artifactId>
   <name>DuoShouJi Image Service</name>
+  <packaging>war</packaging>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -97,6 +98,6 @@
         </dependency>
    </dependencies>
    <build>
-     <finalName>service-image</finalName>
+     <finalName>duoshouji-image</finalName>
    </build>
 </project>
