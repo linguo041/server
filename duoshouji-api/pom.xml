@@ -8,7 +8,7 @@
     <version>0.0.1</version>
   </parent>
   <artifactId>duoshouji-api</artifactId>
-  <name>DuoSouJi Api</name>
+  <name>DuoShouJi Api</name>
 
    <dependencies>          
        <dependency>

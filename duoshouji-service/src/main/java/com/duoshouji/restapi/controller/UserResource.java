@@ -3,6 +3,8 @@ package com.duoshouji.restapi.controller;
 import java.io.IOException;
 import java.math.BigDecimal;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,6 +32,8 @@ import com.duoshouji.service.util.VerificationCode;
 @Controller
 public class UserResource {
 
+	private Logger logger = LogManager.getLogger();
+	
 	private UserFacade userFacade;
 	private UserTokenService tokenService;
 	
@@ -41,6 +45,7 @@ public class UserResource {
 	}
 
 	@GetMapping("/users")
+	@ResponseBody
 	public MobileNumberMappingUserIdResult[] getRegisteredUserIds(
 			@RequestParam("mobiles") MobileNumber[] mobileNumbers) {
 		MobileNumberMappingUserIdResult[] results = new MobileNumberMappingUserIdResult[mobileNumbers.length];
@@ -126,6 +131,8 @@ public class UserResource {
 			@RequestParam("imageUrl") String imageUrl,
 			@RequestParam("imageWidth") int imageWidth,
 			@RequestParam("imageHeight") int imageHeight) throws IOException {
+		logger.info("Processing call back from image service; user image properties - [width: {}, height: {}, url: {}]"
+				, imageWidth, imageHeight, imageUrl);
 		userFacade.setPortrait(userId, new Image(imageWidth, imageHeight, imageUrl));
 	}
 	

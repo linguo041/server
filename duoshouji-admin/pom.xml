@@ -8,8 +8,7 @@
     <version>0.0.1</version>
   </parent>
   <artifactId>duoshouji-admin</artifactId>
-  <name>duoshouji-admin</name>
-  <url>http://maven.apache.org</url>
+  <name>DuoShouJi Admin</name>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>

@@ -15,6 +15,8 @@ import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.image.ImageUploadCallback;
@@ -27,6 +29,7 @@ public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallbac
 	private static final String CALLBACK_HOST = "restapi.share68.com";
 	
 	private CloseableHttpClient httpClient;
+	private Logger logger = LogManager.getLogger(ImageUploadCallback.class);
 	
 	@PostConstruct
 	public void init() {
@@ -45,6 +48,10 @@ public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallbac
 					.addParameter("imageUrl", imageInfo.getUrl())
 					.addParameter("imageWidth", Integer.toString(imageInfo.getWidth()))
 					.addParameter("imageHeight", Integer.toString(imageInfo.getHeight())).build();
+			logger.info("Start image upload callback for portrait image [width: {}, height: {}, url: {}]"
+					, imageInfo.getWidth()
+					, imageInfo.getHeight()
+					, imageInfo.getUrl());
 			makeCallbackAndEnsureSuccess(request);
 		} catch (Exception e) {
 			StoreImageException wrapped;
@@ -66,6 +73,10 @@ public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallbac
 				requestBuilder.addParameter("imageUrl", imageInfo.getUrl())
 					.addParameter("imageWidth", Integer.toString(imageInfo.getWidth()))
 					.addParameter("imageHeight", Integer.toString(imageInfo.getHeight())).build();
+				logger.info("Start image upload callback for note image [width: {}, height: {}, url: {}]"
+						, imageInfo.getWidth()
+						, imageInfo.getHeight()
+						, imageInfo.getUrl());
 			}
 			makeCallbackAndEnsureSuccess(requestBuilder.build());
 		} catch (Exception e) {
@@ -89,5 +100,6 @@ public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallbac
 		if (statusCode != 200) {
 			throw new StoreImageException("Image url synchronize failed in service.");
 		}
+		LogManager.getLogger(ImageUploadCallback.class).info("Image upload callback success!");
 	}
 }
