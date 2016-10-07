@@ -2,26 +2,27 @@ package com.duoshouji.server.end2endtest;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 import java.math.BigDecimal;
 
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-import com.duoshouji.server.rest.Constants;
-import com.duoshouji.server.service.user.Gender;
-import com.duoshouji.server.util.Location;
-import com.duoshouji.server.util.VerificationCode;
-import com.duoshouji.util.MobileNumber;
+import com.duoshouji.restapi.Constants;
+import com.duoshouji.service.user.Gender;
+import com.duoshouji.service.util.Location;
+import com.duoshouji.service.util.MobileNumber;
+import com.duoshouji.service.util.VerificationCode;
 
 public class MockSession extends MockClient {
 
-	private MobileNumber userId;
+	private long userId;
 	private String token;
 	
-	public MockSession(MockMvc mockMvc, MobileNumber mobile, String token) {
+	public MockSession(MockMvc mockMvc, long userId, String token) {
 		super(mockMvc);
-		this.userId = mobile;
+		this.userId = userId;
 		this.token = token;
 	}
 	
@@ -61,8 +62,8 @@ public class MockSession extends MockClient {
 		return new ListChannelNotes(loadedSize, pageSize, timestamp, channelId);
 	}
 	
-	public ListPublishedNotes emitListPublishedNotes(int loadedSize, int pageSize) {
-		return new ListPublishedNotes(loadedSize, pageSize);
+	public ListPublishedNotes emitListPublishedNotes(int loadedSize, int pageSize, long timestamp) {
+		return new ListPublishedNotes(loadedSize, pageSize, timestamp);
 	}
 	
 	public DisplayNote emitDisplayNote(long noteId) {
@@ -93,7 +94,7 @@ public class MockSession extends MockClient {
 		
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() {
-			return post("/accounts/{account-id}/logout", userId)
+			return put("/users/{user-id}/logout", userId)
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}	
 	}
@@ -102,7 +103,7 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return post("/accounts/{account-id}/message/verification-code/reset-password", userId)
+			return post("/users/{user-id}/message/verification-code/reset-password", userId)
 	    			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
 	}
@@ -119,7 +120,7 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return post("/accounts/{account-id}/settings/security/password", userId)
+			return put("/users/{user-id}/settings/security/password", userId)
 	    			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
 	    			.param("code", code.toString())
 	    			.param("password", password);
@@ -137,7 +138,7 @@ public class MockSession extends MockClient {
 		}
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() {
-			MockHttpServletRequestBuilder builder = post("/accounts/{account-id}/settings/profile", userId)
+			MockHttpServletRequestBuilder builder = put("/users/{user-id}/settings/personal-information", userId)
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 			if (nickname != null) {
 				builder.param("nickname", nickname);
@@ -153,7 +154,7 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return get("/accounts/{account-id}/profile", userId).header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
+			return get("/users/{user-id}/profile", userId).header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
 	}
 	
@@ -202,8 +203,9 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return post("/accounts/{account-id}/notes", userId)
+			return post("/notes")
 				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
+				.param("authorId", Long.toString(userId))
 				.param("categoryId", Long.toString(categoryId))
 				.param("brandId", Long.toString(brandId))
 				.param("productName", title)
@@ -253,7 +255,7 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return super.getBuilder().param("accountId", userId.toString());
+			return super.getBuilder().param("followerId", Long.toString(userId));
 		}
 	}
 	
@@ -274,19 +276,23 @@ public class MockSession extends MockClient {
 	public class ListPublishedNotes extends DynamicResourceRequest {
 		private int loadedSize;
 		private int pageSize;
+		private long timestamp;
 		
-		private ListPublishedNotes(int loadedSize, int pageSize) {
+		private ListPublishedNotes(int loadedSize, int pageSize, long timestamp) {
 			super();
 			this.loadedSize = loadedSize;
 			this.pageSize = pageSize;
+			this.timestamp = timestamp;
 		}
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return get("/accounts/{account-id}/notes", userId)
+			return get("/notes")
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
+					.param("authorId", Long.toString(userId))
 					.param("loadedSize", Integer.toString(loadedSize))
-					.param("pageSize", Integer.toString(pageSize));
+					.param("pageSize", Integer.toString(pageSize))
+					.param("timestamp", Long.toString(timestamp));
 		}
 	}
 	
@@ -325,8 +331,9 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return post("/accounts/{account-id}/comments/{note-id}", userId, noteId)
+			return post("/notes/{note-id}/comments", noteId)
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
+					.param("userId", Long.toString(userId))
 					.param("comment", content)
 					.param("rating", Integer.toString(rating))
 					.param("longitude", longitude.toString())
@@ -349,15 +356,15 @@ public class MockSession extends MockClient {
 	}
 	
 	public class WatchUser extends DynamicResourceRequest {
-		private MobileNumber followedUserId;
+		private MobileNumber followeeId;
 		
-		public WatchUser(MobileNumber userId) {
+		public WatchUser(MobileNumber followeeId) {
 			super();
-			this.followedUserId = userId;
+			this.followeeId = followeeId;
 		}
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return post("/accounts/{account-id}/connections/{followed-id}", userId, followedUserId)
+			return post("/users/{user-id}/connections/{followee-id}", userId, followeeId)
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
 		
@@ -372,8 +379,9 @@ public class MockSession extends MockClient {
 		}
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return post("/accounts/{account-id}/likes/{note-id}", userId, noteId)
-					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
+			return post("/notes/{note-id}/likes", noteId)
+					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
+					.param("userId", Long.toString(userId));
 		}
 	}
 	
@@ -389,7 +397,7 @@ public class MockSession extends MockClient {
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
 			MockHttpServletRequestBuilder builder =
-					post("/accounts/{account-id}/invitations", userId)
+					post("/users/{user-id}/invitations", userId)
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 			for (MobileNumber mobile : contactList) {
 				builder.param("mobile", mobile.toString());

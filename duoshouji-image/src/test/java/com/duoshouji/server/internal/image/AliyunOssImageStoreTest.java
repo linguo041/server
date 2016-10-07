@@ -1,6 +1,5 @@
 package com.duoshouji.server.internal.image;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -8,21 +7,48 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.duoshouji.server.service.image.StoreImageException;
-import com.duoshouji.util.MobileNumber;
+import com.duoshouji.service.util.Image;
 
 public class AliyunOssImageStoreTest {
 
+	private static final String MOCK_PORTRAIT_FILE = "/unknown-portrait.jpg";
+	private static final String MOCK_NOTE_IMAGE_FILE0 = "/note-image0.jpg";
+	private static final String MOCK_NOTE_IMAGE_FILE1 = "/note-image1.jpg";
+	
+	private InputStream openStream(String imageUrl) throws Exception {
+		if (imageUrl.startsWith("/")) {
+			return getClass().getResourceAsStream(imageUrl);
+		} else {
+			return new URL(imageUrl).openStream();
+		}
+	}
+	
 	@Test
-	public void testConnection() throws IOException, StoreImageException {
+	public void uploadUserPortrait() throws Exception {
 		AliyunOssImageStore imageStore = new AliyunOssImageStore();
 		imageStore.init();
-		InputStream inputStream = new URL("https://oss-example.oss-cn-hangzhou.aliyuncs.com/aliyun-logo.png").openStream();
-		URL imageUrl = imageStore.saveUserPortrait(MobileNumber.valueOf(13661863279l), inputStream);
-		inputStream.close();
+		Image image = imageStore.saveUserPortrait(0l, openStream(MOCK_PORTRAIT_FILE));
 		imageStore.destory();
-		inputStream = imageUrl.openStream();
-		Assert.assertTrue(IOUtils.contentEquals(inputStream, new URL("https://oss-example.oss-cn-hangzhou.aliyuncs.com/aliyun-logo.png").openStream()));
-		inputStream.close();
+		Assert.assertTrue(IOUtils.contentEquals(
+				openStream(image.getUrl())
+				, openStream(MOCK_PORTRAIT_FILE)));
+		Assert.assertTrue(image.getUrl().startsWith("http://images.share68.com/images/users/0/portrait"));
+	}
+	
+	@Test
+	public void uploadNoteImages() throws Exception {
+		AliyunOssImageStore imageStore = new AliyunOssImageStore();
+		imageStore.init();
+		Image[] images = imageStore.saveNoteImage(0l , new InputStream[] {
+				openStream(MOCK_NOTE_IMAGE_FILE0),
+				openStream(MOCK_NOTE_IMAGE_FILE1)
+				});
+		imageStore.destory();
+		
+		Assert.assertEquals(2, images.length);
+		Assert.assertTrue(IOUtils.contentEquals(openStream(images[0].getUrl()) , openStream(MOCK_NOTE_IMAGE_FILE0)));
+		Assert.assertTrue(IOUtils.contentEquals(openStream(images[1].getUrl()) , openStream(MOCK_NOTE_IMAGE_FILE1)));
+		Assert.assertTrue(images[0].getUrl().startsWith("http://images.share68.com/images/notes/0/00"));
+		Assert.assertTrue(images[1].getUrl().startsWith("http://images.share68.com/images/notes/0/01"));
 	}
 }

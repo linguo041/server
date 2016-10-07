@@ -7,15 +7,18 @@ import org.springframework.test.web.servlet.MvcResult;
 
 public abstract class ValueExtractor<T> {
 
-	public static final ValueExtractor<String> TOKEN_EXTRACTOR =
-			new ValueExtractor<String>() {
+	public static final ValueExtractor<LoginResult> LONIN_RESULT_EXTRACTOR =
+			new ValueExtractor<LoginResult>() {
 				@Override
-				public String extractFrom(MvcResult result) throws Exception {
+				public LoginResult extractFrom(MvcResult result) throws Exception {
 					JSONObject loginResult = new JSONObject(result.getResponse().getContentAsString());
-					return loginResult.getJSONObject("resultValues").getString("token");
+					LoginResult returnValue = new LoginResult();
+					returnValue.token = loginResult.getJSONObject("resultValues").getString("token");
+					returnValue.userId = loginResult.getJSONObject("resultValues").getLong("userId");
+					return returnValue;
 				}
 			};
-	
+			
 	public static final ValueExtractor<Long> NOTE_ID_EXTRACTOR =
 			new ValueExtractor<Long>() {
 				@Override

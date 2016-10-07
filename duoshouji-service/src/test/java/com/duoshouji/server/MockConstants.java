@@ -2,12 +2,12 @@ package com.duoshouji.server;
 
 import java.math.BigDecimal;
 
-import com.duoshouji.server.service.user.Gender;
-import com.duoshouji.server.util.Location;
-import com.duoshouji.server.util.Password;
-import com.duoshouji.server.util.VerificationCode;
-import com.duoshouji.util.Image;
-import com.duoshouji.util.MobileNumber;
+import com.duoshouji.service.user.Gender;
+import com.duoshouji.service.user.Password;
+import com.duoshouji.service.util.Image;
+import com.duoshouji.service.util.Location;
+import com.duoshouji.service.util.MobileNumber;
+import com.duoshouji.service.util.VerificationCode;
 
 public class MockConstants {
 	

@@ -16,13 +16,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.duoshouji.core.MessageProxyFactory;
 import com.duoshouji.server.MockConstants;
 import com.duoshouji.server.end2endtest.MockSession.PublishNote;
-import com.duoshouji.server.service.user.Gender;
-import com.duoshouji.server.util.Location;
-import com.duoshouji.server.util.MessageProxyFactory;
-import com.duoshouji.util.Image;
-import com.duoshouji.util.MobileNumber;
+import com.duoshouji.service.user.Gender;
+import com.duoshouji.service.util.Image;
+import com.duoshouji.service.util.Location;
+import com.duoshouji.service.util.MobileNumber;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -66,8 +66,8 @@ public class SpringServerSideTest {
 		session1.emitListSquareNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
 		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp1, channelIds[0]).perform().expect(emptyNoteList());
 		session1.emitListWatchedNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
-		session2.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
-		session3.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
+		session2.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
+		session3.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
 		
 		PublishNote publisher;
 		publisher = session2.emitPublishNote(MockNoteContent.CONTENT1);
@@ -135,16 +135,16 @@ public class SpringServerSideTest {
 		session1.emitListSquareNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
 		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp1, channelIds[0]).perform().expect(emptyNoteList());
 		session1.emitListWatchedNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
-		session2.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
-		session3.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
-		session2.emitListPublishedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note3, note2, note1));
-		session3.emitListPublishedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note6, note5, note4));
+		session2.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
+		session3.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
 		session1.emitListSquareNotes(0, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note6, note5, note4, note3, note2, note1));
 		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp2, channelIds[0]).perform().expect(noteList(note4, note1));
 		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp2, channelIds[1]).perform().expect(noteList(note5, note2, note1));
 		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp2, channelIds[2]).perform().expect(noteList(note6, note3, note2));
 		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp2, channelIds[3]).perform().expect(noteList(note3));
 		session1.emitListWatchedNotes(0, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note6, note5, note4));
+		session2.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note3, note2, note1));
+		session3.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note6, note5, note4));
 		session1.emitListSquareNotes(4, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note2, note1));
 		
 		session1.emitLikeNote(note6).performAndExpectSuccess();

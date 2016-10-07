@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import com.duoshouji.server.service.image.ImageUploadCallback;
 import com.duoshouji.server.service.image.StoreImageException;
-import com.duoshouji.util.Image;
+import com.duoshouji.service.util.Image;
 
 @Service
 public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallback {
@@ -81,7 +81,7 @@ public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallbac
 	
 	private URI buildURI(ServletRequest originalUploadRequest) throws URISyntaxException {
 		final String originalUri = ((HttpServletRequest)originalUploadRequest).getRequestURI();
-		return new URIBuilder().setScheme("http").setHost(CALLBACK_HOST).setPath("/callback" + originalUri).build();
+		return new URIBuilder().setScheme("http").setHost(CALLBACK_HOST).setPath(originalUri).build();
 	}
 	
 	private void makeCallbackAndEnsureSuccess(HttpUriRequest request) throws ClientProtocolException, IOException, StoreImageException {

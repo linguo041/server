@@ -1,18 +1,24 @@
 package com.duoshouji.server.internal.image;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.Iterator;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 
 import com.aliyun.oss.OSSClient;
 import com.duoshouji.server.service.image.ImageStore;
 import com.duoshouji.server.service.image.StoreImageException;
-import com.duoshouji.util.MobileNumber;
+import com.duoshouji.service.util.Image;
 
 @Service
 public class AliyunOssImageStore implements ImageStore {
@@ -36,32 +42,54 @@ public class AliyunOssImageStore implements ImageStore {
 	}
 	
 	@Override
-	public URL saveUserPortrait(MobileNumber userId, InputStream swingImage) throws StoreImageException {
-		final String key = userId.toString() + ".portrait";
-		try {
-			client.putObject(BUCKET_NAME, key, swingImage);
-			return buildObjectURL(key);
-		} catch (Exception e) {
-			throw new StoreImageException(e);
-		}
+	public Image saveUserPortrait(long userId, InputStream uploadedImage) throws StoreImageException {
+		final String keyWithoutImageFormat = "images/users/" + userId + "/portrait";
+		return saveImageToAliyun(uploadedImage, keyWithoutImageFormat);
 	}
 
 	@Override
-	public URL saveNoteImage(long noteId, int index, InputStream swingImage) throws StoreImageException {
-		final String key = "note" + noteId + ".image" + index;
-		try {
-			client.putObject(BUCKET_NAME, key, swingImage);
-			return buildObjectURL(key);
-		} catch (Exception e) {
-			throw new StoreImageException(e);
+	public Image[] saveNoteImage(long noteId, InputStream[] uploadedImages) throws StoreImageException {
+		final String noteKeyPrefix = "images/notes/" + noteId + "/";
+		final Image[] results = new Image[uploadedImages.length];
+		for (int i = 0; i < uploadedImages.length; ++i) {
+			final String keyWithoutImageFormat = noteKeyPrefix + String.format("%02d", i);
+			results[i] = saveImageToAliyun(uploadedImages[i], keyWithoutImageFormat);
 		}
+		return results;
 	}
 	
-	private URL buildObjectURL(String key) throws MalformedURLException {
+	private Image saveImageToAliyun(InputStream uploadedImage, String keyWithoutImageFormat) throws StoreImageException {
+		try {
+			final byte[] imageBytes = IOUtils.toByteArray(uploadedImage);
+			
+			ImageReader imageReader = getImageReader(new ByteArrayInputStream(imageBytes));
+			final int width = imageReader.getWidth(imageReader.getMinIndex());
+			final int height = imageReader.getHeight(imageReader.getMinIndex());
+			final String formatName = imageReader.getFormatName();
+			final String keyWithImageFormat = keyWithoutImageFormat + "." + formatName;
+			client.putObject(BUCKET_NAME, keyWithImageFormat, new ByteArrayInputStream(imageBytes));
+			return new Image(width, height, buildObjectURL(keyWithImageFormat));
+		} catch (Exception e) {
+			throw new StoreImageException(e);
+		} 
+	}
+	
+	private ImageReader getImageReader(InputStream uploadedImage) throws IOException, StoreImageException {
+		ImageInputStream imageInputStream = ImageIO.createImageInputStream(uploadedImage);
+		Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(imageInputStream);
+		if (!imageReaders.hasNext()) {
+			throw new StoreImageException("Unrecognizable image format!");
+		}
+		ImageReader imageReader = imageReaders.next();
+		imageReader.setInput(imageInputStream, true);
+		return imageReader;
+	}
+	
+	private String buildObjectURL(String key) throws MalformedURLException {
 		StringBuilder urlBuilder = new StringBuilder("http://");
 		urlBuilder.append(DUOSHOUJI_END_POINT);
 		urlBuilder.append('/');
 		urlBuilder.append(key);
-		return new URL(urlBuilder.toString());
+		return urlBuilder.toString();
 	}
 }
