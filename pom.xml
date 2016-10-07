@@ -33,35 +33,10 @@
 		    <version>6.0.3</version>
 		</dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>18.0</version>
-        </dependency>
-        <dependency>
-		    <groupId>joda-time</groupId>
-		    <artifactId>joda-time</artifactId>
-		    <version>2.4</version>
-		</dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>3.5</version>
-        </dependency>
-        <dependency>
-            <groupId>com.rabbitmq</groupId>
-            <artifactId>amqp-client</artifactId>
-            <version>3.2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.amqp</groupId>
-            <artifactId>spring-rabbit</artifactId>
-            <version>1.3.5.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.16.6</version>
-        </dependency>    
+        </dependency>   
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -113,16 +88,6 @@
             <version>4.3.2.RELEASE</version>
             <scope>test</scope>
         </dependency>        
-        <dependency>
-            <groupId>org.springframework.batch</groupId>
-            <artifactId>spring-batch-core</artifactId>
-            <version>3.0.6.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.batch</groupId>
-            <artifactId>spring-batch-infrastructure</artifactId>
-            <version>3.0.6.RELEASE</version>
-        </dependency>
 		 <dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-core</artifactId>
@@ -198,7 +163,7 @@
     <modules>
     	<module>duoshouji-service</module>
         <module>duoshouji-image</module>
-    	<module>duoshouji-batch</module>
     	<module>duoshouji-api</module>
+    	<module>duoshouji-admin</module>
     </modules>
 </project>

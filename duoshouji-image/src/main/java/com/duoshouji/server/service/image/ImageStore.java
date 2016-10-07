@@ -1,14 +1,13 @@
 package com.duoshouji.server.service.image;
 
 import java.io.InputStream;
-import java.net.URL;
 
-import com.duoshouji.util.MobileNumber;
+import com.duoshouji.service.util.Image;
 
 public interface ImageStore {
 
-	URL saveUserPortrait(MobileNumber userId, InputStream swingImage) throws StoreImageException;
+	Image saveUserPortrait(long userId, InputStream uploadedImage) throws StoreImageException;
 
-	URL saveNoteImage(long noteId, int index, InputStream swingImage) throws StoreImageException;
+	Image[] saveNoteImage(long noteId, InputStream[] uploadedImages) throws StoreImageException;
 
 }

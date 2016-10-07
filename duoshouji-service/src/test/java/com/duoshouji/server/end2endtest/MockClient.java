@@ -2,20 +2,19 @@ package com.duoshouji.server.end2endtest;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.json.JSONObject;
-import org.junit.Assert;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.duoshouji.server.util.VerificationCode;
-import com.duoshouji.util.Image;
-import com.duoshouji.util.MobileNumber;
+import com.duoshouji.service.util.Image;
+import com.duoshouji.service.util.MobileNumber;
+import com.duoshouji.service.util.VerificationCode;
 
 public class MockClient {
 	
@@ -119,20 +118,9 @@ public class MockClient {
 		}
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() {
-			return post("/accounts/{account-id}/message/verification-code/login", mobile);
+			return post("/mobiles/{mobile-number}/message/verification-code/login", mobile);
 		}
 	}
-	
-	private static final SuccessJsonResultMatcher VERIFICATION_CODE_LOGIN_RESULT_MATCHER =
-			new SuccessJsonResultMatcher() {
-
-				@Override
-				protected void verifyJsonResult(JSONObject json)
-						throws Exception {
-					Assert.assertTrue(json.getJSONObject("resultValues").getBoolean("loginSuccess"));
-				}
-		
-			};
 	
 	public class VerificationCodeLogin extends DynamicResourceRequest {
 		private MobileNumber mobile;
@@ -146,25 +134,9 @@ public class MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() {
-	    	return post("/accounts/{account-id}/login/verification-code", mobile).param("code", code.toString());
-		}
-
-		@Override
-		protected SuccessJsonResultMatcher getDefaultSuccessMatcher() {
-			return VERIFICATION_CODE_LOGIN_RESULT_MATCHER;
+	    	return put("/mobiles/{mobile-number}/login-status", mobile).param("code", code.toString());
 		}
 	}
-	
-	private static final SuccessJsonResultMatcher CREDENTIAL_LOGIN_RESULT_MATCHER =
-			new SuccessJsonResultMatcher() {
-
-				@Override
-				protected void verifyJsonResult(JSONObject json)
-						throws Exception {
-					Assert.assertEquals(0, json.getJSONObject("resultValues").getInt("loginResultCode"));
-				}
-		
-			};
 	
 	public class CredentialLogin extends DynamicResourceRequest {
 		private MobileNumber mobile;
@@ -178,13 +150,8 @@ public class MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() {
-	    	return post("/accounts/{account-id}/login/credential", mobile)
+	    	return put("/mobiles/{mobile-number}/login-status", mobile)
 	    			.param("password", password);
-		}
-		
-		@Override
-		protected SuccessJsonResultMatcher getDefaultSuccessMatcher() {
-			return CREDENTIAL_LOGIN_RESULT_MATCHER;
 		}
 	}
 	
@@ -200,7 +167,7 @@ public class MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws FileNotFoundException, IOException {
-			return post("/callback/accounts/{account-id}/settings/profile/protrait", userId)
+			return put("/users/{user-id}/settings/personal-information/protrait", userId)
 					.param("imageUrl", image.getUrl())
 					.param("imageWidth", Integer.toString(image.getWidth()))
 					.param("imageHeight", Integer.toString(image.getHeight()));
@@ -218,7 +185,7 @@ public class MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			MockHttpServletRequestBuilder builder = post("/callback/notes/{note-id}/images", noteId)
+			MockHttpServletRequestBuilder builder = put("/notes/{note-id}/images", noteId)
 					.param("imageCount", Integer.toString(images.length));
 			for (Image image : images) {
 				builder.param("imageUrl", image.getUrl())

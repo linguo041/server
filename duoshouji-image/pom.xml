@@ -36,10 +36,6 @@
            <artifactId>mysql-connector-java</artifactId>
        </dependency>
        <dependency>
-           <groupId>com.google.guava</groupId>
-           <artifactId>guava</artifactId>
-       </dependency>
-       <dependency>
            <groupId>org.springframework</groupId>
            <artifactId>spring-context</artifactId>
        </dependency>
@@ -91,7 +87,6 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
-         
         <dependency>
             <groupId>com.aliyun.oss</groupId>
             <artifactId>aliyun-sdk-oss</artifactId>

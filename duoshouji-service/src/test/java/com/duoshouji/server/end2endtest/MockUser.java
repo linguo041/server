@@ -1,10 +1,11 @@
 package com.duoshouji.server.end2endtest;
 
+import org.junit.Assert;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.duoshouji.server.MockConstants;
-import com.duoshouji.server.service.user.Gender;
-import com.duoshouji.util.MobileNumber;
+import com.duoshouji.service.user.Gender;
+import com.duoshouji.service.util.MobileNumber;
 
 public class MockUser {
 
@@ -40,10 +41,11 @@ public class MockUser {
 	public void registerAndSetupProfile(MockMvc mockMvc, MockMessageSender messageReceiver) throws Exception {
 		MockClient client = new MockClient(mockMvc);
 		client.emitSendLoginVerificationCode(getUserId()).performAndExpectSuccess();
-		final String token = client.emitVerificationCodeLogin(getUserId(), messageReceiver.findHistory(getUserId()))
+		final LoginResult loginResult = client.emitVerificationCodeLogin(getUserId(), messageReceiver.findHistory(getUserId()))
 				.performAndExpectSuccess()
-				.extract(ValueExtractor.TOKEN_EXTRACTOR);
-		MockSession session = new MockSession(mockMvc, getUserId(), token);
+				.extract(ValueExtractor.LONIN_RESULT_EXTRACTOR);
+		Assert.assertEquals(userId.toLong(), loginResult.userId);
+		MockSession session = new MockSession(mockMvc, loginResult.userId, loginResult.token);
 		session.emitSendResetPasswordVerificationCode().performAndExpectSuccess();
 		session.emitResetPassword(messageReceiver.findHistory(getUserId()), getPassword()).performAndExpectSuccess();
 		session.emitUpdateProfile(getNickname(), getGender()).performAndExpectSuccess();
@@ -53,9 +55,9 @@ public class MockUser {
 	
 	public MockSession credentialLoginAndCreateSession(MockMvc mockMvc) throws Exception {
 		MockClient client = new MockClient(mockMvc);
-		final String token = client.emitCredentialLogin(getUserId(), getPassword())
-				.performAndExpectSuccess()
-				.extract(ValueExtractor.TOKEN_EXTRACTOR);
-		return new MockSession(mockMvc, getUserId(), token);
+		LoginResult loginResult = client.emitCredentialLogin(getUserId(), getPassword())
+				.performAndExpectSuccess().extract(ValueExtractor.LONIN_RESULT_EXTRACTOR);
+		Assert.assertEquals(userId.toLong(), loginResult.userId);
+		return new MockSession(mockMvc, loginResult.userId, loginResult.token);
 	}
 }
