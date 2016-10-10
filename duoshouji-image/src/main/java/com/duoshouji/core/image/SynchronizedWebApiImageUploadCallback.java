@@ -44,7 +44,7 @@ public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallbac
 	@Override
 	public void fireImageUpload(ServletRequest originalUploadRequest, Image imageInfo) throws StoreImageException {
 		try {
-			HttpUriRequest request = RequestBuilder.post(buildURI(originalUploadRequest))
+			HttpUriRequest request = RequestBuilder.put(buildURI(originalUploadRequest))
 					.addParameter("imageUrl", imageInfo.getUrl())
 					.addParameter("imageWidth", Integer.toString(imageInfo.getWidth()))
 					.addParameter("imageHeight", Integer.toString(imageInfo.getHeight())).build();
@@ -67,7 +67,7 @@ public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallbac
 	@Override
 	public void fireImageUpload(ServletRequest originalUploadRequest, Image[] imageInfos) throws StoreImageException {
 		try {
-			RequestBuilder requestBuilder = RequestBuilder.post(buildURI(originalUploadRequest));
+			RequestBuilder requestBuilder = RequestBuilder.put(buildURI(originalUploadRequest));
 			requestBuilder.addParameter("imageCount", Integer.toString(imageInfos.length));		
 			for (Image imageInfo : imageInfos) {
 				requestBuilder.addParameter("imageUrl", imageInfo.getUrl())
