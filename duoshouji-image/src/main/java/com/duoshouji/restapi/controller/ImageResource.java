@@ -7,7 +7,7 @@ import javax.servlet.ServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,7 +30,7 @@ public class ImageResource {
 		this.imageStore = imageStore;
 	}	
 
-	@PutMapping("/users/{user-id}/settings/personal-information/protrait")
+	@PostMapping("/users/{user-id}/settings/personal-information/protrait")
 	public void uploadUserPortrait(
 			@RequestParam("image") MultipartFile imageFile,
 			@PathVariable("user-id") long userId,
@@ -41,7 +41,7 @@ public class ImageResource {
 		}
 	}
 	
-	@PutMapping("/notes/{note-id}/images")
+	@PostMapping("/notes/{note-id}/images")
 	public void uploadNoteImage(
 			@RequestParam("images") MultipartFile[] imageFiles,
 			@PathVariable("note-id") long noteId,
