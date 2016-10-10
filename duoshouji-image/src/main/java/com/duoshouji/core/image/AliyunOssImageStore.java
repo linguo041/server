@@ -1,4 +1,4 @@
-package com.duoshouji.server.internal.image;
+package com.duoshouji.core.image;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -16,8 +16,8 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 
 import com.aliyun.oss.OSSClient;
-import com.duoshouji.server.service.image.ImageStore;
-import com.duoshouji.server.service.image.StoreImageException;
+import com.duoshouji.core.ImageStore;
+import com.duoshouji.core.StoreImageException;
 import com.duoshouji.service.util.Image;
 
 @Service

@@ -1,4 +1,4 @@
-package com.duoshouji.server.service.image;
+package com.duoshouji.core;
 
 @SuppressWarnings("serial")
 public class StoreImageException extends Exception {

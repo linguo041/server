@@ -1,4 +1,4 @@
-package com.duoshouji.server.service.image;
+package com.duoshouji.core;
 
 import javax.servlet.ServletRequest;
 

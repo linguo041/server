@@ -1,4 +1,4 @@
-package com.duoshouji.server.rest.image;
+package com.duoshouji.restapi.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,15 +8,13 @@ import javax.servlet.ServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.duoshouji.server.service.image.ImageStore;
-import com.duoshouji.server.service.image.ImageUploadCallback;
-import com.duoshouji.server.service.image.StoreImageException;
+import com.duoshouji.core.ImageStore;
+import com.duoshouji.core.ImageUploadCallback;
+import com.duoshouji.core.StoreImageException;
 import com.duoshouji.service.util.Image;
 
 @RestController
@@ -32,7 +30,7 @@ public class ImageResource {
 		this.imageStore = imageStore;
 	}	
 
-	@PutMapping(path = "/users/{user-id}/settings/personal-information/protrait")
+	@PutMapping("/users/{user-id}/settings/personal-information/protrait")
 	public void uploadUserPortrait(
 			@RequestParam("image") MultipartFile imageFile,
 			@PathVariable("user-id") long userId,
@@ -43,7 +41,7 @@ public class ImageResource {
 		}
 	}
 	
-	@RequestMapping(path = "/notes/{note-id}/images", method = RequestMethod.POST)
+	@PutMapping("/notes/{note-id}/images")
 	public void uploadNoteImage(
 			@RequestParam("images") MultipartFile[] imageFiles,
 			@PathVariable("note-id") long noteId,

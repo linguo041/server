@@ -1,4 +1,4 @@
-package com.duoshouji.server.internal.image;
+package com.duoshouji.core.image;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,8 +19,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
-import com.duoshouji.server.service.image.ImageUploadCallback;
-import com.duoshouji.server.service.image.StoreImageException;
+import com.duoshouji.core.ImageUploadCallback;
+import com.duoshouji.core.StoreImageException;
 import com.duoshouji.service.util.Image;
 
 @Service

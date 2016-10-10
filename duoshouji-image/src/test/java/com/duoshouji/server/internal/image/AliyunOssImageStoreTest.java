@@ -7,6 +7,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.duoshouji.core.image.AliyunOssImageStore;
 import com.duoshouji.service.util.Image;
 
 public class AliyunOssImageStoreTest {
