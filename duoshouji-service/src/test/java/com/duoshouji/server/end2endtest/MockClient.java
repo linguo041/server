@@ -167,7 +167,7 @@ public class MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws FileNotFoundException, IOException {
-			return put("/users/{user-id}/settings/personal-information/protrait", userId)
+			return post("/users/{user-id}/settings/personal-information/protrait", userId)
 					.param("imageUrl", image.getUrl())
 					.param("imageWidth", Integer.toString(image.getWidth()))
 					.param("imageHeight", Integer.toString(image.getHeight()));
