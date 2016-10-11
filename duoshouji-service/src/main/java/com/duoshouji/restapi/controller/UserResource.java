@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -129,9 +128,9 @@ public class UserResource {
 	@ResponseBody
 	public void putUserPortrait(
 			@PathVariable("user-id") long userId,
-			@ModelAttribute("imageUrl") String imageUrl,
-			@ModelAttribute("imageWidth") int imageWidth,
-			@ModelAttribute("imageHeight") int imageHeight) throws IOException {
+			@RequestParam("imageUrl") String imageUrl,
+			@RequestParam("imageWidth") int imageWidth,
+			@RequestParam("imageHeight") int imageHeight) throws IOException {
 		logger.info("Processing call back from image service; user image properties - [width: {}, height: {}, url: {}]"
 				, imageWidth, imageHeight, imageUrl);
 		userFacade.setPortrait(userId, new Image(imageWidth, imageHeight, imageUrl));
