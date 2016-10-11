@@ -125,7 +125,7 @@ public class UserResource {
 		}
 	}
 
-	@PutMapping(path = "/users/{user-id}/settings/personal-information/protrait")
+	@PostMapping(path = "/users/{user-id}/settings/personal-information/protrait")
 	@ResponseBody
 	public void putUserPortrait(
 			@PathVariable("user-id") long userId,
@@ -137,7 +137,7 @@ public class UserResource {
 		userFacade.setPortrait(userId, new Image(imageWidth, imageHeight, imageUrl));
 	}
 	
-	@PutMapping("/users/{user-id}/settings/personal-information")
+	@PostMapping("/users/{user-id}/settings/personal-information")
 	@ResponseBody
 	public void putPersonalInformation(
 			@PathVariable("user-id") long userId,
