@@ -6,13 +6,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 @Configuration
 public class DuoShouJiConfiguration {
 
-	@Bean
+	@Bean(name="dataSource")
     public DataSource mysqlDataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
@@ -31,10 +30,5 @@ public class DuoShouJiConfiguration {
 	@Bean
 	public JdbcTemplate jdbcTemplate () {
 		return new JdbcTemplate(mysqlDataSource());
-	}
-	
-	@Bean
-	public DataSourceTransactionManager transactionManager () {
-		return new DataSourceTransactionManager(mysqlDataSource());
 	}
 }
