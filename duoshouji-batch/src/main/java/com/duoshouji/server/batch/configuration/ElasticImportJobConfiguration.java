@@ -2,7 +2,6 @@ package com.duoshouji.server.batch.configuration;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
@@ -12,13 +11,14 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import com.duoshouji.server.batch.lancher.ElasticImportJobLancher;
+import com.duoshouji.server.batch.BatchPackageScanned;
 import com.duoshouji.server.batch.tasklet.ElasticImportTasklet;
+import com.duoshouji.server.elasticsearch.configuration.ElasticSearchConfiguration;
+import com.duoshouji.server.jpa.configuration.JpaConfiguration;
 
 @Configuration
-@EnableBatchProcessing
-@Import(BaseBatchConfiguration.class)
-@ComponentScan(basePackageClasses = { ElasticImportJobLancher.class })
+@Import({ElasticSearchConfiguration.class, JpaConfiguration.class, BaseBatchConfiguration.class})
+@ComponentScan(basePackageClasses = { BatchPackageScanned.class})
 public class ElasticImportJobConfiguration {
 	
 	@Bean
