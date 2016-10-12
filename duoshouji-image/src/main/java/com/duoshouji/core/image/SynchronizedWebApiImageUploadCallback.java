@@ -9,6 +9,7 @@ import javax.annotation.PreDestroy;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.http.HttpHeaders;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
@@ -17,6 +18,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 import com.duoshouji.core.ImageUploadCallback;
@@ -47,7 +49,8 @@ public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallbac
 			HttpUriRequest request = RequestBuilder.put(buildURI(originalUploadRequest))
 					.addParameter("imageUrl", imageInfo.getUrl())
 					.addParameter("imageWidth", Integer.toString(imageInfo.getWidth()))
-					.addParameter("imageHeight", Integer.toString(imageInfo.getHeight())).build();
+					.addParameter("imageHeight", Integer.toString(imageInfo.getHeight()))
+					.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE).build();
 			logger.info("Start image upload callback for portrait image [width: {}, height: {}, url: {}]"
 					, imageInfo.getWidth()
 					, imageInfo.getHeight()
@@ -70,14 +73,15 @@ public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallbac
 			RequestBuilder requestBuilder = RequestBuilder.put(buildURI(originalUploadRequest));
 			requestBuilder.addParameter("imageCount", Integer.toString(imageInfos.length));		
 			for (Image imageInfo : imageInfos) {
-				requestBuilder.addParameter("imageUrl", imageInfo.getUrl())
-					.addParameter("imageWidth", Integer.toString(imageInfo.getWidth()))
-					.addParameter("imageHeight", Integer.toString(imageInfo.getHeight())).build();
+				requestBuilder.addParameter("imageUrl", imageInfo.getUrl());
+				requestBuilder.addParameter("imageWidth", Integer.toString(imageInfo.getWidth()));
+				requestBuilder.addParameter("imageHeight", Integer.toString(imageInfo.getHeight()));
 				logger.info("Start image upload callback for note image [width: {}, height: {}, url: {}]"
 						, imageInfo.getWidth()
 						, imageInfo.getHeight()
 						, imageInfo.getUrl());
 			}
+			requestBuilder.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 			makeCallbackAndEnsureSuccess(requestBuilder.build());
 		} catch (Exception e) {
 			StoreImageException wrapped;

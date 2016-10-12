@@ -18,11 +18,7 @@
            <groupId>com.duoshouji</groupId>
            <artifactId>duoshouji-api</artifactId>
            <version>0.0.1</version>
-       </dependency>
-       <dependency>
-           <groupId>org.apache.maven.plugins</groupId>
-           <artifactId>maven-resources-plugin</artifactId>
-       </dependency>         
+       </dependency>       
        <dependency>
            <groupId>junit</groupId>
            <artifactId>junit</artifactId>
@@ -32,33 +28,10 @@
          <artifactId>jmock-junit4</artifactId>
        </dependency>
        <dependency>
-           <groupId>mysql</groupId>
-           <artifactId>mysql-connector-java</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>org.springframework</groupId>
-           <artifactId>spring-context</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>org.springframework</groupId>
-           <artifactId>spring-aop</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>org.springframework</groupId>
-           <artifactId>spring-aspects</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>org.springframework</groupId>
-           <artifactId>spring-web</artifactId>
-       </dependency>
-       <dependency>
            <groupId>org.springframework</groupId>
            <artifactId>spring-webmvc</artifactId>
        </dependency>
-       <dependency>
-           <groupId>org.springframework</groupId>
-           <artifactId>spring-jdbc</artifactId>
-       </dependency>
+
        <dependency>
            <groupId>org.springframework</groupId>
            <artifactId>spring-test</artifactId>
