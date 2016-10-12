@@ -150,8 +150,8 @@
                 <version>2.5.1</version>
                 <inherited>true</inherited>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -164,7 +164,7 @@
     	<module>duoshouji-service</module>
         <module>duoshouji-image</module>
     	<module>duoshouji-api</module>
-	<module>duoshouji-batch</module>
+		<module>duoshouji-batch</module>
     	<module>duoshouji-admin</module>
     </modules>
 </project>

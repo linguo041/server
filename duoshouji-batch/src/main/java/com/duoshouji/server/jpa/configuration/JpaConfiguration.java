@@ -21,7 +21,7 @@ public class JpaConfiguration {
 	@Bean(name="jpaDataSource")
     public DataSource jpaDataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         dataSource.setUrl("jdbc:mysql://139.196.151.131:3306/duoshouji");
         dataSource.setUsername("root");
         dataSource.setPassword("Duo@2016");
