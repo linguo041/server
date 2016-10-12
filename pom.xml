@@ -164,6 +164,7 @@
     	<module>duoshouji-service</module>
         <module>duoshouji-image</module>
     	<module>duoshouji-api</module>
+	<module>duoshouji-batch</module>
     	<module>duoshouji-admin</module>
     </modules>
 </project>

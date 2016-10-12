@@ -16,7 +16,7 @@ import com.duoshouji.server.amqp.consume.ElasticImportConsumer;
 import com.duoshouji.server.amqp.consume.SimpleConsumer;
 import com.duoshouji.server.amqp.produce.Producer;
 import com.duoshouji.server.amqp.produce.ProducerFactory;
-import com.duoshouji.server.elastic.ElasticImportNote;
+import com.duoshouji.server.elasticsearch.document.ESNote;
 import com.google.common.collect.Lists;
 
 /**
@@ -67,7 +67,7 @@ public class AMQPConfiguration {
     }
     
     @Bean
-    public Producer<ElasticImportNote> elasticNoteImportProducer() {
+    public Producer<ESNote> elasticNoteImportProducer() {
     	return producerFactory().create(QueueConfigFactory.loadElasticNoteImportQueueConfig());
     }
     
