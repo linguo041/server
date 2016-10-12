@@ -3,6 +3,8 @@ package com.duoshouji.server.annotation;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.duoshouji.service.annotation.Unique;
+
 public class ReflectionTest {
 
 	

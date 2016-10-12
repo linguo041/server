@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans:beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
 	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:beans="http://www.springframework.org/schema/beans"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:aop="http://www.springframework.org/schema/aop"
@@ -11,12 +12,16 @@
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
         http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.2.xsd">
-
-	<context:component-scan base-package="com.duoshouji.server.internal,com.duoshouji.server.rest,com.duoshouji.server.service,com.duoshouji.server.util">
+	
+	<context:component-scan base-package="com.duoshouji.service,com.duoshouji.restapi,com.duoshouji.core">
 	</context:component-scan>
 	<mvc:annotation-driven>
 	</mvc:annotation-driven>
 	<mvc:resources mapping="/images/**" location="/images/"/>
+	
+	<beans:bean class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+	   <beans:property name="viewClass" value="org.springframework.web.servlet.view.RedirectView"/>
+	</beans:bean>
 	
     <beans:bean class="org.springframework.jdbc.core.JdbcTemplate">
         <beans:constructor-arg>

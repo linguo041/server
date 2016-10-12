@@ -1,0 +1,12 @@
+package com.duoshouji.core;
+
+import javax.servlet.ServletRequest;
+
+import com.duoshouji.service.util.Image;
+
+public interface ImageUploadCallback {
+
+	void fireImageUpload(ServletRequest originalUploadRequest, Image imageInfo) throws StoreImageException;
+	
+	void fireImageUpload(ServletRequest originalUploadRequest, Image[] imageInfos) throws StoreImageException;
+}

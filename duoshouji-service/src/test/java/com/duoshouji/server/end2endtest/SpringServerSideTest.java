@@ -16,13 +16,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.duoshouji.core.MessageProxyFactory;
 import com.duoshouji.server.MockConstants;
 import com.duoshouji.server.end2endtest.MockSession.PublishNote;
-import com.duoshouji.server.service.user.Gender;
-import com.duoshouji.server.util.Image;
-import com.duoshouji.server.util.Location;
-import com.duoshouji.server.util.MessageProxyFactory;
-import com.duoshouji.server.util.MobileNumber;
+import com.duoshouji.service.user.Gender;
+import com.duoshouji.service.util.Image;
+import com.duoshouji.service.util.Location;
+import com.duoshouji.service.util.MobileNumber;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -61,12 +61,13 @@ public class SpringServerSideTest {
 		MockSession session2 = user2.credentialLoginAndCreateSession(mockMvc);
 		MockSession session3 = user3.credentialLoginAndCreateSession(mockMvc);
 		
+		final long timestamp1 = System.currentTimeMillis();
 		session1.emitWatchUser(user3.getUserId()).performAndExpectSuccess();
-		session1.emitListSquareNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
-		session1.emitListChannelNotes(-1, DEFAULT_PAGE_SIZE, channelIds[0]).perform().expect(emptyNoteList());
-		session1.emitListWatchedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
-		session2.emitListPublishedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
-		session3.emitListPublishedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
+		session1.emitListSquareNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
+		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp1, channelIds[0]).perform().expect(emptyNoteList());
+		session1.emitListWatchedNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
+		session2.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
+		session3.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
 		
 		PublishNote publisher;
 		publisher = session2.emitPublishNote(MockNoteContent.CONTENT1);
@@ -130,24 +131,25 @@ public class SpringServerSideTest {
 		final long note6 = publisher.performAndExpectSuccess().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
 		session3.emitUploadNoteImages(note6, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).performAndExpectSuccess();
 		
-		session1.emitListSquareNotes(0, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
-		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, channelIds[0]).perform().expect(emptyNoteList());
-		session1.emitListWatchedNotes(0, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
-		session2.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
-		session3.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE).perform().expect(emptyNoteList());
-		session2.emitListPublishedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note3, note2, note1));
-		session3.emitListPublishedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note6, note5, note4));
-		session1.emitListSquareNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note6, note5, note4, note3, note2, note1));
-		session1.emitListChannelNotes(-1, DEFAULT_PAGE_SIZE, channelIds[0]).perform().expect(noteList(note4, note1));
-		session1.emitListChannelNotes(-1, DEFAULT_PAGE_SIZE, channelIds[1]).perform().expect(noteList(note5, note2, note1));
-		session1.emitListChannelNotes(-1, DEFAULT_PAGE_SIZE, channelIds[2]).perform().expect(noteList(note6, note3, note2));
-		session1.emitListChannelNotes(-1, DEFAULT_PAGE_SIZE, channelIds[3]).perform().expect(noteList(note3));
-		session1.emitListWatchedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note6, note5, note4));
-		session1.emitListSquareNotes(4, DEFAULT_PAGE_SIZE).perform().expect(noteList(note2, note1));
+		final long timestamp2 = System.currentTimeMillis();
+		session1.emitListSquareNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
+		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp1, channelIds[0]).perform().expect(emptyNoteList());
+		session1.emitListWatchedNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
+		session2.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
+		session3.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
+		session1.emitListSquareNotes(0, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note6, note5, note4, note3, note2, note1));
+		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp2, channelIds[0]).perform().expect(noteList(note4, note1));
+		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp2, channelIds[1]).perform().expect(noteList(note5, note2, note1));
+		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp2, channelIds[2]).perform().expect(noteList(note6, note3, note2));
+		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp2, channelIds[3]).perform().expect(noteList(note3));
+		session1.emitListWatchedNotes(0, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note6, note5, note4));
+		session2.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note3, note2, note1));
+		session3.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note6, note5, note4));
+		session1.emitListSquareNotes(4, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note2, note1));
 		
-		session1.emitLikeNote(note6);
-		session2.emitLikeNote(note6);
-		session2.emitCommentNote(note6, "comment", MockConstants.MOCK_LONGITUDE, MockConstants.MOCK_LATITUDE, 5);
+		session1.emitLikeNote(note6).performAndExpectSuccess();
+		session2.emitLikeNote(note6).performAndExpectSuccess();
+		session2.emitCommentNote(note6, "comment", MockConstants.MOCK_LONGITUDE, MockConstants.MOCK_LATITUDE, 5).performAndExpectSuccess();
 		session3.emitDisplayNote(note6).perform().expect(likeCount(2)).expect(commentCount(1));
 		
 		session1.emitGetUserProfile().perform().expect(new UserProfileMatcher(user1, BigDecimal.ZERO, 0, 0, 1, 0));
@@ -155,7 +157,7 @@ public class SpringServerSideTest {
 		session3.emitGetUserProfile().perform().expect(new UserProfileMatcher(user3, BigDecimal.ZERO, 3, 0, 0, 1));
 		
 		MockUser user4 = new MockUser(MobileNumber.valueOf(13816918000l), Gender.MALE);
-		session1.emitInviteContactsFromAddressBook(new MobileNumber[]{user4.getUserId()});
+		session1.emitInviteContactsFromAddressBook(new MobileNumber[]{user4.getUserId()}).performAndExpectSuccess();
 		user4.registerAndSetupProfile(mockMvc, messageReceiver);
 		MockSession session4 = user4.credentialLoginAndCreateSession(mockMvc);
 		publisher = session4.emitPublishNote(MockNoteContent.CONTENT7);
@@ -168,8 +170,10 @@ public class SpringServerSideTest {
 		publisher.setBrandId(brandIds[0]);
 		final long note7 = publisher.perform().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
 		session4.emitUploadNoteImages(note7, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).perform();
-		session1.emitListWatchedNotes(-1, DEFAULT_PAGE_SIZE).perform().expect(noteList(note7, note6, note5, note4));
+		session1.emitListWatchedNotes(0, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note6, note5, note4));
+		session1.emitListWatchedNotes(0, DEFAULT_PAGE_SIZE, System.currentTimeMillis()).perform().expect(noteList(note7, note6, note5, note4));
 		session1.emitGetUserProfile().perform().expect(watchCount(2));
+		session4.emitGetUserProfile().perform().expect(fanCount(1));
 	}
 
 	
@@ -191,6 +195,10 @@ public class SpringServerSideTest {
 	
 	private WatchCountMatcher watchCount(int watchCount) {
 		return new WatchCountMatcher(watchCount);
+	}
+	
+	private FanCountMatcher fanCount(int fanCount) {
+		return new FanCountMatcher(fanCount);
 	}
 	
 	private static class NoteIdMatcher extends SuccessJsonResultMatcher {
@@ -287,6 +295,21 @@ public class SpringServerSideTest {
 		protected void verifyJsonResult(JSONObject json) throws Exception {
 			JSONObject jsonProfile = json.getJSONObject("resultValues");
 			Assert.assertEquals(watchCount, jsonProfile.getInt("watchCount"));
+		}
+	}
+	
+	private static class FanCountMatcher extends SuccessJsonResultMatcher {
+		private final int fanCount;
+
+		public FanCountMatcher(int fanCount) {
+			super();
+			this.fanCount = fanCount;
+		}
+		
+		@Override
+		protected void verifyJsonResult(JSONObject json) throws Exception {
+			JSONObject jsonProfile = json.getJSONObject("resultValues");
+			Assert.assertEquals(fanCount, jsonProfile.getInt("fanCount"));
 		}
 	}
 }

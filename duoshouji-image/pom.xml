@@ -7,15 +7,16 @@
     <artifactId>duoshouji-server</artifactId>
     <version>0.0.1</version>
   </parent>
-  <artifactId>duoshouji-service-image</artifactId>
+  <artifactId>duoshouji-image</artifactId>
   <name>DuoShouJi Image Service</name>
+  <packaging>war</packaging>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
    <dependencies>
        <dependency>
            <groupId>com.duoshouji</groupId>
-           <artifactId>duoshouji-service</artifactId>
+           <artifactId>duoshouji-api</artifactId>
            <version>0.0.1</version>
        </dependency>
        <dependency>
@@ -33,10 +34,6 @@
        <dependency>
            <groupId>mysql</groupId>
            <artifactId>mysql-connector-java</artifactId>
-       </dependency>
-       <dependency>
-           <groupId>com.google.guava</groupId>
-           <artifactId>guava</artifactId>
        </dependency>
        <dependency>
            <groupId>org.springframework</groupId>
@@ -90,10 +87,12 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
-         
         <dependency>
             <groupId>com.aliyun.oss</groupId>
             <artifactId>aliyun-sdk-oss</artifactId>
         </dependency>
    </dependencies>
+   <build>
+     <finalName>duoshouji-image</finalName>
+   </build>
 </project>

@@ -1,0 +1,649 @@
+<html>
+<head>
+<style type="text/css">
+table {
+  border-collapse:collapse;
+}
+td,th {
+    border: 1px solid gray;
+    text-align: left;
+    padding: 5px 15px 5px 5px;
+}
+td:first-child {
+  width: 200px;
+}
+.json {
+    white-space: pre;
+    font: monospace;
+}
+</style>
+</head>
+<body>
+<div>
+<h4>API-01: Credential Login</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/mobiles/{mobile-number}/login-status</td></tr>
+<tr><td>Request Method</td><td>PUT</td></tr>
+<tr><td>Request Parameters</td><td>password=</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValues: {"token": [string], "userId": [number]}
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-02: Verification Code Login</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/mobiles/{mobile-number}/login-status</td></tr>
+<tr><td>Request Method</td><td>PUT</td></tr>
+<tr><td>Request Parameters</td><td>code=</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: {"token": [string], "loginSuccess": [true|false]}
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-04: Send Login Verification Code</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/mobiles/{mobile-number}/message/verification-code/login</td></tr>
+<tr><td>Request Method</td><td>POST</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-05: List Square Notes</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/notes</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Parameters</td><td>timestamp=, loadedSize=, pageSize=, followerId=, longitude=, latitude=, tagId=</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue:
+  [
+  {
+    noteId: [number]
+    title: [string]
+    image: [image url]
+    imageWidth: [number]
+    imageHeight [number]
+    portrait: [image url]
+    rank: [0 ~ 10]
+    likeCount: [number]
+    commentCount: [number]              
+  }
+  ...
+  ]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-06: Check Message Update Summary</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/accounts/${account-id}/message/updates/summary</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Parameters</td><td>refreshTime=</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: 
+  {
+    notes: [number]
+    transactions: [number]
+    connections: [number]
+    comments: [number]
+  }
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-07: Check Note Updates Details</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/accounts/${account-id}/message/updates/${messageType}</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Parameters</td><td>refreshTime=</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: {TBD}
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-08: Get User Home Page</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/users/{user-id}/profile</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: 
+  {
+    userId: [number]
+    portraitUrl: [image url]
+    portraitWidth: [number]
+    portraitHeight: [number]
+    nickname: [string]
+    gender: [string]
+    totalRevenue: [number]
+    publishedNoteCount: [number]
+    transactionCount: [number]
+    watchCount: [number]
+    fanCount: [number]    
+  }
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-09: List User Notes</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/notes</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Parameters</td><td>authorId=,timestamp=,loadedSize=, pageSize=</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: 
+  [
+  {
+    noteId: [number]
+    publishTime: [number/epoch seconds]
+    image: [image url]
+    imageHeight: [number]
+    imageWidth: [number]
+    noteTitle: [string]
+    likeCount: [number]
+    commentCount: [number]
+    transactionCount: [number]    
+  }
+  ...
+  ]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-10: Display A Note</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/notes/{note-id}</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: 
+  {
+    noteId: [number]
+    userId: [number]
+    nickname: [string]
+    portrait: [image url]
+    publishTime: [number/epoch seconds]
+    images:
+    [
+    {
+    url: [image url]
+    width:
+    height:
+    }
+    ...
+    ]
+    content: [string]
+    tags: [{identifier: [number], name: [string]},...]
+    likeCount: [number]
+    commentCount: [number]
+    transactionCount: [number]
+    rating: [number 0 ~ 10]
+  }
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-11: Add Comment For A Note</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/users/{user-id}/comments/{note-id}</td></tr>
+<tr><td>Request Method</td><td>POST</td></tr>
+<tr><td>Request Parameters</td><td>comment=,rating=,longitude=,latitude=</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-12: Get Personal Settings</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/accounts/${account-id}/settings/profile</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: TBD
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-12.1: Update Personal Settings</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/users/{user-id}/settings/personal-information</td></tr>
+<tr><td>Request Method</td><td>PUT</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><td>Request Parameters</td><td>nickname=, gender=</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: null
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-13: Get User Security Information</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/accounts/${account-id}/settings/security</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: TBD
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-14: Company Description</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/common/abount/company</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: [string]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-15: User Manual</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/common/manual</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: [string]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-16: User Logout</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/users/{user-id}/logout</td></tr>
+<tr><td>Request Method</td><td>POST</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-17: Invite Friends </h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/users/{user-id}/invitations</td></tr>
+<tr><td>Request Method</td><td>POST</td></tr>
+<tr><td>Request Parameters</td><td>mobile=,mobile=,...</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-18: Get Commodity Categories</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/common/commodity/categories</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Parameters</td><td>brand=</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: 
+  [
+  {
+    identifier: [number],
+    name: [string]
+  }
+  ...
+  ]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-19: Get Commodity Brands</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/common/commodity/brands</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Parameters</td><td>category=</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: 
+  [
+  {
+    identifier: [number],
+    name: [string]
+  }
+  ...
+  ]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-20: Get Commodity Products</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/common/commodity/products</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><td>Request Parameters</td><td>categoryId=,brandId=</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: 
+  [
+  {
+    identifier: [number],
+    name: [string]
+  }
+  ...
+  ]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-21: Get Cities</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/common/geography/cities</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: 
+  [{identifier: [number], name: [string]}...]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-22: Publish Note</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/notes</td></tr>
+<tr><td>Request Method</td><td>POST</td></tr>
+<tr><td>Request Parameters</td><td>authorId=,categoryId=,brandId=,productName=,districtId=,price=,title=,tag=,tag=,...,content=,rating=,longitude=,latitude=,...</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: {"noteId": [number]}
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-23: Upload Note Image</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/notes/{note-id}/images</td></tr>
+<tr><td>Request Method</td><td>PUT</td></tr>
+<tr><td>Request Parameters</td><td>images=[image byte stream]</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-24: Set Password</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/users/{user-id}/settings/security/password</td></tr>
+<tr><td>Request Method</td><td>PUT</td></tr>
+<tr><td>Request Parameters</td><td>code=,password=</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: null
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-25: Get Tag List</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/common/tags</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Paramteters</td><td>categoryId=,brandId=</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+resultCode: [number],
+resultErrorMessage: [string],
+resultValue: [{identifier: [number], name: [string]}...]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-26: Upload User Portrait</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/users/{user-id}/settings/personal-information/portrait</td></tr>
+<tr><td>Request Method</td><td>PUT</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><td>Request Parameters</td><td>image=[image byte stream]</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+resultCode: [number],
+resultErrorMessage: [string],
+resultValue: null
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-27: Send Reset Password Verification Code</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/users/{user-id}/message/verification-code/reset-password</td></tr>
+<tr><td>Request Method</td><td>POST</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValue: null
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-29: Add Like For A Note</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/notes/{note-id}/likes</td></tr>
+<tr><td>Request Method</td><td>POST</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><td>Request Parameters</td><td>userId=</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-29: Follow Another User</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/users/{user-id}/connections/{followee-id}</td></tr>
+<tr><td>Request Method</td><td>POST</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-30: Check Accounts Exist</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/users</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><td>Request Parameters</td><td>mobiles=,mobiles=,...,mobiles=</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValues:[{"mobileNumber":[number], "userId": [number]},...]
+}</td></tr>
+</table>
+</div>
+
+<div>
+<h4>API-31: Display Recommendations</h4>
+<table>
+<tr><th colspan="2">Http Request</th></tr>
+<tr><td>Request URL</td><td>/notes/{note-id}/recommendations</td></tr>
+<tr><td>Request Method</td><td>GET</td></tr>
+<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+<tr><th colspan="2">Http Response</th></tr>
+<tr><td>Response Status</td><td>200</td></tr>
+<tr><td>Response Body</td><td class="json">{
+  resultCode: [number],
+  resultErrorMessage: [string],
+  resultValues:[{"provider":[string], "providerItemId": [String], "title": [String], "price":[string], "image"},...]
+}</td></tr>
+</table>
+</div>
+
+</body>
+</html>
