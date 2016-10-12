@@ -138,7 +138,7 @@ public class MockSession extends MockClient {
 		}
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() {
-			MockHttpServletRequestBuilder builder = post("/users/{user-id}/settings/personal-information", userId)
+			MockHttpServletRequestBuilder builder = put("/users/{user-id}/settings/personal-information", userId)
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 			if (nickname != null) {
 				builder.param("nickname", nickname);
