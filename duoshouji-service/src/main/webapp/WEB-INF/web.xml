@@ -20,4 +20,12 @@
     <servlet-name>springframework</servlet-name>
     <url-pattern>/</url-pattern>
   </servlet-mapping>
+  <filter>
+    <filter-name>httpPutFormContentFilter</filter-name>
+    <filter-class>org.springframework.web.filter.HttpPutFormContentFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>httpPutFormContentFilter</filter-name>
+    <servlet-name>springframework</servlet-name>
+  </filter-mapping>
 </web-app>
