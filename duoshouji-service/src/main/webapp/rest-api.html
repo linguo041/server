@@ -1,648 +1,976 @@
 <html>
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 <style type="text/css">
+body {
+  width: 1024px;
+  margin: 50px auto;
+}
 table {
   border-collapse:collapse;
+  -webkit-font-smoothing: antialiased;
+  font-family: 'Microsoft YaHei', Arial, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: normal;
 }
+
+.json {
+}
+
+.json td {
+  border: 1px solid white;
+  background-color: rgba(212, 221, 228, 0.14902);
+}
+
+.json th {
+  font-weight: normal;
+  border: 1px solid white;
+  background-color: rgba(212, 221, 228, 0.498039);
+}
+
+.json tbody tr td:nth-child(2) {
+  font-style: italic;
+  font-family: "Courier New";
+}
+
+.json td {
+  width: 180px;
+}
+
 td,th {
     border: 1px solid gray;
     text-align: left;
     padding: 5px 15px 5px 5px;
 }
-td:first-child {
+
+.api-item > table > tbody > tr > td:first-child {
   width: 200px;
 }
-.json {
-    white-space: pre;
-    font: monospace;
+
+.api-catalog {
+  font-family: FangSong;
 }
+
+.api-catalog ul {
+  list-style-type: disc;
+}
+
+.api-catalog li {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.api-item {
+  margin-bottom: 100px;
+}
+
+h4 {
+    font-family: FangSong;
+    margin-bottom: 10px;
+}
+
+h5 {
+  -webkit-font-smoothing: antialiased;
+  font-family: 'Microsoft YaHei', Arial, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  margin-bottom: 5px;
+}
+
 </style>
 </head>
 <body>
-<div>
-<h4>API-01: Credential Login</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/mobiles/{mobile-number}/login-status</td></tr>
-<tr><td>Request Method</td><td>PUT</td></tr>
-<tr><td>Request Parameters</td><td>password=</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValues: {"token": [string], "userId": [number]}
-}</td></tr>
-</table>
+<div style="margin-bottom: 50px;"><h4>剁手记客户端接口参考文档</h4></div>
+<hr>
+<div class="api-catalog">
+API目录索引
+<ul>
+  <li>目录和公共信息查询
+    <ul>
+    <li><a href="#api001">获取所有的（地区/城市）列表</a>
+    <li><a href="#api002">获取所有的商品分类</a>
+    <li><a href="#api003">获取所有的商品品牌</a>
+    <li><a href="#api004">获取所有的频道列表</a>
+    </ul>
+  <li>用户相关操作
+    <ul>
+      <li>用户信息查询
+        <ul>
+          <li><a href="#api005">获取个人信息（个人首页）</a>
+          <li><a href="#api006">查看手机联系人是否是注册用户</a>
+        </ul>
+      <li>用户信息更新
+        <ul>
+          <li><a href="#api007">发送登录验证码</a>
+          <li><a href="#api008">使用验证码登录</a>
+          <li><a href="#api009">使用用户名密码登录</a>
+          <li><a href="#api010">发送修改密码验证码</a>
+          <li><a href="#api011">（设置/修改）用户登录密码</a>
+          <li><a href="#api012">更新用户个人信息（昵称，性别）</a>
+          <li><a href="#api013">上传用户头像</a>
+          <li><a href="#api014">关注其他用户</a>
+          <li><a href="#api015">邀请手机联系人注册剁手记</a>
+          <li><a href="#api016">用户退出登录</a>
+        </ul>
+    </ul>
+  <li>笔记相关操作
+    <ul>
+	  <li>笔记信息查询
+	    <ul>
+	      <li><a href="#api017">获取广场笔记和频道笔记</a>
+	      <li><a href="#api018">获取笔记详情</a>
+	      <li><a href="#api019">获取笔记评论</a>
+          <li><a href="#api020">获取我已经发布的笔记列表</a>
+          <li><a href="#api021">获取笔记的相关推荐</a>
+	    </ul>
+	  <li>笔记信息更新
+        <ul>
+          <li><a href="#api022">发布笔记</a>
+          <li><a href="#api023">上传笔记图片</a>
+          <li><a href="#api024">为笔记写评论</a>
+          <li><a href="#api025">为笔记点赞</a>
+        </ul>	  
+    </ul>
+</ul>
 </div>
 
-<div>
-<h4>API-02: Verification Code Login</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/mobiles/{mobile-number}/login-status</td></tr>
-<tr><td>Request Method</td><td>PUT</td></tr>
-<tr><td>Request Parameters</td><td>code=</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: {"token": [string], "loginSuccess": [true|false]}
-}</td></tr>
-</table>
-</div>
+<hr>
 
-<div>
-<h4>API-04: Send Login Verification Code</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/mobiles/{mobile-number}/message/verification-code/login</td></tr>
-<tr><td>Request Method</td><td>POST</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string]
-}</td></tr>
-</table>
-</div>
+<div class="api-detail" id="api001">
+	<div class="api-item">
+		<h4>获取所有的（地区/城市）列表</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/common/geography/cities</td></tr>
+		<tr><td>Request Method</td><td>GET</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+		<table class="json">
+		  <thead>
+		    <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+		  </thead>
+		  <tbody>
+		    <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+		    <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+		    <tr><td>resultValue</td><td>Array</td><td>CatalogItem</td></tr>
+		  </tbody>
+		</table>
+		</td></tr>
+		</table>
+		<div class="json-item">
+		<h5>CatalogItem:</h5>
+		<table class="json">
+		  <thead>
+		    <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+		  </thead>
+		  <tbody>
+		    <tr><td>identifier</td><td>Number</td><td></td></tr>
+		    <tr><td>name</td><td>String</td><td></td></tr>
+		  </tbody>
+		</table>
+		</div>
+	</div>
 
-<div>
-<h4>API-05: List Square Notes</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/notes</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Parameters</td><td>timestamp=, loadedSize=, pageSize=, followerId=, longitude=, latitude=, tagId=</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue:
-  [
-  {
-    noteId: [number]
-    title: [string]
-    image: [image url]
-    imageWidth: [number]
-    imageHeight [number]
-    portrait: [image url]
-    rank: [0 ~ 10]
-    likeCount: [number]
-    commentCount: [number]              
-  }
-  ...
-  ]
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api002">
+	    <h4>获取所有的商品分类</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/common/commodity/categories</td></tr>
+		<tr><td>Request Method</td><td>GET</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+	    <table class="json">
+	      <thead>
+	        <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+	      </thead>
+	      <tbody>
+	        <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+	        <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+	        <tr><td>resultValue</td><td>Array</td><td>CatalogItem</td></tr>
+	      </tbody>
+	    </table>
+		</td></tr>
+		</table>
+        <div class="json-item">
+        <h5>CatalogItem:</h5>
+        <table class="json">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>identifier</td><td>Number</td><td></td></tr>
+            <tr><td>name</td><td>String</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>		
+	</div>
 
-<div>
-<h4>API-06: Check Message Update Summary</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/accounts/${account-id}/message/updates/summary</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Parameters</td><td>refreshTime=</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: 
-  {
-    notes: [number]
-    transactions: [number]
-    connections: [number]
-    comments: [number]
-  }
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api003">
+		<h4>获取所有的商品品牌</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/common/commodity/brands</td></tr>
+		<tr><td>Request Method</td><td>GET</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+	        <table class="json">
+	          <thead>
+	            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+	          </thead>
+	          <tbody>
+	            <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+	            <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+	            <tr><td>resultValue</td><td>Array</td><td>CatalogItem</td></tr>
+	          </tbody>
+	        </table>
+		</td></tr>
+		</table>
+        <div class="json-item">
+        <h5>CatalogItem:</h5>
+        <table class="json">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>identifier</td><td>Number</td><td></td></tr>
+            <tr><td>name</td><td>String</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>	
+	</div>
 
-<div>
-<h4>API-07: Check Note Updates Details</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/accounts/${account-id}/message/updates/${messageType}</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Parameters</td><td>refreshTime=</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: {TBD}
-}</td></tr>
-</table>
-</div>
+	<div class="api-item"  id="api004">
+		<h4>获取所有的频道列表</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/common/channels</td></tr>
+		<tr><td>Request Method</td><td>GET</td></tr>
+		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Array</td><td>CatalogItem</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+        <div class="json-item">
+        <h5>CatalogItem:</h5>
+        <table class="json">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>identifier</td><td>Number</td><td></td></tr>
+            <tr><td>name</td><td>String</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>		
+	</div>
 
-<div>
-<h4>API-08: Get User Home Page</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/users/{user-id}/profile</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: 
-  {
-    userId: [number]
-    portraitUrl: [image url]
-    portraitWidth: [number]
-    portraitHeight: [number]
-    nickname: [string]
-    gender: [string]
-    totalRevenue: [number]
-    publishedNoteCount: [number]
-    transactionCount: [number]
-    watchCount: [number]
-    fanCount: [number]    
-  }
-}</td></tr>
-</table>
-</div>
+	<div class="api-item"  id="api005">
+		<h4>获取个人信息（个人首页）</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/user/profile</td></tr>
+		<tr><td>Request Method</td><td>GET</td></tr>
+		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>UserProfile</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+        <div class="json-item">
+        <h5>UserProfile:</h5>
+        <table class="json">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>userId</td><td>Number</td><td></td></tr>
+            <tr><td>portraitUrl</td><td>String</td><td>image url</td></tr>
+            <tr><td>portraitWidth</td><td>Number</td><td></td></tr>
+            <tr><td>portraitHeight</td><td>Number</td><td></td></tr>
+            <tr><td>nickname</td><td>String</td><td></td></tr>
+            <tr><td>gender</td><td>String</td><td>[MALE/FEMALE]</td></tr>
+            <tr><td>totalRevenue</td><td>Number</td><td></td></tr>
+            <tr><td>publishedNoteCount</td><td>Number</td><td></td></tr>
+            <tr><td>transactionCount</td><td>Number</td><td></td></tr>
+            <tr><td>watchCount</td><td>Number</td><td></td></tr>
+            <tr><td>fanCount</td><td>Number</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+	</div>
 
-<div>
-<h4>API-09: List User Notes</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/notes</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Parameters</td><td>authorId=,timestamp=,loadedSize=, pageSize=</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: 
-  [
-  {
-    noteId: [number]
-    publishTime: [number/epoch seconds]
-    image: [image url]
-    imageHeight: [number]
-    imageWidth: [number]
-    noteTitle: [string]
-    likeCount: [number]
-    commentCount: [number]
-    transactionCount: [number]    
-  }
-  ...
-  ]
-}</td></tr>
-</table>
-</div>
+	<div class="api-item"  id="api006">
+		<h4>查看手机联系人是否是注册用户</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/user/mobile-contacts/status</td></tr>
+		<tr><td>Request Method</td><td>GET</td></tr>
+		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><td>Request Parameters</td><td>mobile=,mobile=,...,mobile=</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Array</td><td>RegistrationStatus</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+        <div class="json-item">
+        <h5>RegistrationStatus:</h5>
+        <table class="json">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>mobileNumber</td><td>Number</td><td></td></tr>
+            <tr><td>userId</td><td>Number</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>		
+	</div>
 
-<div>
-<h4>API-10: Display A Note</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/notes/{note-id}</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: 
-  {
-    noteId: [number]
-    userId: [number]
-    nickname: [string]
-    portrait: [image url]
-    publishTime: [number/epoch seconds]
-    images:
-    [
-    {
-    url: [image url]
-    width:
-    height:
-    }
-    ...
-    ]
-    content: [string]
-    tags: [{identifier: [number], name: [string]},...]
-    likeCount: [number]
-    commentCount: [number]
-    transactionCount: [number]
-    rating: [number 0 ~ 10]
-  }
-}</td></tr>
-</table>
-</div>
+	<div class="api-item"  id="api007">
+		<h4>发送登录验证码</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/user/message/verification-code</td></tr>
+		<tr><td>Request Method</td><td>POST</td></tr>
+		<tr><td>Request Parameters</td><td>purpose=login</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>null</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+	</div>
 
-<div>
-<h4>API-11: Add Comment For A Note</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/users/{user-id}/comments/{note-id}</td></tr>
-<tr><td>Request Method</td><td>POST</td></tr>
-<tr><td>Request Parameters</td><td>comment=,rating=,longitude=,latitude=</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string]
-}</td></tr>
-</table>
-</div>
+	<div class="api-item"  id="api010">
+		<h4>发送修改密码验证码</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/user/message/verification-code</td></tr>
+		<tr><td>Request Method</td><td>POST</td></tr>
+		<tr><td>Request Parameters</td><td>purpose=setpassword</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>null</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+	</div>
 
-<div>
-<h4>API-12: Get Personal Settings</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/accounts/${account-id}/settings/profile</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: TBD
-}</td></tr>
-</table>
-</div>
+	<div class="api-item"  id="api008">
+		<h4>使用验证码登录</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/user/login</td></tr>
+		<tr><td>Request Method</td><td>POST</td></tr>
+		<tr><td>Request Parameters</td><td>mobile=,code=</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>Token</td></tr>
+              </tbody>
+            </table>	
+		</td></tr>
+		</table>
+	    <div class="json-item">
+	    <h5>Token:</h5>
+	    <table class="json">
+	      <thead>
+	        <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+	      </thead>
+	      <tbody>
+	        <tr><td>token</td><td>String</td><td></td></tr>
+	      </tbody>
+	    </table>
+	    </div>      
+	</div>
 
-<div>
-<h4>API-12.1: Update Personal Settings</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/users/{user-id}/settings/personal-information</td></tr>
-<tr><td>Request Method</td><td>PUT</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><td>Request Parameters</td><td>nickname=, gender=</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: null
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api009">
+		<h4>使用用户名密码登录</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/user/login</td></tr>
+		<tr><td>Request Method</td><td>POST</td></tr>
+		<tr><td>Request Parameters</td><td>mobile=,password=</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>Token</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+        <div class="json-item">
+        <h5>Token:</h5>
+        <table class="json">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>token</td><td>String</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+	</div>
 
-<div>
-<h4>API-13: Get User Security Information</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/accounts/${account-id}/settings/security</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: TBD
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api011">
+		<h4>（设置/修改）用户登录密码</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/user/settings/security/password</td></tr>
+		<tr><td>Request Method</td><td>POST</td></tr>
+		<tr><td>Request Parameters</td><td>code=,password=</td></tr>
+		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>null</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+	</div>
 
-<div>
-<h4>API-14: Company Description</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/common/abount/company</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: [string]
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api012">
+		<h4>更新用户个人信息（昵称，性别）</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/user/settings/personal-information</td></tr>
+		<tr><td>Request Method</td><td>POST</td></tr>
+		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><td>Request Parameters</td><td>nickname=, gender=</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>null</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+	</div>
 
-<div>
-<h4>API-15: User Manual</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/common/manual</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: [string]
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api013">
+		<h4>上传用户头像</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/user/settings/personal-information/portrait</td></tr>
+		<tr><td>Request Method</td><td>POST</td></tr>
+		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><td>Request Parameters</td><td>image=[image byte stream]</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>null</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+	</div>
 
-<div>
-<h4>API-16: User Logout</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/users/{user-id}/logout</td></tr>
-<tr><td>Request Method</td><td>POST</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string]
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api014">
+		<h4>关注其他用户</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/user/follows</td></tr>
+		<tr><td>Request Method</td><td>POST</td></tr>
+		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><td>Request Parameters</td><td>followeeId=</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>null</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+	</div>
 
-<div>
-<h4>API-17: Invite Friends </h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/users/{user-id}/invitations</td></tr>
-<tr><td>Request Method</td><td>POST</td></tr>
-<tr><td>Request Parameters</td><td>mobile=,mobile=,...</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string]
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api015">
+		<h4>邀请手机联系人注册剁手记</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/user/invitations</td></tr>
+		<tr><td>Request Method</td><td>POST</td></tr>
+		<tr><td>Request Parameters</td><td>mobile=,mobile=,...</td></tr>
+		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>null</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+	</div>
 
-<div>
-<h4>API-18: Get Commodity Categories</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/common/commodity/categories</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Parameters</td><td>brand=</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: 
-  [
-  {
-    identifier: [number],
-    name: [string]
-  }
-  ...
-  ]
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api016">
+		<h4>用户退出登录</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/user/logout</td></tr>
+		<tr><td>Request Method</td><td>POST</td></tr>
+		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>null</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+	</div>
 
-<div>
-<h4>API-19: Get Commodity Brands</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/common/commodity/brands</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Parameters</td><td>category=</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: 
-  [
-  {
-    identifier: [number],
-    name: [string]
-  }
-  ...
-  ]
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api017">
+		<h4>获取广场笔记和频道笔记</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/notes</td></tr>
+		<tr><td>Request Method</td><td>GET</td></tr>
+		<tr><td>Request Parameters</td><td>timestamp=, loadedSize=, pageSize=, followerId=, longitude=, latitude=, tagId=</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Array</td><td>Note</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+        <div class="json-item">
+        <h5>Note:</h5>
+        <table class="json">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>noteId</td><td>Number</td><td></td></tr>
+            <tr><td>title</td><td>String</td><td></td></tr>
+            <tr><td>publishTime</td><td>Number</td><td>epoch seconds</td></tr>
+            <tr><td>image</td><td>String</td><td>image url</td></tr>
+            <tr><td>imageWidth</td><td>Number</td><td></td></tr>
+            <tr><td>imageHeight</td><td>Number</td><td></td></tr>
+            <tr><td>portrait</td><td>String</td><td>image url</td></tr>
+            <tr><td>likeCount</td><td>Number</td><td></td></tr>
+            <tr><td>commentCount</td><td>Number</td><td></td></tr>
+            <tr><td>rating</td><td>Number</td><td>[0 ~ 10]</td></tr>
+          </tbody>
+        </table>
+        </div>		
+	</div>
 
-<div>
-<h4>API-20: Get Commodity Products</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/common/commodity/products</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><td>Request Parameters</td><td>categoryId=,brandId=</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: 
-  [
-  {
-    identifier: [number],
-    name: [string]
-  }
-  ...
-  ]
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api018">
+		<h4>获取笔记详情</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/note/{note-id}</td></tr>
+		<tr><td>Request Method</td><td>GET</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>NoteDetail</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+        <div class="json-item">
+        <h5>NoteDetail:</h5>
+        <table class="json">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>noteId</td><td>Number</td><td></td></tr>
+            <tr><td>userId</td><td>Number</td><td></td></tr>
+            <tr><td>nickname</td><td>String</td><td></td></tr>
+            <tr><td>portrait</td><td>String</td><td>image url</td></tr>
+            <tr><td>publishTime</td><td>Number</td><td>epoch seconds</td></tr>
+            <tr><td>images</td><td>Array</td><td>Image</td></tr>
+            <tr><td>content</td><td>String</td><td></td></tr>
+            <tr><td>tags</td><td>Array</td><td>Tag</td></tr>
+            <tr><td>likeCount</td><td>Number</td><td></td></tr>
+            <tr><td>commentCount</td><td>Number</td><td></td></tr>
+            <tr><td>transactionCount</td><td>Number</td><td></td></tr>
+            <tr><td>rating</td><td>Number</td><td>[0 ~ 10]</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="json-item">
+        <h5>Image:</h5>
+        <table class="json">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>url</td><td>String</td><td>image url</td></tr>
+            <tr><td>width</td><td>Number</td><td></td></tr>
+            <tr><td>height</td><td>Number</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="json-item">
+        <h5>Tag:</h5>
+        <table class="json">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>identifier</td><td>Number</td><td></td></tr>
+            <tr><td>name</td><td>String</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+	</div>
 
-<div>
-<h4>API-21: Get Cities</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/common/geography/cities</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: 
-  [{identifier: [number], name: [string]}...]
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api019">
+		<h4>获取笔记评论</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/note/{note-id}/comments</td></tr>
+		<tr><td>Request Method</td><td>GET</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Array</td><td>Comment</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+		<div class="json-item">
+		<h5>Comment:</h5>
+		<table class="json">
+		  <thead>
+		    <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+		  </thead>
+		  <tbody>
+		    <tr><td>authorNickname</td><td>String</td><td></td></tr>
+		    <tr><td>comment</td><td>String</td><td></td></tr>
+		  </tbody>
+		</table>
+		</div>      
+	</div>
 
-<div>
-<h4>API-22: Publish Note</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/notes</td></tr>
-<tr><td>Request Method</td><td>POST</td></tr>
-<tr><td>Request Parameters</td><td>authorId=,categoryId=,brandId=,productName=,districtId=,price=,title=,tag=,tag=,...,content=,rating=,longitude=,latitude=,...</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: {"noteId": [number]}
-}</td></tr>
-</table>
-</div>
 
-<div>
-<h4>API-23: Upload Note Image</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/notes/{note-id}/images</td></tr>
-<tr><td>Request Method</td><td>PUT</td></tr>
-<tr><td>Request Parameters</td><td>images=[image byte stream]</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string]
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api020">
+		<h4>获取我已经发布的笔记列表</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/user/notes</td></tr>
+		<tr><td>Request Method</td><td>GET</td></tr>
+		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Array</td><td>Note</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+        <div class="json-item">
+        <h5>Note:</h5>
+        <table class="json">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>noteId</td><td>Number</td><td></td></tr>
+            <tr><td>publishTime</td><td>Number</td><td>epoch seconds</td></tr>
+            <tr><td>image</td><td>String</td><td>image url</td></tr>
+            <tr><td>imageHeight</td><td>Number</td><td></td></tr>
+            <tr><td>imageWidth</td><td>Number</td><td></td></tr>
+            <tr><td>noteTitle</td><td>String</td><td></td></tr>
+            <tr><td>likeCount</td><td>Number</td><td></td></tr>
+            <tr><td>commentCount</td><td>Number</td><td></td></tr>
+            <tr><td>transactionCount</td><td>Number</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>		
+	</div>
 
-<div>
-<h4>API-24: Set Password</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/users/{user-id}/settings/security/password</td></tr>
-<tr><td>Request Method</td><td>PUT</td></tr>
-<tr><td>Request Parameters</td><td>code=,password=</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: null
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api022">
+		<h4>发布笔记</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/user/notes</td></tr>
+		<tr><td>Request Method</td><td>POST</td></tr>
+		<tr><td>Request Parameters</td><td>categoryId=,brandId=,productName=,districtId=,price=,title=,tag=,tag=,...,content=,rating=,longitude=,latitude=,...</td></tr>
+		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>NoteId</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+	    <div class="json-item">
+	    <h5>NoteId:</h5>
+	    <table class="json">
+	      <thead>
+	        <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+	      </thead>
+	      <tbody>
+	        <tr><td>noteId</td><td>Number</td><td></td></tr>
+	      </tbody>
+	    </table>
+	    </div>		
+	</div>
 
-<div>
-<h4>API-25: Get Tag List</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/common/tags</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Paramteters</td><td>categoryId=,brandId=</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-resultCode: [number],
-resultErrorMessage: [string],
-resultValue: [{identifier: [number], name: [string]}...]
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api023">
+		<h4>上传笔记图片</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/notes/{note-id}/images</td></tr>
+		<tr><td>Request Method</td><td>PUT</td></tr>
+		<tr><td>Request Parameters</td><td>images=[image byte stream]</td></tr>
+		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>null</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+	</div>
 
-<div>
-<h4>API-26: Upload User Portrait</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/users/{user-id}/settings/personal-information/portrait</td></tr>
-<tr><td>Request Method</td><td>PUT</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><td>Request Parameters</td><td>image=[image byte stream]</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-resultCode: [number],
-resultErrorMessage: [string],
-resultValue: null
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api024">
+		<h4>为笔记写评论</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/note/{note-id}/comments</td></tr>
+		<tr><td>Request Method</td><td>POST</td></tr>
+		<tr><td>Request Parameters</td><td>comment=,rating=,longitude=,latitude=</td></tr>
+		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>null</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+	</div>
 
-<div>
-<h4>API-27: Send Reset Password Verification Code</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/users/{user-id}/message/verification-code/reset-password</td></tr>
-<tr><td>Request Method</td><td>POST</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValue: null
-}</td></tr>
-</table>
-</div>
+	<div class="api-item" id="api025">
+		<h4>为笔记点赞</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/notes/{note-id}/likes</td></tr>
+		<tr><td>Request Method</td><td>POST</td></tr>
+		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><td>Request Parameters</td><td>userId=</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>null</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>
+	</div>
 
-<div>
-<h4>API-29: Add Like For A Note</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/notes/{note-id}/likes</td></tr>
-<tr><td>Request Method</td><td>POST</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><td>Request Parameters</td><td>userId=</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string]
-}</td></tr>
-</table>
-</div>
-
-<div>
-<h4>API-29: Follow Another User</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/users/{user-id}/connections/{followee-id}</td></tr>
-<tr><td>Request Method</td><td>POST</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string]
-}</td></tr>
-</table>
-</div>
-
-<div>
-<h4>API-30: Check Accounts Exist</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/users</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><td>Request Parameters</td><td>mobiles=,mobiles=,...,mobiles=</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValues:[{"mobileNumber":[number], "userId": [number]},...]
-}</td></tr>
-</table>
-</div>
-
-<div>
-<h4>API-31: Display Recommendations</h4>
-<table>
-<tr><th colspan="2">Http Request</th></tr>
-<tr><td>Request URL</td><td>/notes/{note-id}/recommendations</td></tr>
-<tr><td>Request Method</td><td>GET</td></tr>
-<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-<tr><th colspan="2">Http Response</th></tr>
-<tr><td>Response Status</td><td>200</td></tr>
-<tr><td>Response Body</td><td class="json">{
-  resultCode: [number],
-  resultErrorMessage: [string],
-  resultValues:[{"provider":[string], "providerItemId": [String], "title": [String], "price":[string], "image"},...]
-}</td></tr>
-</table>
+	<div class="api-item" id="api021">
+	<h4>获取笔记的相关推荐</h4>
+	<table>
+	<tr><th colspan="2">HTTP Request</th></tr>
+	<tr><td>Request URL</td><td>/notes/{note-id}/recommendations</td></tr>
+	<tr><td>Request Method</td><td>GET</td></tr>
+	<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+	<tr><th colspan="2">HTTP Response</th></tr>
+	<tr><td>Response Status</td><td>200</td></tr>
+	<tr><td>Response Body</td><td>
+      <table class="json">
+        <thead>
+          <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+          <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+          <tr><td>resultValue</td><td>Array</td><td>Recommendation</td></tr>
+        </tbody>
+      </table>
+	</td></tr>
+	</table>
+    <div class="json-item">
+    <h5>Recommendation:</h5>
+    <table class="json">
+      <thead>
+        <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>provider</td><td>String</td><td></td></tr>
+        <tr><td>providerItemId</td><td>String</td><td></td></tr>
+        <tr><td>title</td><td>String</td><td></td></tr>
+        <tr><td>price</td><td>Number</td><td></td></tr>
+        <tr><td>image</td><td>String</td><td>image url</td></tr>
+      </tbody>
+    </table>
+    </div>
+	</div>
+	
 </div>
 
 </body>
