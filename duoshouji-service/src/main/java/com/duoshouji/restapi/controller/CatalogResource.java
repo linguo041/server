@@ -19,7 +19,7 @@ import com.duoshouji.service.common.Tag;
 import com.duoshouji.service.common.TagRepository;
 
 @RestController
-public class CommonResource {
+public class CatalogResource {
 
 	private TagRepository tagRepository;
 	private CommodityCatelogRepository commodityCatelogRepository;

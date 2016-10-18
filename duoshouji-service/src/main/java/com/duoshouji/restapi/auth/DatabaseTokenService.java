@@ -12,6 +12,8 @@ import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Service;
 
+import com.duoshouji.service.user.UserFacade;
+
 @Service
 public class DatabaseTokenService implements UserTokenService {
 
@@ -24,22 +26,23 @@ public class DatabaseTokenService implements UserTokenService {
 	}
 
 	@Override
-	public boolean verify(final long userId, final String token) {
+	public long getUserId(final String token) {
 		return connection.query(
-				"select 1 from duoshouji.user_wechat_login where mobile = ? and token  = ? and expired = 0"
+				"select mobile from duoshouji.user_wechat_login where token  = ? and expired = 0"
 				, new PreparedStatementSetter() {
 					@Override
-					public void setValues(PreparedStatement ps)
-							throws SQLException {
-						ps.setLong(1, userId);
-						ps.setString(2, token);
+					public void setValues(PreparedStatement ps) throws SQLException {
+						ps.setString(1, token);
 					}
 				}
-				, new ResultSetExtractor<Boolean>() {
+				, new ResultSetExtractor<Long>() {
 					@Override
-					public Boolean extractData(ResultSet rs)
-							throws SQLException, DataAccessException {
-						return Boolean.valueOf(rs.next());
+					public Long extractData(ResultSet rs) throws SQLException, DataAccessException {
+						if (rs.next()) {
+							return rs.getLong("mobile");
+						} else {
+							return UserFacade.NULL_USER_ID;
+						}
 				}
 		});
 	}

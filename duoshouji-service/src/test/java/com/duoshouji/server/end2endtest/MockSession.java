@@ -2,8 +2,9 @@ package com.duoshouji.server.end2endtest;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.math.BigDecimal;
 
 import org.springframework.test.web.servlet.MockMvc;
@@ -11,18 +12,17 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import com.duoshouji.restapi.Constants;
 import com.duoshouji.service.user.Gender;
+import com.duoshouji.service.util.Image;
 import com.duoshouji.service.util.Location;
 import com.duoshouji.service.util.MobileNumber;
 import com.duoshouji.service.util.VerificationCode;
 
 public class MockSession extends MockClient {
 
-	private long userId;
 	private String token;
 	
-	public MockSession(MockMvc mockMvc, long userId, String token) {
+	public MockSession(MockMvc mockMvc, String token) {
 		super(mockMvc);
-		this.userId = userId;
 		this.token = token;
 	}
 	
@@ -90,11 +90,19 @@ public class MockSession extends MockClient {
 		return new InviteContactsFromAddressBook(contactList);
 	}
 	
+	public UploadPortrait emitUploadPortrait(Image image) {
+		return new UploadPortrait(image);
+	}
+	
+	public UploadNoteImages emitUploadNoteImages(long noteId, Image[] images) {
+		return new UploadNoteImages(noteId, images);
+	}
+	
 	public class Logout extends DynamicResourceRequest {
 		
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() {
-			return put("/users/{user-id}/logout", userId)
+			return post("/user/logout")
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}	
 	}
@@ -103,7 +111,8 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return post("/users/{user-id}/message/verification-code/reset-password", userId)
+			return post("/message/verification-code")
+					.param("purpose", "setpassword")
 	    			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
 	}
@@ -120,7 +129,7 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return put("/users/{user-id}/settings/security/password", userId)
+			return post("/user/settings/security/password")
 	    			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
 	    			.param("code", code.toString())
 	    			.param("password", password);
@@ -138,7 +147,7 @@ public class MockSession extends MockClient {
 		}
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() {
-			MockHttpServletRequestBuilder builder = put("/users/{user-id}/settings/personal-information", userId)
+			MockHttpServletRequestBuilder builder = post("/user/settings/personal-information")
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 			if (nickname != null) {
 				builder.param("nickname", nickname);
@@ -154,7 +163,8 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return get("/users/{user-id}/profile", userId).header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
+			return get("/user/profile")
+				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
 	}
 	
@@ -203,9 +213,8 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return post("/notes")
+			return post("/user/notes")
 				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
-				.param("authorId", Long.toString(userId))
 				.param("categoryId", Long.toString(categoryId))
 				.param("brandId", Long.toString(brandId))
 				.param("productName", title)
@@ -255,7 +264,9 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return super.getBuilder().param("followerId", Long.toString(userId));
+			return super.getBuilder()
+				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
+				.param("myFollowOnly", "");
 		}
 	}
 	
@@ -287,9 +298,8 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return get("/notes")
+			return get("/user/notes")
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
-					.param("authorId", Long.toString(userId))
 					.param("loadedSize", Integer.toString(loadedSize))
 					.param("pageSize", Integer.toString(pageSize))
 					.param("timestamp", Long.toString(timestamp));
@@ -306,7 +316,7 @@ public class MockSession extends MockClient {
 		
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return get("/notes/{note-id}", noteId).header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
+			return get("/notes/{note-id}", noteId);
 		}
 	}
 	
@@ -333,7 +343,6 @@ public class MockSession extends MockClient {
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
 			return post("/notes/{note-id}/comments", noteId)
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
-					.param("userId", Long.toString(userId))
 					.param("comment", content)
 					.param("rating", Integer.toString(rating))
 					.param("longitude", longitude.toString())
@@ -350,7 +359,7 @@ public class MockSession extends MockClient {
 		}
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return get("/notes/{note-id}/comments", noteId).header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
+			return get("/notes/{note-id}/comments", noteId);
 		}
 		
 	}
@@ -362,12 +371,13 @@ public class MockSession extends MockClient {
 			super();
 			this.followeeId = followeeId;
 		}
+		
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return post("/users/{user-id}/connections/{followee-id}", userId, followeeId)
+			return post("/user/follows")
+					.param("followeeId", followeeId.toString())
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
-		
 	}
 	
 	public class LikeNote extends DynamicResourceRequest {
@@ -380,8 +390,7 @@ public class MockSession extends MockClient {
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
 			return post("/notes/{note-id}/likes", noteId)
-					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
-					.param("userId", Long.toString(userId));
+					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
 	}
 	
@@ -397,10 +406,52 @@ public class MockSession extends MockClient {
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
 			MockHttpServletRequestBuilder builder =
-					post("/users/{user-id}/invitations", userId)
+					post("/user/invitations")
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 			for (MobileNumber mobile : contactList) {
 				builder.param("mobile", mobile.toString());
+			}
+			return builder;
+		}
+		
+	}
+	
+	public class UploadPortrait extends DynamicResourceRequest {
+		private Image image;
+		
+		private UploadPortrait(Image image) {
+			super();
+			this.image = image;
+		}
+
+		@Override
+		protected MockHttpServletRequestBuilder getBuilder() throws FileNotFoundException, IOException {
+			return post("/user/settings/personal-information/protrait")
+					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
+					.param("imageUrl", image.getUrl())
+					.param("imageWidth", Integer.toString(image.getWidth()))
+					.param("imageHeight", Integer.toString(image.getHeight()));
+		}
+	}
+	
+	public class UploadNoteImages extends DynamicResourceRequest {
+		private long noteId;
+		private Image[] images;
+
+		private UploadNoteImages(long noteId, Image[] images) {
+			this.noteId = noteId;
+			this.images = images;
+		}
+
+		@Override
+		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			MockHttpServletRequestBuilder builder = post("/notes/{note-id}/images", noteId)
+					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
+					.param("imageCount", Integer.toString(images.length));
+			for (Image image : images) {
+				builder.param("imageUrl", image.getUrl())
+				.param("imageWidth", Integer.toString(image.getWidth()))
+				.param("imageHeight", Integer.toString(image.getHeight()));
 			}
 			return builder;
 		}

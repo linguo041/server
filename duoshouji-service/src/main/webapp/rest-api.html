@@ -365,9 +365,9 @@ API目录索引
 		<h4>发送登录验证码</h4>
 		<table>
 		<tr><th colspan="2">HTTP Request</th></tr>
-		<tr><td>Request URL</td><td>/user/message/verification-code</td></tr>
+		<tr><td>Request URL</td><td>/message/verification-code</td></tr>
 		<tr><td>Request Method</td><td>POST</td></tr>
-		<tr><td>Request Parameters</td><td>purpose=login</td></tr>
+		<tr><td>Request Parameters</td><td>purpose=login,mobile=</td></tr>
 		<tr><th colspan="2">HTTP Response</th></tr>
 		<tr><td>Response Status</td><td>200</td></tr>
 		<tr><td>Response Body</td><td>
@@ -389,7 +389,7 @@ API目录索引
 		<h4>发送修改密码验证码</h4>
 		<table>
 		<tr><th colspan="2">HTTP Request</th></tr>
-		<tr><td>Request URL</td><td>/user/message/verification-code</td></tr>
+		<tr><td>Request URL</td><td>/message/verification-code</td></tr>
 		<tr><td>Request Method</td><td>POST</td></tr>
 		<tr><td>Request Parameters</td><td>purpose=setpassword</td></tr>
 		<tr><th colspan="2">HTTP Response</th></tr>
@@ -634,7 +634,7 @@ API目录索引
 		<tr><th colspan="2">HTTP Request</th></tr>
 		<tr><td>Request URL</td><td>/notes</td></tr>
 		<tr><td>Request Method</td><td>GET</td></tr>
-		<tr><td>Request Parameters</td><td>timestamp=, loadedSize=, pageSize=, followerId=, longitude=, latitude=, tagId=</td></tr>
+		<tr><td>Request Parameters</td><td>timestamp=, loadedSize=, pageSize=, myFollowOnly, longitude=, latitude=, tagId=</td></tr>
 		<tr><th colspan="2">HTTP Response</th></tr>
 		<tr><td>Response Status</td><td>200</td></tr>
 		<tr><td>Response Body</td><td>

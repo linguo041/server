@@ -2,17 +2,12 @@ package com.duoshouji.server.end2endtest;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.duoshouji.service.util.Image;
 import com.duoshouji.service.util.MobileNumber;
 import com.duoshouji.service.util.VerificationCode;
 
@@ -36,14 +31,6 @@ public class MockClient {
 		return new CredentialLogin(mobile, password);
 	}
 	
-	public UploadPortrait emitUploadPortrait(MobileNumber userId, Image image) {
-		return new UploadPortrait(userId, image);
-	}
-	
-	public UploadNoteImages emitUploadNoteImages(long noteId, Image[] images) {
-		return new UploadNoteImages(noteId, images);
-	}
-	
 	public CommonCategory emitCommonCategory() {
 		return new CommonCategory();
 	}
@@ -51,11 +38,7 @@ public class MockClient {
 	public CommonBrand emitCommonBrand() {
 		return new CommonBrand();
 	}
-	
-	public CommonProduct emitCommonProduct() {
-		return new CommonProduct();
-	}
-	
+
 	public CommonDistrict emitCommonDistrict() {
 		return new CommonDistrict();
 	}
@@ -118,7 +101,9 @@ public class MockClient {
 		}
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() {
-			return post("/mobiles/{mobile-number}/message/verification-code/login", mobile);
+			return post("/message/verification-code")
+					.param("mobile", mobile.toString())
+					.param("purpose", "login");
 		}
 	}
 	
@@ -134,7 +119,9 @@ public class MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() {
-	    	return put("/mobiles/{mobile-number}/login-status", mobile).param("code", code.toString());
+	    	return post("/user/login")
+	    		.param("code", code.toString())
+	    		.param("mobile", mobile.toString());
 		}
 	}
 	
@@ -150,52 +137,11 @@ public class MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() {
-	    	return put("/mobiles/{mobile-number}/login-status", mobile)
-	    			.param("password", password);
+	    	return post("/user/login")
+	    			.param("password", password)
+	    			.param("mobile", mobile.toString());
 		}
 	}
-	
-	public class UploadPortrait extends DynamicResourceRequest {
-		private Image image;
-		private MobileNumber userId;
-		
-		private UploadPortrait(MobileNumber userId, Image image) {
-			super();
-			this.userId = userId;
-			this.image = image;
-		}
-
-		@Override
-		protected MockHttpServletRequestBuilder getBuilder() throws FileNotFoundException, IOException {
-			return put("/users/{user-id}/settings/personal-information/protrait", userId)
-					.param("imageUrl", image.getUrl())
-					.param("imageWidth", Integer.toString(image.getWidth()))
-					.param("imageHeight", Integer.toString(image.getHeight()));
-		}
-	}
-	
-	public class UploadNoteImages extends DynamicResourceRequest {
-		private long noteId;
-		private Image[] images;
-
-		private UploadNoteImages(long noteId, Image[] images) {
-			this.noteId = noteId;
-			this.images = images;
-		}
-
-		@Override
-		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			MockHttpServletRequestBuilder builder = put("/notes/{note-id}/images", noteId)
-					.param("imageCount", Integer.toString(images.length));
-			for (Image image : images) {
-				builder.param("imageUrl", image.getUrl())
-				.param("imageWidth", Integer.toString(image.getWidth()))
-				.param("imageHeight", Integer.toString(image.getHeight()));
-			}
-			return builder;
-		}
-		
-	}	
 	
 	public class CommonTag extends DynamicResourceRequest {
 		private long categoryId;
@@ -229,15 +175,6 @@ public class MockClient {
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
 			return get("/common/commodity/brands");
-		}
-		
-	}
-	
-	public class CommonProduct extends DynamicResourceRequest {
-
-		@Override
-		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return get("/common/commodity/products");
 		}
 		
 	}
