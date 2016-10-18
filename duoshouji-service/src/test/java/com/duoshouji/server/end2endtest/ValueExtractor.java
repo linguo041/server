@@ -14,7 +14,6 @@ public abstract class ValueExtractor<T> {
 					JSONObject loginResult = new JSONObject(result.getResponse().getContentAsString());
 					LoginResult returnValue = new LoginResult();
 					returnValue.token = loginResult.getJSONObject("resultValues").getString("token");
-					returnValue.userId = loginResult.getJSONObject("resultValues").getLong("userId");
 					return returnValue;
 				}
 			};

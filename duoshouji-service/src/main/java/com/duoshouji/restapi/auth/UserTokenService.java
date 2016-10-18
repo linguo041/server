@@ -3,9 +3,9 @@ package com.duoshouji.restapi.auth;
 
 public interface UserTokenService {
 
-	boolean verify(long userId, String token);
-
 	String newToken(long userId);
+	
+	long getUserId(String token);
 	
 	void logout(long userId);
 }

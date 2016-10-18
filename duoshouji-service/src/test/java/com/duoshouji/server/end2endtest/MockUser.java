@@ -1,6 +1,5 @@
 package com.duoshouji.server.end2endtest;
 
-import org.junit.Assert;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.duoshouji.server.MockConstants;
@@ -44,12 +43,11 @@ public class MockUser {
 		final LoginResult loginResult = client.emitVerificationCodeLogin(getUserId(), messageReceiver.findHistory(getUserId()))
 				.performAndExpectSuccess()
 				.extract(ValueExtractor.LONIN_RESULT_EXTRACTOR);
-		Assert.assertEquals(userId.toLong(), loginResult.userId);
-		MockSession session = new MockSession(mockMvc, loginResult.userId, loginResult.token);
+		MockSession session = new MockSession(mockMvc, loginResult.token);
 		session.emitSendResetPasswordVerificationCode().performAndExpectSuccess();
 		session.emitResetPassword(messageReceiver.findHistory(getUserId()), getPassword()).performAndExpectSuccess();
 		session.emitUpdateProfile(getNickname(), getGender()).performAndExpectSuccess();
-		session.emitUploadPortrait(userId, MockConstants.MOCK_LOGO_IMAGE).performAndExpectSuccess();
+		session.emitUploadPortrait(MockConstants.MOCK_LOGO_IMAGE).performAndExpectSuccess();
 		session.emitLogout().performAndExpectSuccess();
 	}
 	
@@ -57,7 +55,6 @@ public class MockUser {
 		MockClient client = new MockClient(mockMvc);
 		LoginResult loginResult = client.emitCredentialLogin(getUserId(), getPassword())
 				.performAndExpectSuccess().extract(ValueExtractor.LONIN_RESULT_EXTRACTOR);
-		Assert.assertEquals(userId.toLong(), loginResult.userId);
-		return new MockSession(mockMvc, loginResult.userId, loginResult.token);
+		return new MockSession(mockMvc, loginResult.token);
 	}
 }
