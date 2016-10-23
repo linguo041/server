@@ -7,8 +7,8 @@
     <artifactId>duoshouji-server</artifactId>
     <version>0.0.1</version>
   </parent>
-  <artifactId>duoshouji-auth</artifactId>
-  <name>duoshouji-auth</name>
+  <artifactId>duoshouji-common</artifactId>
+  <name>DuoShouJi Common</name>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -23,12 +23,20 @@
        </dependency>
        <dependency>
            <groupId>org.springframework</groupId>
-           <artifactId>spring-context</artifactId>
+           <artifactId>spring-jdbc</artifactId>
        </dependency>
        <dependency>
            <groupId>org.springframework</groupId>
-           <artifactId>spring-jdbc</artifactId>
+           <artifactId>spring-webmvc</artifactId>
        </dependency>
+       <dependency>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-api</artifactId>
+       </dependency>
+       <dependency>
+         <groupId>org.apache.logging.log4j</groupId>
+         <artifactId>log4j-core</artifactId>
+       </dependency>              
        <dependency>
          <groupId>com.duoshouji</groupId>
          <artifactId>duoshouji-api</artifactId>

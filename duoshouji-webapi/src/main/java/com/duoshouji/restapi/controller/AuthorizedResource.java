@@ -10,18 +10,14 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.duoshouji.restapi.Constants;
-import com.duoshouji.restapi.auth.UnauthenticatedUserException;
-import com.duoshouji.restapi.auth.UserTokenService;
+import com.duoshouji.restapi.AuthenticationAdvice;
 import com.duoshouji.restapi.controller.model.BasicNoteResult;
 import com.duoshouji.restapi.controller.model.MobileNumberMappingUserIdResult;
 import com.duoshouji.restapi.controller.model.NotePublishingResult;
@@ -42,14 +38,12 @@ import com.duoshouji.service.util.MobileNumber;
 import com.duoshouji.service.util.VerificationCode;
 
 @Controller
-public class AuthorizedResource {
+public class AuthorizedResource extends AuthenticationAdvice {
 	
 	private Logger logger = LogManager.getLogger();
 	
 	private UserFacade userFacade;
 	private NoteFacade noteFacade;
-	private UserTokenService tokenService;
-	
 	@Required
 	@Autowired
 	public void setUserFacade(UserFacade userFacade) {
@@ -62,22 +56,6 @@ public class AuthorizedResource {
 		this.noteFacade = noteFacade;
 	}
 	
-	@Required
-	@Autowired
-	public void setTokenService(UserTokenService tokenService) {
-		this.tokenService = tokenService;
-	}
-
-	@ModelAttribute
-	public void checkToken(Model model,
-			@RequestHeader(name=Constants.APP_TOKEN_HTTP_HEADER_NAME) String token) throws UnauthenticatedUserException {
-		final long userId = tokenService.getUserId(token);
-		if (userId == UserFacade.NULL_USER_ID) {
-			throw new UnauthenticatedUserException("Token is expired or not exists. Please login first.");
-		}
-		model.addAttribute("userId", Long.valueOf(userId));
-	}
-
 	@GetMapping("/user/mobile-contacts/status")
 	@ResponseBody
 	public MobileNumberMappingUserIdResult[] getRegisteredUserIds(

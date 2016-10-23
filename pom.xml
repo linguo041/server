@@ -165,6 +165,6 @@
         <module>duoshouji-webapi-image</module>
     	<module>duoshouji-api</module>
     	<module>duoshouji-core</module>
-        <module>duoshouji-auth</module>
+        <module>duoshouji-common</module>
   </modules>
 </project>
