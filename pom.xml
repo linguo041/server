@@ -147,7 +147,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
+                <version>3.5.1</version>
                 <inherited>true</inherited>
                 <configuration>
                     <source>1.7</source>
@@ -161,10 +161,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <modules>
-    	<module>duoshouji-webapi</module>
+        <module>duoshouji-webapi-common</module>
+    	<module>duoshouji-webapi-main</module>
         <module>duoshouji-webapi-image</module>
     	<module>duoshouji-api</module>
     	<module>duoshouji-core</module>
-        <module>duoshouji-common</module>
   </modules>
 </project>

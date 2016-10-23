@@ -7,7 +7,7 @@
     <artifactId>duoshouji-server</artifactId>
     <version>0.0.1</version>
   </parent>
-  <artifactId>duoshouji-webapi</artifactId>
+  <artifactId>duoshouji-webapi-main</artifactId>
   <name>DuoShouJi Service</name>
   <packaging>war</packaging>
   
@@ -93,7 +93,7 @@
 		</dependency>
         <dependency>
           <groupId>com.duoshouji</groupId>
-          <artifactId>duoshouji-common</artifactId>
+          <artifactId>duoshouji-webapi-common</artifactId>
           <version>0.0.1</version>
         </dependency>        
         <dependency>
