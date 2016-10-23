@@ -161,8 +161,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <modules>
-    	<module>duoshouji-service</module>
-        <module>duoshouji-image</module>
+    	<module>duoshouji-webapi</module>
+        <module>duoshouji-webapi-image</module>
     	<module>duoshouji-api</module>
-    </modules>
+    	<module>duoshouji-core</module>
+        <module>duoshouji-auth</module>
+  </modules>
 </project>
