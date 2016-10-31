@@ -36,7 +36,18 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
             <version>3.5</version>
-        </dependency>   
+        </dependency>
+        <dependency>
+                <groupId>org.springframework.session</groupId>
+                <artifactId>spring-session-jdbc</artifactId>
+                <version>1.2.2.RELEASE</version>
+                <type>pom</type>
+        </dependency>       
+	    <dependency>
+	        <groupId>org.springframework.security</groupId>
+	        <artifactId>spring-security-web</artifactId>
+	        <version>4.2.0.RC1</version>
+	    </dependency>         
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -141,7 +152,16 @@
 	    </dependency>
     </dependencies>
     </dependencyManagement>
-
+	<repositories>
+	    <repository>
+	        <id>spring-milestones</id>
+	        <name>Spring Milestones</name>
+	        <url>https://repo.spring.io/libs-milestone</url>
+	        <snapshots>
+	            <enabled>false</enabled>
+	        </snapshots>
+	    </repository>
+	</repositories>
     <build>
         <plugins>
             <plugin>

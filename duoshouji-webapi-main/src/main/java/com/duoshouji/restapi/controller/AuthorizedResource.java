@@ -18,11 +18,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.duoshouji.restapi.AuthenticationAdvice;
-import com.duoshouji.restapi.controller.model.BasicNoteResult;
-import com.duoshouji.restapi.controller.model.MobileNumberMappingUserIdResult;
-import com.duoshouji.restapi.controller.model.NotePublishingResult;
-import com.duoshouji.restapi.controller.model.UserProfileResult;
-import com.duoshouji.restapi.controller.model.WrongVerificationCodeException;
+import com.duoshouji.restapi.controller.model.response.BasicNoteResult;
+import com.duoshouji.restapi.controller.model.response.MobileNumberMappingUserIdResult;
+import com.duoshouji.restapi.controller.model.response.NotePublishingResult;
+import com.duoshouji.restapi.controller.model.response.UserProfileResult;
+import com.duoshouji.restapi.controller.model.response.WrongVerificationCodeException;
 import com.duoshouji.service.note.BasicNote;
 import com.duoshouji.service.note.CommentPublishAttributes;
 import com.duoshouji.service.note.NoteFacade;
