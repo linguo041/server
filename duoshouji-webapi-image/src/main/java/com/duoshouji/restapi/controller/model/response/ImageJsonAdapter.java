@@ -10,15 +10,15 @@ public class ImageJsonAdapter {
 		this.image = image;
 	}
 
-	public String getImageUrl() {
+	public String getUrl() {
 		return image.getUrl();
 	}
 	
-	public int getImageWidth() {
+	public int getWidth() {
 		return image.getWidth();
 	}
 	
-	public int getImageHeight() {
+	public int getHeight() {
 		return image.getHeight();
 	}
 }

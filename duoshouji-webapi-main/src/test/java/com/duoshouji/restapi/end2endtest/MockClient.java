@@ -3,13 +3,21 @@ package com.duoshouji.restapi.end2endtest;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.duoshouji.restapi.LoginMethod;
 import com.duoshouji.service.util.MobileNumber;
 import com.duoshouji.service.util.VerificationCode;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class MockClient {
 	
@@ -100,10 +108,9 @@ public class MockClient {
 			this.mobile = mobile;
 		}
 		@Override
-		protected MockHttpServletRequestBuilder getBuilder() {
-			return post("/message/verification-code")
-					.param("mobile", mobile.toString())
-					.param("purpose", "login");
+		protected MockHttpServletRequestBuilder getBuilder() throws JsonProcessingException {
+			return post("/message/verification-code").contentType(MediaType.APPLICATION_JSON).content(
+					new ObjectMapper().writeValueAsString(Collections.singletonMap("mobile", mobile.toString())));
 		}
 	}
 	
@@ -118,10 +125,12 @@ public class MockClient {
 		}
 
 		@Override
-		protected MockHttpServletRequestBuilder getBuilder() {
-	    	return post("/user/login")
-	    		.param("code", code.toString())
-	    		.param("mobile", mobile.toString());
+		protected MockHttpServletRequestBuilder getBuilder() throws JsonProcessingException {
+			Map<String, Object> requestData = new HashMap<String, Object>();
+			requestData.put("loginMethod", LoginMethod.VERIFICATION_CODE.name());
+			requestData.put("mobileNumber", mobile.toString());
+			requestData.put("secret", code.toString());
+	    	return post("/user/login").contentType(MediaType.APPLICATION_JSON).content(new ObjectMapper().writeValueAsString(requestData));
 		}
 	}
 	
@@ -136,10 +145,12 @@ public class MockClient {
 		}
 
 		@Override
-		protected MockHttpServletRequestBuilder getBuilder() {
-	    	return post("/user/login")
-	    			.param("password", password)
-	    			.param("mobile", mobile.toString());
+		protected MockHttpServletRequestBuilder getBuilder() throws JsonProcessingException {
+			Map<String, Object> requestData = new HashMap<String, Object>();
+			requestData.put("loginMethod", LoginMethod.CREDENTIAL.name());
+			requestData.put("mobileNumber", mobile.toString());
+			requestData.put("secret", password);
+	    	return post("/user/login").contentType(MediaType.APPLICATION_JSON).content(new ObjectMapper().writeValueAsString(requestData));
 		}
 	}
 	

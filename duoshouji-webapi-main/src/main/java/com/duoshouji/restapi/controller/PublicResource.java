@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.duoshouji.restapi.controller.model.BasicNoteResult;
-import com.duoshouji.restapi.controller.model.DetailNoteResult;
-import com.duoshouji.restapi.controller.model.NoteCommentResult;
+import com.duoshouji.restapi.controller.model.response.BasicNoteResult;
+import com.duoshouji.restapi.controller.model.response.DetailNoteResult;
+import com.duoshouji.restapi.controller.model.response.NoteCommentResult;
 import com.duoshouji.service.note.BasicNote;
 import com.duoshouji.service.note.NoteComment;
 import com.duoshouji.service.note.NoteFacade;

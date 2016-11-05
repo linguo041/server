@@ -1,4 +1,4 @@
-package com.duoshouji.restapi.controller.model;
+package com.duoshouji.restapi.controller.model.response;
 
 public class NotePublishingResult {
 	private long noteId;

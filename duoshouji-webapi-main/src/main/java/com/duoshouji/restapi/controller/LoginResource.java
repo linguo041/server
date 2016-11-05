@@ -3,13 +3,17 @@ package com.duoshouji.restapi.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.duoshouji.restapi.LoginMethod;
+import com.duoshouji.restapi.UnrecognizableLoginMethodException;
 import com.duoshouji.restapi.auth.UserTokenService;
-import com.duoshouji.restapi.controller.model.LoginResult;
-import com.duoshouji.restapi.controller.model.WrongPasswordException;
-import com.duoshouji.restapi.controller.model.WrongVerificationCodeException;
+import com.duoshouji.restapi.controller.model.request.LoginRequestData;
+import com.duoshouji.restapi.controller.model.request.SendVerificationCodeRequestData;
+import com.duoshouji.restapi.controller.model.response.LoginResponseData;
+import com.duoshouji.restapi.controller.model.response.WrongPasswordException;
+import com.duoshouji.restapi.controller.model.response.WrongVerificationCodeException;
 import com.duoshouji.service.user.Password;
 import com.duoshouji.service.user.UserFacade;
 import com.duoshouji.service.util.MobileNumber;
@@ -27,36 +31,32 @@ public class LoginResource {
 		this.tokenService = tokenService;
 	}
 
-	@PostMapping(path="/user/login", params="code")
+	@PostMapping("/user/login")
 	@ResponseBody
-	public LoginResult verificationCodeLogin(
-		@RequestParam("mobile") MobileNumber mobileNumber,
-		@RequestParam("code") VerificationCode verificationCode
-			) {
-		final long userId = userFacade.verificationCodeLogin(mobileNumber, verificationCode);
-		if (userId == UserFacade.NULL_USER_ID) {
-			throw new WrongVerificationCodeException();
+	public LoginResponseData userLogin(
+			@RequestBody LoginRequestData requestData) {
+		final MobileNumber mobileNumber = requestData.getMobileNumber();
+		long userId;
+		if (requestData.getLoginMethod() == LoginMethod.CREDENTIAL) {
+			userId = userFacade.passwordLogin(mobileNumber, Password.valueOf(requestData.getSecret()));
+			if (userId == UserFacade.NULL_USER_ID) {
+				throw new WrongPasswordException();
+			}		
+		} else if (requestData.getLoginMethod() == LoginMethod.VERIFICATION_CODE) {
+			userId = userFacade.verificationCodeLogin(mobileNumber, VerificationCode.valueOf(requestData.getSecret()));
+			if (userId == UserFacade.NULL_USER_ID) {
+				throw new WrongVerificationCodeException();
+			}
+		} else {
+			throw new UnrecognizableLoginMethodException(requestData.getLoginMethod());
 		}
-		return new LoginResult(tokenService.newToken(userId));
+		return new LoginResponseData(tokenService.newToken(userId));
 	}
 	
-	@PostMapping(path = "/user/login", params = "password")
-	@ResponseBody
-	public LoginResult credentialLogin(
-		@RequestParam("mobile") MobileNumber mobileNumber,
-		@RequestParam("password") String password
-			) {
-		final long userId = userFacade.passwordLogin(mobileNumber, Password.valueOf(password));
-		if (userId == UserFacade.NULL_USER_ID) {
-			throw new WrongPasswordException();
-		}		
-		return new LoginResult(tokenService.newToken(userId));
-	}
-	
-	@PostMapping(path="/message/verification-code", params="purpose=login")
+	@PostMapping("/message/verification-code")
 	@ResponseBody
 	public void sendLoginVerificationCode(
-			@RequestParam("mobile") MobileNumber mobileNumber) {
-		userFacade.sendLoginVerificationCode(mobileNumber);
+			@RequestBody SendVerificationCodeRequestData requestData) {
+		userFacade.sendLoginVerificationCode(requestData.getMobile());
 	}
 }

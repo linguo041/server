@@ -1,7 +1,6 @@
 package com.duoshouji.restapi.controller;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,15 +13,23 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.duoshouji.restapi.AuthenticationAdvice;
-import com.duoshouji.restapi.controller.model.BasicNoteResult;
-import com.duoshouji.restapi.controller.model.MobileNumberMappingUserIdResult;
-import com.duoshouji.restapi.controller.model.NotePublishingResult;
-import com.duoshouji.restapi.controller.model.UserProfileResult;
-import com.duoshouji.restapi.controller.model.WrongVerificationCodeException;
+import com.duoshouji.restapi.controller.model.request.CommentNoteRequestData;
+import com.duoshouji.restapi.controller.model.request.FollowUserRequestData;
+import com.duoshouji.restapi.controller.model.request.ImageRequestData;
+import com.duoshouji.restapi.controller.model.request.InviteFriendsRequestData;
+import com.duoshouji.restapi.controller.model.request.PublishNoteRequestData;
+import com.duoshouji.restapi.controller.model.request.SetPasswordRequestData;
+import com.duoshouji.restapi.controller.model.request.SetPersonalInformationRequestData;
+import com.duoshouji.restapi.controller.model.response.BasicNoteResult;
+import com.duoshouji.restapi.controller.model.response.MobileNumberMappingUserIdResult;
+import com.duoshouji.restapi.controller.model.response.NotePublishingResult;
+import com.duoshouji.restapi.controller.model.response.UserProfileResult;
+import com.duoshouji.restapi.controller.model.response.WrongVerificationCodeException;
 import com.duoshouji.service.note.BasicNote;
 import com.duoshouji.service.note.CommentPublishAttributes;
 import com.duoshouji.service.note.NoteFacade;
@@ -44,6 +51,7 @@ public class AuthorizedResource extends AuthenticationAdvice {
 	
 	private UserFacade userFacade;
 	private NoteFacade noteFacade;
+	
 	@Required
 	@Autowired
 	public void setUserFacade(UserFacade userFacade) {
@@ -120,11 +128,10 @@ public class AuthorizedResource extends AuthenticationAdvice {
 	@ResponseBody
 	public void setPassword(
 			@ModelAttribute("userId") long userId,
-			@RequestParam("code") VerificationCode verificationCode,
-			@RequestParam("password") String password
+			@RequestBody SetPasswordRequestData requestData
 			) {
-		Password acceptedPassword = Password.valueOf(password);
-		boolean success = userFacade.resetPassword(userId, verificationCode, acceptedPassword);
+		Password acceptedPassword = Password.valueOf(requestData.password);
+		boolean success = userFacade.resetPassword(userId, VerificationCode.valueOf(requestData.code), acceptedPassword);
 		if (!success) {
 			throw new WrongVerificationCodeException();
 		}
@@ -134,32 +141,29 @@ public class AuthorizedResource extends AuthenticationAdvice {
 	@ResponseBody
 	public void setUserPortrait(
 			@ModelAttribute("userId") long userId,
-			@RequestParam("imageUrl") String imageUrl,
-			@RequestParam("imageWidth") int imageWidth,
-			@RequestParam("imageHeight") int imageHeight) throws IOException {
+			@RequestBody ImageRequestData requestData) throws IOException {
 		logger.info("Processing call back from image service; user image properties - [width: {}, height: {}, url: {}]"
-				, imageWidth, imageHeight, imageUrl);
-		userFacade.setPortrait(userId, new Image(imageWidth, imageHeight, imageUrl));
+				, requestData.width, requestData.height, requestData.url);
+		userFacade.setPortrait(userId, new Image(requestData.width, requestData.height, requestData.url));
 	}
 	
 	@PostMapping("/user/settings/personal-information")
 	@ResponseBody
 	public void setPersonalInformation(
 			@ModelAttribute("userId") long userId,
-			@RequestParam(value="nickname", required=false) final String nickname,
-			@RequestParam(value="gender", required=false) final Gender gender
+			@RequestBody SetPersonalInformationRequestData requestData
 			) {
 		UserProfileSetter userProfileSetter = userFacade.newUserProfileSetter(userId);
-		if (nickname != null) {
-			userProfileSetter.setNickname(nickname);
+		if (requestData.nickname != null) {
+			userProfileSetter.setNickname(requestData.nickname);
 		}
-		if (gender != null) {
-			userProfileSetter.setGender(gender);
+		if (requestData.gender != null) {
+			userProfileSetter.setGender(Gender.valueOf(requestData.gender));
 		}
 		userProfileSetter.commitProfileChanges();
 	}
 	
-	@PostMapping(path="/message/verification-code", params="purpose=setpassword")
+	@PostMapping("/user/message/verification-code")
 	@ResponseBody
 	public void sendResetPasswordVerificationCode(@ModelAttribute("userId") long userId) {
 		userFacade.sendResetPasswordVerificationCode(userId);
@@ -169,29 +173,19 @@ public class AuthorizedResource extends AuthenticationAdvice {
 	@ResponseBody
 	public NotePublishingResult postNote(
 			@ModelAttribute("userId") long userId,
-			@RequestParam("categoryId") long categoryId,
-			@RequestParam("brandId") long brandId,
-			@RequestParam("productName") String productName,
-			@RequestParam("price") BigDecimal price,
-			@RequestParam("districtId") long districtId, 
-			@RequestParam("tag") long[] tags,
-			@RequestParam("title") String title,
-			@RequestParam("content") String content,
-			@RequestParam("rating") int rating,
-			@RequestParam("longitude") BigDecimal longitude,
-			@RequestParam("latitude") BigDecimal latitude
+			@RequestBody PublishNoteRequestData requestData
 			) {
 		NotePublisher publisher = noteFacade.newNotePublisher(userId);
-		publisher.setCategoryId(categoryId);
-		publisher.setBrandId(brandId);
-		publisher.setProductName(productName);
-		publisher.setPrice(price);
-		publisher.setDistrictId(districtId);
-		publisher.setTitle(title);
-		publisher.setContent(content);
-		publisher.setTags(tags);
-		publisher.setRating(rating);
-		publisher.setLocation(longitude, latitude);
+		publisher.setCategoryId(requestData.categoryId);
+		publisher.setBrandId(requestData.brandId);
+		publisher.setProductName(requestData.productName);
+		publisher.setPrice(requestData.price);
+		publisher.setDistrictId(requestData.districtId);
+		publisher.setTitle(requestData.title);
+		publisher.setContent(requestData.content);
+		publisher.setTags(requestData.tags);
+		publisher.setRating(requestData.rating);
+		publisher.setLocation(requestData.longitude, requestData.latitude);
 		return new NotePublishingResult(publisher.publishNote());
 	}
 		
@@ -209,26 +203,23 @@ public class AuthorizedResource extends AuthenticationAdvice {
 	public void commentNote(
 			@ModelAttribute("userId") long userId,
 			@PathVariable("note-id") long noteId,
-			@RequestParam("comment") final String comment,
-			@RequestParam("longitude") final BigDecimal longitude,
-			@RequestParam("latitude") final BigDecimal latitude,
-			@RequestParam("rating") final int rating
+			@RequestBody final CommentNoteRequestData requestData
 			) {
 		noteFacade.publishComment(userId, noteId, new CommentPublishAttributes() {
 
 			@Override
 			public String getComment() {
-				return comment;
+				return requestData.comment;
 			}
 
 			@Override
 			public int getRating() {
-				return rating;
+				return requestData.rating;
 			}
 
 			@Override
 			public Location getLocation() {
-				return new Location(longitude, latitude);
+				return new Location(requestData.longitude, requestData.latitude);
 			}
 		});
 	}
@@ -237,33 +228,34 @@ public class AuthorizedResource extends AuthenticationAdvice {
 	@ResponseBody
 	public void followUser(
 			@ModelAttribute("userId") long userId,
-			@RequestParam("followeeId") long followeeId
+			@RequestBody FollowUserRequestData requestData
 			) {
-		userFacade.buildFollowConnection(userId, followeeId);
+		userFacade.buildFollowConnection(userId, requestData.followeeId);
 	}
 	
 	@PostMapping("/user/invitations")
 	@ResponseBody
 	public void inviteFriends(
 			@ModelAttribute("userId") long userId,
-			@RequestParam("mobile") MobileNumber[] mobileNumbers
+			@RequestBody InviteFriendsRequestData requestData
 			) {
-		userFacade.inviteFriends(userId, mobileNumbers);
+		MobileNumber[] mobiles = new MobileNumber[requestData.mobiles.length];
+		for (int i = 0; i < mobiles.length; ++i) {
+			mobiles[i] = MobileNumber.valueOf(requestData.mobiles[i]);
+		}
+		userFacade.inviteFriends(userId, mobiles);
 	}
 
 	@PostMapping("/notes/{note-id}/images")
 	@ResponseBody
 	public void setNoteImages(
 			@PathVariable("note-id") long noteId,
-			@RequestParam("imageCount") int imageCount,
-			@RequestParam("imageUrl") String[] imageUrls,
-			@RequestParam("imageWidth") int[] imageWidths,
-			@RequestParam("imageHeight") int[] imageHeights) throws IOException {
-		Image[] images = new Image[imageCount];
-		for (int i = 0; i < imageCount; ++i) {
+			@RequestBody ImageRequestData[] requestData) throws IOException {
+		Image[] images = new Image[requestData.length];
+		for (int i = 0; i < images.length; ++i) {
 			logger.info("Processing call back from image service; note image properties - [width: {}, height: {}, url: {}]"
-					, imageWidths[i], imageHeights[i], imageUrls[i]);
-			images[i] = new Image(imageWidths[i], imageHeights[i], imageUrls[i]);
+					, requestData[i].width, requestData[i].height, requestData[i].url);
+			images[i] = new Image(requestData[i].width, requestData[i].height, requestData[i].url);
 		}
 		noteFacade.setNoteImages(noteId, images);
 	}
