@@ -19,6 +19,7 @@ public class SuccessJsonResultMatcher implements ResultMatcher {
 	}
 	
 	protected void verifyJsonResult(JSONObject json) throws Exception {
+		Assert.assertTrue(json.has("resultValues"));
 	}
 
 }
