@@ -30,6 +30,10 @@ public class DetailNoteResult {
 		return delegator.getNoteId();
 	}
 	
+	public String getTitle() {
+		return delegator.getTitle();
+	}
+	
 	public long getPublishTime() {
 		return delegator.getPublishedTime();
 	}
