@@ -35,20 +35,20 @@ public class LoginResource {
 	@ResponseBody
 	public LoginResponseData userLogin(
 			@RequestBody LoginRequestData requestData) {
-		final MobileNumber mobileNumber = MobileNumber.valueOf(requestData.mobileNumber);
+		final MobileNumber mobileNumber = requestData.getMobileNumber();
 		long userId;
-		if (requestData.loginMethod == LoginMethod.CREDENTIAL) {
-			userId = userFacade.passwordLogin(mobileNumber, Password.valueOf(requestData.secret));
+		if (requestData.getLoginMethod() == LoginMethod.CREDENTIAL) {
+			userId = userFacade.passwordLogin(mobileNumber, Password.valueOf(requestData.getSecret()));
 			if (userId == UserFacade.NULL_USER_ID) {
 				throw new WrongPasswordException();
 			}		
-		} else if (requestData.loginMethod == LoginMethod.VERIFICATION_CODE) {
-			userId = userFacade.verificationCodeLogin(mobileNumber, VerificationCode.valueOf(requestData.secret));
+		} else if (requestData.getLoginMethod() == LoginMethod.VERIFICATION_CODE) {
+			userId = userFacade.verificationCodeLogin(mobileNumber, VerificationCode.valueOf(requestData.getSecret()));
 			if (userId == UserFacade.NULL_USER_ID) {
 				throw new WrongVerificationCodeException();
 			}
 		} else {
-			throw new UnrecognizableLoginMethodException(requestData.loginMethod);
+			throw new UnrecognizableLoginMethodException(requestData.getLoginMethod());
 		}
 		return new LoginResponseData(tokenService.newToken(userId));
 	}
@@ -57,6 +57,6 @@ public class LoginResource {
 	@ResponseBody
 	public void sendLoginVerificationCode(
 			@RequestBody SendVerificationCodeRequestData requestData) {
-		userFacade.sendLoginVerificationCode(mobileNumber);
+		userFacade.sendLoginVerificationCode(requestData.getMobile());
 	}
 }

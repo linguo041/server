@@ -3,10 +3,12 @@ package com.duoshouji.restapi.end2endtest;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
@@ -16,6 +18,7 @@ import com.duoshouji.service.util.Image;
 import com.duoshouji.service.util.Location;
 import com.duoshouji.service.util.MobileNumber;
 import com.duoshouji.service.util.VerificationCode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class MockSession extends MockClient {
 
@@ -111,8 +114,7 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return post("/message/verification-code")
-					.param("purpose", "setpassword")
+			return post("/user/message/verification-code").contentType(MediaType.APPLICATION_JSON)
 	    			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
 	}
@@ -129,10 +131,13 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			Map<String, Object> requestData = new HashMap<String, Object>();
+			requestData.put("code", code.toString());
+			requestData.put("password", password);
 			return post("/user/settings/security/password")
-	    			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
-	    			.param("code", code.toString())
-	    			.param("password", password);
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(new ObjectMapper().writeValueAsString(requestData))
+	    			.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
 	}
 	
@@ -146,15 +151,14 @@ public class MockSession extends MockClient {
 			this.gender = gender;
 		}
 		@Override
-		protected MockHttpServletRequestBuilder getBuilder() {
+		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			Map<String, Object> requestData = new HashMap<String, Object>();
+			requestData.put("nickname", nickname);
+			requestData.put("gender", gender.name());
 			MockHttpServletRequestBuilder builder = post("/user/settings/personal-information")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(Utils.getJsonString(requestData))
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
-			if (nickname != null) {
-				builder.param("nickname", nickname);
-			}
-			if (gender != null) {
-				builder.param("gender", gender.toString());
-			}
 			return builder;
 		}
 	}
@@ -213,27 +217,22 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			Map<String, Object> requestData = new HashMap<String, Object>();
+			requestData.put("categoryId", categoryId);
+			requestData.put("brandId", brandId);
+			requestData.put("productName", title);
+			requestData.put("price", price);
+			requestData.put("districtId", districtId);
+			requestData.put("rating", rating);
+			requestData.put("longitude", location.getLongitude());
+			requestData.put("latitude", location.getLatitude());
+			requestData.put("title", title);
+			requestData.put("content", content);
+			requestData.put("tags", tags);
 			return post("/user/notes")
-				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
-				.param("categoryId", Long.toString(categoryId))
-				.param("brandId", Long.toString(brandId))
-				.param("productName", title)
-				.param("price", price.toString())
-				.param("districtId", Long.toString(districtId))
-				.param("rating", Integer.toString(rating))
-				.param("longitude", location.getLongitude().toString())
-				.param("latitude", location.getLatitude().toString())
-				.param("title", title)
-				.param("content", content)
-				.param("tag", toString(tags));
-		}
-		
-		private String[] toString(long[] tags) {
-			final String[] stringTags = new String[tags.length];
-			for (int i = 0; i < tags.length; ++i) {
-				stringTags[i] = Long.toString(tags[i]);
-			}
-			return stringTags;
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(Utils.getJsonString(requestData))
+				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
 	}
 	
@@ -341,12 +340,15 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			Map<String, Object> requestData = new HashMap<String, Object>();
+			requestData.put("comment", content);
+			requestData.put("rating", rating);
+			requestData.put("longitude", longitude);
+			requestData.put("latitude", latitude);
 			return post("/notes/{note-id}/comments", noteId)
-					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
-					.param("comment", content)
-					.param("rating", Integer.toString(rating))
-					.param("longitude", longitude.toString())
-					.param("latitude", latitude.toString());
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(Utils.getJsonString(requestData))
+					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
 	}
 	
@@ -375,7 +377,8 @@ public class MockSession extends MockClient {
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
 			return post("/user/follows")
-					.param("followeeId", followeeId.toString())
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(Utils.getJsonString(Collections.singletonMap("followeeId", (Object)followeeId.toLong())))
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
 	}
@@ -405,12 +408,17 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			Map<String, Object> requestData = new HashMap<String, Object>();
+			String[] mobiles = new String[contactList.length];
+			for (int i = 0; i < mobiles.length; ++i) {
+				mobiles[i] = contactList[i].toString();
+			}
+			requestData.put("mobiles", mobiles);
 			MockHttpServletRequestBuilder builder =
 					post("/user/invitations")
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(Utils.getJsonString(requestData))
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
-			for (MobileNumber mobile : contactList) {
-				builder.param("mobile", mobile.toString());
-			}
 			return builder;
 		}
 		
@@ -425,12 +433,15 @@ public class MockSession extends MockClient {
 		}
 
 		@Override
-		protected MockHttpServletRequestBuilder getBuilder() throws FileNotFoundException, IOException {
+		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			Map<String, Object> requestData = new HashMap<String, Object>();
+			requestData.put("url", image.getUrl());
+			requestData.put("width", image.getWidth());
+			requestData.put("height", image.getHeight());
 			return post("/user/settings/personal-information/protrait")
+					.contentType(MediaType.APPLICATION_JSON)
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
-					.param("imageUrl", image.getUrl())
-					.param("imageWidth", Integer.toString(image.getWidth()))
-					.param("imageHeight", Integer.toString(image.getHeight()));
+					.content(Utils.getJsonString(requestData));
 		}
 	}
 	
@@ -445,15 +456,11 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			MockHttpServletRequestBuilder builder = post("/notes/{note-id}/images", noteId)
-					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
-					.param("imageCount", Integer.toString(images.length));
-			for (Image image : images) {
-				builder.param("imageUrl", image.getUrl())
-				.param("imageWidth", Integer.toString(image.getWidth()))
-				.param("imageHeight", Integer.toString(image.getHeight()));
-			}
-			return builder;
+			
+			return post("/notes/{note-id}/images", noteId)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(new ObjectMapper().writeValueAsString(images))
+					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
 		
 	}
