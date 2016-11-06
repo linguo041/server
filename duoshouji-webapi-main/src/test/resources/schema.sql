@@ -75,24 +75,6 @@ CREATE TABLE `note` (
   `keyword` varchar(255) NOT NULL,
   `address` varchar(255) DEFAULT NULL,
   `country_id` int(11) DEFAULT NULL,
-  `tag_id1` decimal(13,0) DEFAULT NULL,
-  `tag_name1` varchar(45) DEFAULT NULL,
-  `tag_id2` decimal(13,0) DEFAULT NULL,
-  `tag_name2` varchar(45) DEFAULT NULL,
-  `tag_id3` decimal(13,0) DEFAULT NULL,
-  `tag_name3` varchar(45) DEFAULT NULL,
-  `tag_id4` decimal(13,0) DEFAULT NULL,
-  `tag_name4` varchar(45) DEFAULT NULL,
-  `tag_id5` decimal(13,0) DEFAULT NULL,
-  `tag_name5` varchar(45) DEFAULT NULL,
-  `tag_id6` decimal(13,0) DEFAULT NULL,
-  `tag_name6` varchar(45) DEFAULT NULL,
-  `tag_id7` decimal(13,0) DEFAULT NULL,
-  `tag_name7` varchar(45) DEFAULT NULL,
-  `tag_id8` decimal(13,0) DEFAULT NULL,
-  `tag_name8` varchar(45) DEFAULT NULL,
-  `tag_id9` decimal(13,0) DEFAULT NULL,
-  `tag_name9` varchar(45) DEFAULT NULL,
   `is_suggest` bit(1) DEFAULT NULL,
   `create_time` bigint(20) DEFAULT NULL,
   `last_update_time` bigint(20) NOT NULL,
@@ -212,8 +194,15 @@ CREATE TABLE `user_wechat_login` (
   `expired` bit(1) DEFAULT 0
 );
 
-DROP VIEW IF EXISTS `v_square_notes`;
-CREATE VIEW `v_square_notes` AS select `c`.`note_id` AS `note_id`,`c`.`content` AS `content`,`c`.`title` AS `title`,`c`.`product_name` AS `product_name`,coalesce(`c`.`rating`,0) AS `owner_rating`,coalesce(`a2`.`rating_sum`,0) AS `comment_rating`,`c`.`main_image_url` AS `main_image_url`,`c`.`main_image_width` AS `main_image_width`,`c`.`main_image_height` AS `main_image_height`,`c`.`create_time` AS `create_time`,coalesce(`a2`.`comment_number`,0) AS `comment_number`,coalesce(`a2`.`like_number`,0) AS `like_number`,coalesce(`a2`.`order_number`,0) AS `order_number`,`u`.`user_id` AS `user_id`,`u`.`user_name` AS `user_name`,`u`.`avatar_url` AS `avatar_url`,`u`.`avatar_width` AS `avatar_width`,`u`.`avatar_height` AS `avatar_height`,`u`.`gender` AS `gender`,`c`.`tag_id1` AS `tag_id1`,`c`.`tag_id2` AS `tag_id2`,`c`.`tag_id3` AS `tag_id3`,`c`.`tag_id4` AS `tag_id4`,`c`.`tag_id5` AS `tag_id5`,`c`.`tag_id6` AS `tag_id6`,`c`.`tag_id7` AS `tag_id7`,`c`.`tag_id8` AS `tag_id8`,`c`.`tag_id9` AS `tag_id9` from ((`note` `c` left join `note_extend` `a2` on((`c`.`note_id` = `a2`.`note_id`))) left join `user` `u` on((`c`.`user_id` = `u`.`user_id`))) ;
+drop view if exists duoshouji.v_square_notes;
+create view duoshouji.v_square_notes as
+select c.note_id, c.content, c.price, c.district_id, c.brand_id, c.category_id, c.title, c.product_name, coalesce(c.rating, 0) owner_rating, coalesce(a2.rating_sum, 0) comment_rating, c.main_image_url, c.main_image_width, c.main_image_height, c.create_time
+  , coalesce(a2.comment_number, 0) comment_number, coalesce(a2.like_number, 0) like_number, coalesce(a2.order_number, 0) order_number,
+  u.user_id, u.user_name, u.avatar_url, u.avatar_width, u.avatar_height, u.gender
+from duoshouji.note c left join
+  duoshouji.note_extend a2 on c.note_id = a2.note_id left join
+  duoshouji.user u on c.user_id = u.user_id
+;
 
 DROP VIEW IF EXISTS `v_user`;
 CREATE VIEW `v_user` AS select `c`.`user_id` AS `user_id`,`c`.`user_name` AS `user_name`,`c`.`password` AS `password`,`c`.`avatar_url` AS `avatar_url`,`c`.`avatar_width` AS `avatar_width`,`c`.`avatar_height` AS `avatar_height`,`c`.`gender` AS `gender`,`a`.`balance` AS `balance`,`a`.`note_number` AS `note_number`,`a`.`order_number` AS `order_number`,`a`.`follow_number` AS `follow_number`,`a`.`followed_number` AS `followed_number` from (`user` `c` join `user_extend` `a`) where (`c`.`user_id` = `a`.`user_id`) ;

@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,6 @@ import com.duoshouji.core.dao.dto.NoteCommentDto;
 import com.duoshouji.core.dao.dto.NoteDetailDto;
 import com.duoshouji.core.dao.dto.UserDto;
 import com.duoshouji.core.util.IndexRange;
-import com.duoshouji.service.common.Tag;
 import com.duoshouji.service.note.CommentPublishAttributes;
 import com.duoshouji.service.note.NotePublishAttributes;
 import com.duoshouji.service.user.Gender;
@@ -123,18 +121,11 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	private void mapNoteDetailDto(NoteDetailDto noteDto, ResultSet rs) throws SQLException {
 		mapNoteBriefDto(noteDto, rs);
 		noteDto.content = rs.getString("content");
-		noteDto.tagIds = new long[9];
-		int i;
-		for (i = 0; i < 9; ++i) {
-			final String column = "tag_id" + (i + 1);
-			BigDecimal tagId = rs.getBigDecimal(column);
-			if (rs.wasNull()) {
-				break;
-			}
-			noteDto.tagIds[i] = tagId.longValue();
-		}
-		noteDto.tagIds = Arrays.copyOf(noteDto.tagIds, i);
 		noteDto.productName = rs.getString("product_name");
+		noteDto.price = rs.getBigDecimal("price");
+		noteDto.districtId = rs.getLong("district_id");
+		noteDto.categoryId = rs.getLong("category_id");
+		noteDto.brandId = rs.getLong("brand_id");
 	}
 
 	private void mapNoteBriefDto(BasicNoteDto noteDto, ResultSet rs) throws SQLException {
@@ -237,22 +228,11 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 		void appendWhereConditions(StringBuilder sqlBuilder) {
 			if (noteFilter != null) {
 				if (noteFilter.isChannelSet()) {
-					sqlBuilder.append(" and " + buildContainsTagIdClause(noteFilter.getChannel().getIdentifier()));
 				}
 			}
 			if (followerId != UserFacade.NULL_USER_ID) {
 				sqlBuilder.append(" and user_id in (select user_id from duoshouji.follow where is_activated = 1 and fan_user_id = ?)");
 			}
-		}
-		
-		private String buildContainsTagIdClause(long tagId) {
-			StringBuilder sqlBuilder = new StringBuilder("(");
-			sqlBuilder.append(" tag_id1 = " + tagId);
-			for (int i = 2; i <= 9; ++i) {
-				sqlBuilder.append(" or tag_id"+i+" = " + tagId);
-			}
-			sqlBuilder.append(")");
-			return sqlBuilder.toString();
 		}
 
 		@Override
@@ -329,30 +309,24 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	public long createNote(final long userId, final NotePublishAttributes noteAttributes) {
 		final long time = System.currentTimeMillis();
 		final long noteId = BASE_NOTE_ID + mysqlDataSource.queryForObject("select count(*) from duoshouji.note", Integer.class);
-		mysqlDataSource.update(buildInsertNoteClause(noteAttributes.getTagCount())
+		mysqlDataSource.update(buildInsertNoteClause()
 				, new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
 							throws SQLException {
 						ps.setBigDecimal(1, BigDecimal.valueOf(noteId));
-						ps.setBigDecimal(2, BigDecimal.valueOf(noteAttributes.getCategory().getIdentifier()));
-						ps.setBigDecimal(3, BigDecimal.valueOf(noteAttributes.getBrand().getIdentifier()));
+						ps.setBigDecimal(2, BigDecimal.valueOf(noteAttributes.getCategory().getId()));
+						ps.setBigDecimal(3, BigDecimal.valueOf(noteAttributes.getBrand().getId()));
 						ps.setString(4, noteAttributes.getProductName());
 						ps.setBigDecimal(5, noteAttributes.getPrice());
-						ps.setBigDecimal(6, BigDecimal.valueOf(noteAttributes.getDistrict().getIdentifier()));
-						ps.setBigDecimal(7, noteAttributes.getLocation().getLongitude());
-						ps.setBigDecimal(8, noteAttributes.getLocation().getLatitude());
-						ps.setString(9, noteAttributes.getTitle());
-						ps.setString(10, noteAttributes.getContent());
+						ps.setBigDecimal(6, BigDecimal.valueOf(noteAttributes.getDistrict().getId()));
+						ps.setString(7, noteAttributes.getTitle());
+						ps.setString(8, noteAttributes.getContent());
+						ps.setLong(9, time);
+						ps.setBigDecimal(10, BigDecimal.valueOf(userId));
 						ps.setLong(11, time);
-						ps.setBigDecimal(12, BigDecimal.valueOf(userId));
-						ps.setLong(13, time);
-						ps.setInt(14, noteAttributes.getRating());
-						ps.setString(15, noteAttributes.getProductName());
-						int parameterIndex = 16;
-						for (Tag tag : noteAttributes.getTags()) {
-							ps.setBigDecimal(parameterIndex++, BigDecimal.valueOf(tag.getIdentifier()));
-						}
+						ps.setInt(12, noteAttributes.getRating());
+						ps.setString(13, noteAttributes.getProductName());
 					}
 				});
 		mysqlDataSource.update(
@@ -373,19 +347,10 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 		return noteId;
 	}
 	
-	private String buildInsertNoteClause(int tagCount) {
-		StringBuilder sqlBuilder = new StringBuilder(
-				"insert into duoshouji.note (note_id, category_id, brand_id, product_name, price, district_id, longitude, latitude, title, content, create_time, user_id, last_update_time, rating, keyword");
-		for (int i = 0; i < tagCount; ++i) {
-			sqlBuilder.append(", tag_id");
-			sqlBuilder.append(i + 1);
-		}
-		sqlBuilder.append(") values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?");
-		for (int i = 0; i < tagCount; ++i) {
-			sqlBuilder.append(",?");
-		}
-		sqlBuilder.append(")");
-		return sqlBuilder.toString();
+	private String buildInsertNoteClause() {
+		return "insert into duoshouji.note "
+				+ "(note_id, category_id, brand_id, product_name, price, district_id, title, content, create_time, user_id, last_update_time, rating, keyword) "
+				+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?)";
 	}
 
 	@Override
@@ -443,7 +408,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	@Override
 	public void createComment(final long noteId, final CommentPublishAttributes commentAttributes, final long userId) {
 		mysqlDataSource.update(
-				"insert into duoshouji.comment (note_id, user_id, content, created_time, rating, longitude, latitude) values (?,?,?,?,?,?,?)"
+				"insert into duoshouji.comment (note_id, user_id, content, created_time, rating) values (?,?,?,?,?)"
 				, new PreparedStatementSetter() {
 
 			@Override
@@ -453,8 +418,6 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 				ps.setString(3, commentAttributes.getComment());
 				ps.setLong(4, System.currentTimeMillis());
 				ps.setInt(5, commentAttributes.getRating());
-				ps.setBigDecimal(6, commentAttributes.getLocation().getLongitude());
-				ps.setBigDecimal(7, commentAttributes.getLocation().getLatitude());
 			}
 			
 		});

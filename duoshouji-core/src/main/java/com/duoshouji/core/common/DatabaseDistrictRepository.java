@@ -2,6 +2,7 @@ package com.duoshouji.core.common;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -12,38 +13,41 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
+import com.duoshouji.core.common.DatabaseDistrictRepository.InnerDistrict;
 import com.duoshouji.service.common.District;
 import com.duoshouji.service.common.DistrictRepository;
 
 @Service
-public class DatabaseDistrictRepository implements DistrictRepository, RowMapper<District> {
+public class DatabaseDistrictRepository extends DistrictRepository implements RowMapper<InnerDistrict> {
 
-	private final List<District> districts;
+	private final List<District> districts = new ArrayList<District>();
 	private final Collection<InnerDistrict> states = new LinkedList<InnerDistrict>();
 
 	public DatabaseDistrictRepository(JdbcTemplate jdbcTemplate) {
-		List<District> temp = jdbcTemplate.query(
+		List<InnerDistrict> temp = jdbcTemplate.query(
 				"select * from duoshouji.district where mod(district_id, 100000000) = 0 order by district_id", this);
-		Iterator<District> ite = temp.iterator();
+		Iterator<InnerDistrict> ite = temp.iterator();
 		while (ite.hasNext()) {
-			InnerDistrict district = (InnerDistrict) ite.next();
+			InnerDistrict district = ite.next();
 			if (district.isState()) {
 				states.add(district);
 				ite.remove();
 			}
 		}
-		districts = Collections.unmodifiableList(temp);
+		for (InnerDistrict district : temp) {
+			districts.add(createDistrict(district.getIdentifier(), district.getName()));
+		}
 	}
 	
 	@Override
-	public List<District> listDistricts() {
-		return districts;
+	public List<District> getDistricts() {
+		return Collections.unmodifiableList(districts);
 	}
 
 	@Override
-	public District getDistrict(long districtId) {
+	public District findDistrict(long districtId) {
 		for (District district : districts) {
-			if (district.getIdentifier() == districtId) {
+			if (district.getId() == districtId) {
 				return district;
 			}
 		}
@@ -51,7 +55,7 @@ public class DatabaseDistrictRepository implements DistrictRepository, RowMapper
 	}
 
 	@Override
-	public District mapRow(ResultSet rs, int rowNum) throws SQLException {
+	public InnerDistrict mapRow(ResultSet rs, int rowNum) throws SQLException {
 		return new InnerDistrict(rs);
 	}
 
@@ -66,7 +70,7 @@ public class DatabaseDistrictRepository implements DistrictRepository, RowMapper
 		return found;
 	}
 	
-	private class InnerDistrict implements District {
+	class InnerDistrict {
 		private long districtId;
 		private String districtName;
 
@@ -76,12 +80,10 @@ public class DatabaseDistrictRepository implements DistrictRepository, RowMapper
 			this.districtName = rs.getString("district_name");
 		}
 
-		@Override
 		public long getIdentifier() {
 			return districtId;
 		}
 
-		@Override
 		public String getName() {
 			String name = districtName;
 			if (!isState()) {

@@ -13,7 +13,7 @@ public interface NoteFacade {
 	
 	NoteCollection listPublishedNotes(long authorId, long timestamp);
 	
-	NoteDetail getNote(long noteId);
+	Note getNote(long noteId);
 
 	List<NoteComment> getNoteComments(long noteId);
 	
@@ -27,12 +27,10 @@ public interface NoteFacade {
 	
 	public interface SquareNoteRequester {
 
-		void setTagId(long tagId);
+		void setChannelId(long tagId);
 		
 		void setFollowedNoteOnly(long followerId);
 		
-		void setLocation(BigDecimal longitude, BigDecimal latitude);
-
 		NoteCollection getSquareNotes(long timestamp);
 	}
 	
@@ -41,8 +39,6 @@ public interface NoteFacade {
 		void setTitle(String title);
 
 		void setContent(String content);
-
-		void setTags(long[] tags);
 
 		void setCategoryId(long categoryId);
 
@@ -55,8 +51,6 @@ public interface NoteFacade {
 		void setDistrictId(long districtId);
 
 		void setRating(int rating);
-
-		void setLocation(BigDecimal longitude, BigDecimal latitude);
 		
 		long publishNote();
 	}

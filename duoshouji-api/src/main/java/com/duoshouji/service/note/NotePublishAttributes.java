@@ -1,13 +1,10 @@
 package com.duoshouji.service.note;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import com.duoshouji.service.common.Brand;
 import com.duoshouji.service.common.Category;
 import com.duoshouji.service.common.District;
-import com.duoshouji.service.common.Tag;
-import com.duoshouji.service.util.Location;
 
 public interface NotePublishAttributes {
 
@@ -25,14 +22,8 @@ public interface NotePublishAttributes {
 
 	public int getRating();
 
-	public Location getLocation();
-
 	public String getTitle();
 
 	public String getContent();
-
-	public List<Tag> getTags();
-	
-	public int getTagCount();
 
 }

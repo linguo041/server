@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import com.duoshouji.core.util.IndexRange;
-import com.duoshouji.service.note.BasicNote;
+import com.duoshouji.service.note.Note;
 import com.duoshouji.service.note.NoteCollection;
 
 public abstract class AbstractOperationDelegatingNoteCollection implements NoteCollection {
@@ -13,7 +13,7 @@ public abstract class AbstractOperationDelegatingNoteCollection implements NoteC
 			new NoteCollection() {
 
 				@Override
-				public Iterator<BasicNote> iterator() {
+				public Iterator<Note> iterator() {
 					return Collections.emptyIterator();
 				}
 
@@ -33,10 +33,10 @@ public abstract class AbstractOperationDelegatingNoteCollection implements NoteC
 		this.cutoff = cutoff;
 	}
 
-	protected abstract Iterator<BasicNote> getNoteIterator(NoteRepository operationDelegator, long cutoff, IndexRange range);
+	protected abstract Iterator<Note> getNoteIterator(NoteRepository operationDelegator, long cutoff, IndexRange range);
 	
 	@Override
-	public Iterator<BasicNote> iterator() {
+	public Iterator<Note> iterator() {
 		return getNoteIterator(operationDelegator, cutoff, null);
 	}
 
@@ -61,7 +61,7 @@ public abstract class AbstractOperationDelegatingNoteCollection implements NoteC
 		}
 
 		@Override
-		public Iterator<BasicNote> iterator() {
+		public Iterator<Note> iterator() {
 			return getNoteIterator(operationDelegator, cutoff, new IndexRange(startIndex, endIndex));
 		}
 

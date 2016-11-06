@@ -30,8 +30,8 @@ import com.duoshouji.restapi.controller.model.response.MobileNumberMappingUserId
 import com.duoshouji.restapi.controller.model.response.NotePublishingResult;
 import com.duoshouji.restapi.controller.model.response.UserProfileResult;
 import com.duoshouji.restapi.controller.model.response.WrongVerificationCodeException;
-import com.duoshouji.service.note.BasicNote;
 import com.duoshouji.service.note.CommentPublishAttributes;
+import com.duoshouji.service.note.Note;
 import com.duoshouji.service.note.NoteFacade;
 import com.duoshouji.service.note.NoteFacade.NotePublisher;
 import com.duoshouji.service.note.NoteFacade.SquareNoteRequester;
@@ -40,7 +40,6 @@ import com.duoshouji.service.user.Password;
 import com.duoshouji.service.user.UserFacade;
 import com.duoshouji.service.user.UserFacade.UserProfileSetter;
 import com.duoshouji.service.util.Image;
-import com.duoshouji.service.util.Location;
 import com.duoshouji.service.util.MobileNumber;
 import com.duoshouji.service.util.VerificationCode;
 
@@ -91,7 +90,7 @@ public class AuthorizedResource extends AuthenticationAdvice {
 			@RequestParam("pageSize") int pageSize
 			) {
 		List<BasicNoteResult> results = new ArrayList<BasicNoteResult>();
-		for (BasicNote note : noteFacade.listPublishedNotes(userId, timestamp).subCollection(loadedSize, loadedSize + pageSize)) {
+		for (Note note : noteFacade.listPublishedNotes(userId, timestamp).subCollection(loadedSize, loadedSize + pageSize)) {
 			results.add(new BasicNoteResult(note));
 		}
 		return results;
@@ -109,10 +108,10 @@ public class AuthorizedResource extends AuthenticationAdvice {
 		final SquareNoteRequester requester = noteFacade.newSquareNoteRequester();
 		requester.setFollowedNoteOnly(userId);
 		if (tagId != null) {
-			requester.setTagId(tagId.longValue());
+			requester.setChannelId(tagId.longValue());
 		}
 		List<BasicNoteResult> results = new ArrayList<BasicNoteResult>();
-		for (BasicNote note : requester.getSquareNotes(timestamp).subCollection(loadedSize, loadedSize + pageSize)) {
+		for (Note note : requester.getSquareNotes(timestamp).subCollection(loadedSize, loadedSize + pageSize)) {
 			results.add(new BasicNoteResult(note));
 		}
 		return results;
@@ -183,9 +182,7 @@ public class AuthorizedResource extends AuthenticationAdvice {
 		publisher.setDistrictId(requestData.districtId);
 		publisher.setTitle(requestData.title);
 		publisher.setContent(requestData.content);
-		publisher.setTags(requestData.tags);
 		publisher.setRating(requestData.rating);
-		publisher.setLocation(requestData.longitude, requestData.latitude);
 		return new NotePublishingResult(publisher.publishNote());
 	}
 		
@@ -215,11 +212,6 @@ public class AuthorizedResource extends AuthenticationAdvice {
 			@Override
 			public int getRating() {
 				return requestData.rating;
-			}
-
-			@Override
-			public Location getLocation() {
-				return new Location(requestData.longitude, requestData.latitude);
 			}
 		});
 	}

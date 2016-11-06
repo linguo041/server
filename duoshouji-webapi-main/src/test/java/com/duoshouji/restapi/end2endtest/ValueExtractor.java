@@ -36,7 +36,7 @@ public abstract class ValueExtractor<T> {
 					JSONArray a = j.getJSONArray("resultValues");
 					long[] tagIds = new long[a.length()];
 					for (int i = 0; i < a.length(); ++i) {
-						tagIds[i] = a.getJSONObject(i).getLong("identifier");
+						tagIds[i] = a.getJSONObject(i).getLong("id");
 					}
 					return tagIds;
 				}
