@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import com.duoshouji.restapi.Constants;
 import com.duoshouji.service.user.Gender;
 import com.duoshouji.service.util.Image;
-import com.duoshouji.service.util.Location;
 import com.duoshouji.service.util.MobileNumber;
 import com.duoshouji.service.util.VerificationCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -175,20 +174,14 @@ public class MockSession extends MockClient {
 	public class PublishNote extends DynamicResourceRequest {
 		private final String title;
 		private final String content;
-		private long[] tags;
 		private long categoryId, brandId, districtId;
 		private BigDecimal price;
-		private Location location;
 		private int rating;
 		
 		private PublishNote(MockNoteContent content) {
 			super();
 			this.title = content.getTitle();
 			this.content = content.getContent();
-		}
-
-		public void setTags(long[] tags) {
-			this.tags = tags;
 		}
 
 		public void setCategoryId(long categoryId) {
@@ -207,10 +200,6 @@ public class MockSession extends MockClient {
 			this.price = price;
 		}
 
-		public void setLocation(Location location) {
-			this.location = location;
-		}
-
 		public void setRating(int rating) {
 			this.rating = rating;
 		}
@@ -224,11 +213,8 @@ public class MockSession extends MockClient {
 			requestData.put("price", price);
 			requestData.put("districtId", districtId);
 			requestData.put("rating", rating);
-			requestData.put("longitude", location.getLongitude());
-			requestData.put("latitude", location.getLatitude());
 			requestData.put("title", title);
 			requestData.put("content", content);
-			requestData.put("tags", tags);
 			return post("/user/notes")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(Utils.getJsonString(requestData))

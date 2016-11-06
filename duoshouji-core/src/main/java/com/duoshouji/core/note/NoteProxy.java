@@ -2,14 +2,14 @@ package com.duoshouji.core.note;
 
 import java.util.List;
 
+import com.duoshouji.core.FullFunctionalNote;
 import com.duoshouji.core.FullFunctionalUser;
-import com.duoshouji.core.Note;
-import com.duoshouji.service.common.Tag;
 import com.duoshouji.service.note.CommentPublishAttributes;
 import com.duoshouji.service.note.NoteComment;
+import com.duoshouji.service.note.ReferredCommodity;
 import com.duoshouji.service.util.Image;
 
-public class NoteProxy implements Note {
+public class NoteProxy implements FullFunctionalNote {
 
 	private long noteId;
 	private NoteRepository noteRepository;
@@ -20,7 +20,7 @@ public class NoteProxy implements Note {
 		this.noteRepository = noteRepository;
 	}
 	
-	private Note getNote() {
+	private FullFunctionalNote getNote() {
 		if (delegator == null) {
 			delegator = noteRepository.loadNote(noteId);
 		}
@@ -33,18 +33,8 @@ public class NoteProxy implements Note {
 	}
 
 	@Override
-	public List<Tag> getTags() {
-		return getNote().getTags();
-	}
-
-	@Override
 	public String getContent() {
 		return getNote().getContent();
-	}
-
-	@Override
-	public String getProductName() {
-		return getNote().getProductName();
 	}
 
 	@Override
@@ -110,6 +100,11 @@ public class NoteProxy implements Note {
 	@Override
 	public void setImages(Image[] images) {
 		getNote().setImages(images);
+	}
+
+	@Override
+	public ReferredCommodity getCommodity() {
+		return getNote().getCommodity();
 	}
 
 }

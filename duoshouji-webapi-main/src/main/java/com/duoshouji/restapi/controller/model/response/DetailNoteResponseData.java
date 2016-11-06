@@ -1,17 +1,20 @@
 package com.duoshouji.restapi.controller.model.response;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import com.duoshouji.service.common.Tag;
-import com.duoshouji.service.note.NoteDetail;
+import com.duoshouji.service.note.Note;
 import com.duoshouji.service.util.Image;
 
-public class DetailNoteResult {
+public class DetailNoteResponseData {
 	
-	private NoteDetail delegator;
+	private List<Tag> tags;
+	private Note delegator;
 	
-	public DetailNoteResult(NoteDetail delegator) {
+	public DetailNoteResponseData(Note delegator, List<Tag>	tags) {
 		this.delegator = delegator;
+		this.tags = tags;
 	}
 	
 	public long getUserId() {
@@ -47,7 +50,7 @@ public class DetailNoteResult {
 	}
 	
 	public List<Tag> getTags() {
-		return delegator.getTags();
+		return tags;
 	}
 	
 	public int getLikeCount() {
@@ -64,5 +67,24 @@ public class DetailNoteResult {
 	
 	public int getRating() {
 		return delegator.getRating();
+	}
+	
+	public NoteMark getNoteMark() {
+		return new NoteMark();
+	}
+	
+	public class NoteMark {
+		
+		public BigDecimal getPrice() {
+			return delegator.getCommodity().getPrice();
+		}
+		
+		public String getProductName() {
+			return delegator.getCommodity().getProductName();
+		}
+		
+		public String getLocation() {
+			return delegator.getCommodity().getDistrict().toString();
+		}
 	}
 }

@@ -1,12 +1,12 @@
 package com.duoshouji.restapi.controller.model.response;
 
-import com.duoshouji.service.note.BasicNote;
+import com.duoshouji.service.note.Note;
 
 public class BasicNoteResult {
 	
-	private BasicNote delegator;
+	private Note delegator;
 
-	public BasicNoteResult(BasicNote delegator) {
+	public BasicNoteResult(Note delegator) {
 		this.delegator = delegator;
 	}
 

@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import com.duoshouji.service.user.Gender;
 import com.duoshouji.service.user.Password;
 import com.duoshouji.service.util.Image;
-import com.duoshouji.service.util.Location;
 import com.duoshouji.service.util.MobileNumber;
 import com.duoshouji.service.util.VerificationCode;
 
@@ -23,6 +22,5 @@ public class MockConstants {
 	public static final int MOCK_TAG_ID = 1;
 	public static final BigDecimal MOCK_LONGITUDE = new BigDecimal("123.456789");
 	public static final BigDecimal MOCK_LATITUDE = new BigDecimal("123.456789");
-	public static final Location MOCK_LOCATION = new Location(MOCK_LONGITUDE, MOCK_LATITUDE);
 	public static final Image MOCK_LOGO_IMAGE = new Image(100, 100, "https://avatars2.githubusercontent.com/u/19884155?v=3&s=200");
 }

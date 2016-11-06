@@ -4,12 +4,12 @@ import java.util.List;
 
 import com.duoshouji.service.annotation.Unique;
 import com.duoshouji.service.note.CommentPublishAttributes;
+import com.duoshouji.service.note.Note;
 import com.duoshouji.service.note.NoteComment;
-import com.duoshouji.service.note.NoteDetail;
 import com.duoshouji.service.util.Image;
 
 @Unique
-public interface Note extends NoteDetail {
+public interface FullFunctionalNote extends Note {
 	
 	@Override
 	FullFunctionalUser getAuthor();

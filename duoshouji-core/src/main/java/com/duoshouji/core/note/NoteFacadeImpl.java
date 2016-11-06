@@ -1,40 +1,38 @@
 package com.duoshouji.core.note;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Service;
 
-import com.duoshouji.core.Note;
+import com.duoshouji.core.FullFunctionalNote;
 import com.duoshouji.core.NoteFilter;
 import com.duoshouji.service.common.Brand;
+import com.duoshouji.service.common.BrandRepository;
 import com.duoshouji.service.common.Category;
-import com.duoshouji.service.common.CommodityCatelogRepository;
+import com.duoshouji.service.common.CategoryRepository;
 import com.duoshouji.service.common.District;
 import com.duoshouji.service.common.DistrictRepository;
 import com.duoshouji.service.common.Tag;
 import com.duoshouji.service.common.TagRepository;
 import com.duoshouji.service.note.CommentPublishAttributes;
+import com.duoshouji.service.note.Note;
 import com.duoshouji.service.note.NoteCollection;
 import com.duoshouji.service.note.NoteComment;
-import com.duoshouji.service.note.NoteDetail;
 import com.duoshouji.service.note.NoteFacade;
 import com.duoshouji.service.note.NotePublishAttributes;
-import com.duoshouji.service.note.NotePublishException;
 import com.duoshouji.service.user.UserFacade;
 import com.duoshouji.service.util.Image;
-import com.duoshouji.service.util.Location;
 
 @Service
 public class NoteFacadeImpl implements NoteFacade {
 
 	private NoteRepository noteRepository;
 	private TagRepository tagRepository;
-	private CommodityCatelogRepository commodityCatelogRepository;
+	private CategoryRepository categoryRepository;
+	private BrandRepository brandRepository;
 	private DistrictRepository districtRepository;
 
 	@Required
@@ -51,9 +49,14 @@ public class NoteFacadeImpl implements NoteFacade {
 
 	@Required
 	@Autowired
-	public void setCommodityCatelogRepository(
-			CommodityCatelogRepository commodityCatelogRepository) {
-		this.commodityCatelogRepository = commodityCatelogRepository;
+	public void setCategoryRepository(CategoryRepository categoryRepository) {
+		this.categoryRepository = categoryRepository;
+	}
+
+	@Required
+	@Autowired
+	public void setBrandRepository(BrandRepository brandRepository) {
+		this.brandRepository = brandRepository;
 	}
 
 	@Required
@@ -73,7 +76,7 @@ public class NoteFacadeImpl implements NoteFacade {
 	}
 
 	@Override
-	public NoteDetail getNote(long noteId) {
+	public Note getNote(long noteId) {
 		return noteRepository.getNote(noteId);
 	}
 
@@ -105,7 +108,6 @@ public class NoteFacadeImpl implements NoteFacade {
 	
 	private class InnerSquareNoteRequester implements SquareNoteRequester, NoteFilter {
 		private Tag tag;
-		private Location location;
 		private long followerId = UserFacade.NULL_USER_ID;
 		
 		private InnerSquareNoteRequester() {
@@ -113,18 +115,13 @@ public class NoteFacadeImpl implements NoteFacade {
 		}
 		
 		@Override
-		public void setTagId(long tagId) {
-			tag = tagRepository.findTag(tagId);
+		public void setChannelId(long tagId) {
+			tag = tagRepository.findChannel(tagId);
 		}
 
 		@Override
 		public void setFollowedNoteOnly(long followerId) {
 			this.followerId = followerId;
-		}
-
-		@Override
-		public void setLocation(BigDecimal longitude, BigDecimal latitude) {
-			location = new Location(longitude, latitude);
 		}
 
 		@Override
@@ -141,16 +138,6 @@ public class NoteFacadeImpl implements NoteFacade {
 		public boolean isChannelSet() {
 			return tag != null;
 		}
-		
-		@Override
-		public Location getLocation() {
-			return location;
-		}
-
-		@Override
-		public boolean isLocationSet() {
-			return location != null;
-		}
 	}
 	
 	private class InnerNoteBuilder implements NotePublisher, NotePublishAttributes {
@@ -165,9 +152,7 @@ public class NoteFacadeImpl implements NoteFacade {
 		
 		private String title;
 		private String content;
-		private List<Tag> tags = Collections.emptyList();
 		private int rating;
-		private Location location;
 		
 		private InnerNoteBuilder(long userId) {
 			this.userId = userId;
@@ -182,28 +167,16 @@ public class NoteFacadeImpl implements NoteFacade {
 		public void setContent(String content) {
 			this.content = content;
 		}
-
-		@Override
-		public void setTags(long[] tagIds) {
-			if (tagIds.length >= MAX_TAG_COUNT) {
-				throw new NotePublishException("Tag count has exceeds maximum value; maximum allowed tag count: 9");
-			}
-			Tag[] tags = new Tag[tagIds.length];
-			for (int i = 0; i < tags.length; ++i) {
-				tags[i] = tagRepository.findTag(tagIds[i]);
-			}
-			this.tags = Arrays.asList(tags);
-		}
 		
 		@Override
 		public void setCategoryId(long categoryId) {
-			category = commodityCatelogRepository.getCategory(categoryId);
+			category = categoryRepository.findCategory(categoryId);
 			
 		}
 
 		@Override
 		public void setBrandId(long brandId) {
-			brand = commodityCatelogRepository.getBrand(brandId);
+			brand = brandRepository.findBrand(brandId);
 		}
 
 		@Override
@@ -218,7 +191,7 @@ public class NoteFacadeImpl implements NoteFacade {
 
 		@Override
 		public void setDistrictId(long districtId) {
-			district = districtRepository.getDistrict(districtId);
+			district = districtRepository.findDistrict(districtId);
 			
 		}
 
@@ -226,15 +199,10 @@ public class NoteFacadeImpl implements NoteFacade {
 		public void setRating(int rating) {
 			this.rating = rating;
 		}
-
-		@Override
-		public void setLocation(BigDecimal longitude, BigDecimal latitude) {
-			this.location = new Location(longitude, latitude);
-		}
 		
 		@Override
 		public long publishNote() {
-			final Note note = noteRepository.createNote(userId, this);
+			final FullFunctionalNote note = noteRepository.createNote(userId, this);
 			note.getAuthor().firePublishNote();
 			return note.getNoteId();
 		}
@@ -270,11 +238,6 @@ public class NoteFacadeImpl implements NoteFacade {
 		}
 
 		@Override
-		public Location getLocation() {
-			return location;
-		}
-
-		@Override
 		public String getTitle() {
 			return title;
 		}
@@ -282,16 +245,6 @@ public class NoteFacadeImpl implements NoteFacade {
 		@Override
 		public String getContent() {
 			return content;
-		}
-
-		@Override
-		public List<Tag> getTags() {
-			return tags;
-		}
-
-		@Override
-		public int getTagCount() {
-			return tags.size();
 		}
 	}
 }

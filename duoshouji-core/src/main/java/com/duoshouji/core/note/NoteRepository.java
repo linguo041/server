@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Service;
 
+import com.duoshouji.core.FullFunctionalNote;
 import com.duoshouji.core.FullFunctionalUser;
-import com.duoshouji.core.Note;
 import com.duoshouji.core.NoteDao;
 import com.duoshouji.core.NoteFilter;
 import com.duoshouji.core.dao.dto.BasicNoteDto;
@@ -20,9 +20,11 @@ import com.duoshouji.core.dao.dto.NoteCommentDto;
 import com.duoshouji.core.dao.dto.NoteDetailDto;
 import com.duoshouji.core.user.UserRepository;
 import com.duoshouji.core.util.IndexRange;
-import com.duoshouji.service.common.TagRepository;
-import com.duoshouji.service.note.BasicNote;
+import com.duoshouji.service.common.BrandRepository;
+import com.duoshouji.service.common.CategoryRepository;
+import com.duoshouji.service.common.DistrictRepository;
 import com.duoshouji.service.note.CommentPublishAttributes;
+import com.duoshouji.service.note.Note;
 import com.duoshouji.service.note.NoteCollection;
 import com.duoshouji.service.note.NoteComment;
 import com.duoshouji.service.note.NotePublishAttributes;
@@ -33,9 +35,11 @@ import com.duoshouji.service.util.Image;
 class NoteRepository {
 
 	private NoteDao noteDao;
-	private TagRepository tagRepository;
 	private UserRepository userRepository;
-	private Map<Long, Note> noteCache = new HashMap<Long, Note>();
+	private BrandRepository brandRepository;
+	private CategoryRepository categoryRepository;
+	private DistrictRepository districtRepository;
+	private Map<Long, FullFunctionalNote> noteCache = new HashMap<Long, FullFunctionalNote>();
 	
 	@Required
 	@Autowired
@@ -45,14 +49,26 @@ class NoteRepository {
 
 	@Required
 	@Autowired
-	public void setTagRepository(TagRepository tagRepository) {
-		this.tagRepository = tagRepository;
+	public void setUserRepository(UserRepository userRepository) {
+		this.userRepository = userRepository;
 	}
 
 	@Required
 	@Autowired
-	public void setUserRepository(UserRepository userRepository) {
-		this.userRepository = userRepository;
+	public void setDistrictRepository(DistrictRepository districtRepository) {
+		this.districtRepository = districtRepository;
+	}
+
+	@Required
+	@Autowired
+	public void setBrandRepository(BrandRepository brandRepository) {
+		this.brandRepository = brandRepository;
+	}
+
+	@Required
+	@Autowired
+	public void setCategoryRepository(CategoryRepository categoryRepository) {
+		this.categoryRepository = categoryRepository;
 	}
 
 	OperationDelegatingNote loadNote(long noteId) {
@@ -73,12 +89,22 @@ class NoteRepository {
 		note.authorId = noteDto.authorId;
 		note.content = noteDto.content;
 		note.otherImages = noteDto.images;
-		note.tags = tagRepository.findTags(noteDto.tagIds);
+		
+		if (noteDto.brandId > 0) {
+			note.brand = brandRepository.findBrand(noteDto.brandId);
+		}
+		if (noteDto.categoryId > 0) {
+			note.category = categoryRepository.findCategory(noteDto.categoryId);
+		}
 		note.productName = noteDto.productName;
+		note.price = noteDto.price;
+		if (noteDto.districtId > 0) {
+			note.district = districtRepository.findDistrict(noteDto.districtId);
+		}
 	}
 	
-	public Note getNote(long noteId) {
-		Note note = noteCache.get(Long.valueOf(noteId));
+	public FullFunctionalNote getNote(long noteId) {
+		FullFunctionalNote note = noteCache.get(Long.valueOf(noteId));
 		if (note == null) {
 			note = new NoteProxy(noteId, this);
 			noteCache.put(Long.valueOf(noteId), note);
@@ -94,16 +120,16 @@ class NoteRepository {
 		return new FilteredNoteCollection(this, timestamp, noteFilter, followerId);
 	}
 
-	public Note createNote(long authorId, NotePublishAttributes notePublishAttributes) {
+	public FullFunctionalNote createNote(long authorId, NotePublishAttributes notePublishAttributes) {
 		final long noteId = noteDao.createNote(authorId, notePublishAttributes);
 		return getNote(noteId);
 	}
 
-	Iterator<BasicNote> findNotes(long cutoff, IndexRange range, long authorId) {
+	Iterator<Note> findNotes(long cutoff, IndexRange range, long authorId) {
 		return new InnerNoteIterator(noteDao.findNotes(cutoff, range, authorId));
 	}
 
-	Iterator<BasicNote> findNotes(long cutoff, IndexRange range, NoteFilter noteFilter, long followerId) {
+	Iterator<Note> findNotes(long cutoff, IndexRange range, NoteFilter noteFilter, long followerId) {
 		return new InnerNoteIterator(noteDao.findNotes(cutoff, range, noteFilter, followerId));
 	}
 	
@@ -115,7 +141,7 @@ class NoteRepository {
 		return results;
 	}
 
-	FullFunctionalUser getAuthor(SimpleBasicNote note) {
+	FullFunctionalUser getAuthor(OperationDelegatingNote note) {
 		return userRepository.getUser(note.authorId);
 	}
 	
@@ -154,7 +180,7 @@ class NoteRepository {
 		
 	}
 	
-	private class InnerNoteIterator implements Iterator<BasicNote> {
+	private class InnerNoteIterator implements Iterator<Note> {
 		private List<BasicNoteDto> noteDtos;
 		private int index = 0;
 		
@@ -168,7 +194,7 @@ class NoteRepository {
 		}
 		
 		@Override
-		public BasicNote next() {
+		public Note next() {
 			if (!hasNext()) {
 				throw new NoSuchElementException();
 			}

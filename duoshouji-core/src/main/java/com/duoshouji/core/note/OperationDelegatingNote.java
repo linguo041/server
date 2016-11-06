@@ -1,25 +1,94 @@
 package com.duoshouji.core.note;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import com.duoshouji.core.Note;
-import com.duoshouji.service.common.Tag;
+import com.duoshouji.core.FullFunctionalNote;
+import com.duoshouji.core.FullFunctionalUser;
+import com.duoshouji.service.common.Brand;
+import com.duoshouji.service.common.Category;
+import com.duoshouji.service.common.District;
 import com.duoshouji.service.note.CommentPublishAttributes;
 import com.duoshouji.service.note.NoteComment;
+import com.duoshouji.service.note.ReferredCommodity;
 import com.duoshouji.service.util.Image;
 
-class OperationDelegatingNote extends SimpleBasicNote implements Note {
-
+class OperationDelegatingNote implements FullFunctionalNote, ReferredCommodity {
+	
+	final NoteRepository operationManager;
+	final long noteId;
+	
+	String title;
+	Image mainImage;
+	int ownerRating;
+	int commentRatingSum;
+	int likeCount;
+	int commentCount;
+	int transactionCount;
+	long publishedTime;
+	long authorId;
 	String content;
 	List<Image> otherImages;
-	List<Tag> tags;
+	
 	String productName;
+	BigDecimal price;
+	District district;
+	Brand brand;
+	Category category;
 	
 	public OperationDelegatingNote(long noteId, NoteRepository operationManager) {
-		super(noteId, operationManager);
+		this.noteId = noteId;
+		this.operationManager = operationManager;
+	}
+	
+	@Override
+	public long getNoteId() {
+		return noteId;
+	}
+
+	@Override
+	public String getTitle() {
+		return title;
+	}
+
+	@Override
+	public Image getMainImage() {
+		return mainImage;
+	}
+
+	@Override
+	public int getRating() {
+		if (commentCount == 0) {
+			return ownerRating;
+		}
+		return (commentRatingSum + ownerRating) / (commentCount + 1);
+	}
+
+	@Override
+	public int getLikeCount() {
+		return likeCount;
+	}
+
+	@Override
+	public int getCommentCount() {
+		return commentCount;
+	}
+
+	@Override
+	public int getTransactionCount() {
+		return transactionCount;
+	}
+
+	@Override
+	public long getPublishedTime() {
+		return publishedTime;
+	}
+
+	@Override
+	public FullFunctionalUser getAuthor() {
+		return operationManager.getAuthor(this);
 	}
 
 	@Override
@@ -31,18 +100,8 @@ class OperationDelegatingNote extends SimpleBasicNote implements Note {
 	}
 
 	@Override
-	public List<Tag> getTags() {
-		return Collections.unmodifiableList(tags);
-	}
-
-	@Override
 	public String getContent() {
 		return content;
-	}
-
-	@Override
-	public String getProductName() {
-		return productName;
 	}
 
 	@Override
@@ -72,4 +131,35 @@ class OperationDelegatingNote extends SimpleBasicNote implements Note {
 		operationManager.likedByUser(userId, this);
 		++likeCount;
 	}
+
+	@Override
+	public ReferredCommodity getCommodity() {
+		return this;
+	}
+
+	@Override
+	public BigDecimal getPrice() {
+		return price;
+	}
+
+	@Override
+	public District getDistrict() {
+		return district;
+	}
+
+	@Override
+	public String getProductName() {
+		return productName;
+	}
+
+	@Override
+	public Brand getBrand() {
+		return brand;
+	}
+
+	@Override
+	public Category getCategory() {
+		return category;
+	}
+
 }
