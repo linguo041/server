@@ -3,6 +3,7 @@ package com.duoshouji.restapi.controller.model.response;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.duoshouji.service.common.District;
 import com.duoshouji.service.common.Tag;
 import com.duoshouji.service.note.Note;
 import com.duoshouji.service.util.Image;
@@ -83,8 +84,8 @@ public class DetailNoteResponseData {
 			return delegator.getCommodity().getProductName();
 		}
 		
-		public String getLocation() {
-			return delegator.getCommodity().getDistrict().toString();
+		public District getLocation() {
+			return delegator.getCommodity().getDistrict();
 		}
 	}
 }

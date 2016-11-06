@@ -170,13 +170,16 @@ public class NoteFacadeImpl implements NoteFacade {
 		
 		@Override
 		public void setCategoryId(long categoryId) {
-			category = categoryRepository.findCategory(categoryId);
-			
+			if (categoryId > 0) {
+				category = categoryRepository.findCategory(categoryId);
+			}
 		}
 
 		@Override
 		public void setBrandId(long brandId) {
-			brand = brandRepository.findBrand(brandId);
+			if (brandId > 0) {
+				brand = brandRepository.findBrand(brandId);
+			}
 		}
 
 		@Override
@@ -191,8 +194,9 @@ public class NoteFacadeImpl implements NoteFacade {
 
 		@Override
 		public void setDistrictId(long districtId) {
-			district = districtRepository.findDistrict(districtId);
-			
+			if (districtId > 0) {
+				district = districtRepository.findDistrict(districtId);
+			}
 		}
 
 		@Override
@@ -245,6 +249,31 @@ public class NoteFacadeImpl implements NoteFacade {
 		@Override
 		public String getContent() {
 			return content;
+		}
+
+		@Override
+		public boolean isCategorySet() {
+			return category != null;
+		}
+
+		@Override
+		public boolean isBrandSet() {
+			return brand != null;
+		}
+
+		@Override
+		public boolean isProductNameSet() {
+			return productName != null;
+		}
+
+		@Override
+		public boolean isDistrictSet() {
+			return district != null;
+		}
+
+		@Override
+		public boolean isPriceSet() {
+			return price != null;
 		}
 	}
 }

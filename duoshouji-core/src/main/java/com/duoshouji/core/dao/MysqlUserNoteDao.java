@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -315,18 +316,42 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 					public void setValues(PreparedStatement ps)
 							throws SQLException {
 						ps.setBigDecimal(1, BigDecimal.valueOf(noteId));
-						ps.setBigDecimal(2, BigDecimal.valueOf(noteAttributes.getCategory().getId()));
-						ps.setBigDecimal(3, BigDecimal.valueOf(noteAttributes.getBrand().getId()));
-						ps.setString(4, noteAttributes.getProductName());
-						ps.setBigDecimal(5, noteAttributes.getPrice());
-						ps.setBigDecimal(6, BigDecimal.valueOf(noteAttributes.getDistrict().getId()));
+						if (noteAttributes.isCategorySet()) {
+							ps.setBigDecimal(2, BigDecimal.valueOf(noteAttributes.getCategory().getId()));
+						} else {
+							ps.setNull(2, Types.DECIMAL);
+						}
+						if (noteAttributes.isBrandSet()) {
+							ps.setBigDecimal(3, BigDecimal.valueOf(noteAttributes.getBrand().getId()));
+						} else {
+							ps.setNull(3, Types.DECIMAL);
+						}
+						if (noteAttributes.isProductNameSet()) {
+							ps.setString(4, noteAttributes.getProductName());
+						} else {
+							ps.setNull(4, Types.VARCHAR);
+						}
+						if (noteAttributes.isPriceSet()) {
+							ps.setBigDecimal(5, noteAttributes.getPrice());
+						} else {
+							ps.setNull(5, Types.DECIMAL);
+						}
+						if (noteAttributes.isDistrictSet()) {
+							ps.setBigDecimal(6, BigDecimal.valueOf(noteAttributes.getDistrict().getId()));
+						} else {
+							ps.setNull(6, Types.DECIMAL);
+						}
 						ps.setString(7, noteAttributes.getTitle());
 						ps.setString(8, noteAttributes.getContent());
 						ps.setLong(9, time);
 						ps.setBigDecimal(10, BigDecimal.valueOf(userId));
 						ps.setLong(11, time);
 						ps.setInt(12, noteAttributes.getRating());
-						ps.setString(13, noteAttributes.getProductName());
+						if (noteAttributes.isProductNameSet()) {
+							ps.setString(13, noteAttributes.getProductName());
+						} else {
+							ps.setNull(13, Types.VARCHAR);
+						}
 					}
 				});
 		mysqlDataSource.update(

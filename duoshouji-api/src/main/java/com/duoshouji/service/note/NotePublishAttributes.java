@@ -11,14 +11,24 @@ public interface NotePublishAttributes {
 	public static final int MAX_TAG_COUNT = 9;
 	
 	public Category getCategory();
+	
+	public boolean isCategorySet();
 
 	public Brand getBrand();
+	
+	public boolean isBrandSet();
 
 	public String getProductName();
+	
+	public boolean isProductNameSet();	
 
 	public District getDistrict();
+	
+	public boolean isDistrictSet();
 
 	public BigDecimal getPrice();
+	
+	public boolean isPriceSet();
 
 	public int getRating();
 
