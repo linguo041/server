@@ -362,7 +362,11 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 					public void setValues(PreparedStatement ps)
 							throws SQLException {
 						ps.setBigDecimal(1, BigDecimal.valueOf(noteId));
-						ps.setString(2, noteAttributes.getProductName());
+						if (noteAttributes.isProductNameSet()) {
+							ps.setString(2, noteAttributes.getProductName());
+						} else {
+							ps.setNull(2, Types.VARCHAR);
+						}
 						ps.setInt(3, 1);
 					}
 			
