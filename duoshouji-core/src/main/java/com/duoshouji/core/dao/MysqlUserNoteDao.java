@@ -347,11 +347,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 						ps.setBigDecimal(10, BigDecimal.valueOf(userId));
 						ps.setLong(11, time);
 						ps.setInt(12, noteAttributes.getRating());
-						if (noteAttributes.isProductNameSet()) {
-							ps.setString(13, noteAttributes.getProductName());
-						} else {
-							ps.setNull(13, Types.VARCHAR);
-						}
+						ps.setString(13, noteAttributes.getTitle());
 					}
 				});
 		mysqlDataSource.update(
@@ -362,11 +358,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 					public void setValues(PreparedStatement ps)
 							throws SQLException {
 						ps.setBigDecimal(1, BigDecimal.valueOf(noteId));
-						if (noteAttributes.isProductNameSet()) {
-							ps.setString(2, noteAttributes.getProductName());
-						} else {
-							ps.setNull(2, Types.VARCHAR);
-						}
+						ps.setString(2, noteAttributes.getTitle());
 						ps.setInt(3, 1);
 					}
 			
