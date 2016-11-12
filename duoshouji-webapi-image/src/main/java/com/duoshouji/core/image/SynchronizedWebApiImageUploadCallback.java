@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import com.duoshouji.core.ImageUploadCallback;
 import com.duoshouji.core.StoreImageException;
+import com.duoshouji.restapi.Constants;
 import com.duoshouji.restapi.image.ImageJsonAdapter;
 import com.duoshouji.restapi.image.UploadNoteImageCallbackData;
 import com.duoshouji.service.util.Image;
@@ -60,7 +61,9 @@ public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallbac
 			HttpUriRequest request = RequestBuilder.post(buildURI(originalUploadRequest))
 					.setEntity(new StringEntity(toJsonString(bodyContent)))
 					.setCharset(StandardCharsets.UTF_8)
-					.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType()).build();
+					.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
+					.setHeader(Constants.APP_TOKEN_HTTP_HEADER_NAME, ((HttpServletRequest)originalUploadRequest).getHeader(Constants.APP_TOKEN_HTTP_HEADER_NAME))
+					.build();
 			final int statusCode = httpClient.execute(request).getStatusLine().getStatusCode();
 			if (statusCode != 200) {
 				throw new StoreImageException("Image url synchronize failed in service.");
