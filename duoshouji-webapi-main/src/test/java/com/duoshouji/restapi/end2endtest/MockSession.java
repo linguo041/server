@@ -445,15 +445,15 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			UploadNoteImageCallbackData[] requestData = new UploadNoteImageCallbackData[images.length];
+			UploadNoteImageCallbackData.ImageInfo[] requestData = new UploadNoteImageCallbackData.ImageInfo[images.length];
 			for (int i = 0; i < requestData.length; ++i) {
-				requestData[i] = new UploadNoteImageCallbackData();
+				requestData[i] = new UploadNoteImageCallbackData.ImageInfo();
 				requestData[i].imageInfo = new ImageJsonAdapter(images[i]);
 				requestData[i].imageMarks = new ImageMark[0];
 			}
 			return post("/notes/{note-id}/images", noteId)
 					.contentType(MediaType.APPLICATION_JSON)
-					.content(new ObjectMapper().writeValueAsString(requestData))
+					.content(new ObjectMapper().writeValueAsString(Collections.singletonMap("images", requestData)))
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
 		

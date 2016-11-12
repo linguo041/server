@@ -9,5 +9,5 @@ public interface ImageUploadCallback {
 
 	void firePortraitUpload(ServletRequest originalUploadRequest, Image imageInfo) throws StoreImageException;
 	
-	void fireNoteImageUpload(ServletRequest originalUploadRequest, UploadNoteImageCallbackData[] callbackData) throws StoreImageException;
+	void fireNoteImageUpload(ServletRequest originalUploadRequest, UploadNoteImageCallbackData callbackData) throws StoreImageException;
 }

@@ -245,11 +245,11 @@ public class AuthorizedResource extends AuthenticationAdvice {
 	@ResponseBody
 	public void setNoteImages(
 			@PathVariable("note-id") long noteId,
-			@RequestBody UploadNoteImageCallbackData[] requestData) throws IOException {
-		NoteImage[] images = new NoteImage[requestData.length];
+			@RequestBody UploadNoteImageCallbackData requestData) throws IOException {
+		NoteImage[] images = new NoteImage[requestData.images.length];
 		for (int i = 0; i < images.length; ++i) {
 			logger.info("Processing call back from image service");
-			UploadNoteImageCallbackData imageData = requestData[i];
+			UploadNoteImageCallbackData.ImageInfo imageData = requestData.images[i];
 			String marks = null;
 			if (imageData.imageMarks != null && imageData.imageMarks.length > 0) {
 				marks = new ObjectMapper().writeValueAsString(imageData.imageMarks);

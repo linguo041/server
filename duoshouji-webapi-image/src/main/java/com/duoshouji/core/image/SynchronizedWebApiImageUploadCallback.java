@@ -51,7 +51,7 @@ public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallbac
 	}
 
 	@Override
-	public void fireNoteImageUpload(ServletRequest originalUploadRequest, UploadNoteImageCallbackData[] imageInfos) throws StoreImageException {
+	public void fireNoteImageUpload(ServletRequest originalUploadRequest, UploadNoteImageCallbackData imageInfos) throws StoreImageException {
 		makeCallbackAndEnsureSuccess(originalUploadRequest, imageInfos);
 	}
 	

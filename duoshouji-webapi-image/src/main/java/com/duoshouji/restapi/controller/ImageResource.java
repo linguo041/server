@@ -62,12 +62,14 @@ public class ImageResource extends AuthenticationAdvice {
 			imageStreams[i] = decodeImageData(requestData.images[i].image);
 		}
 		Image[] images = imageStore.saveNoteImage(noteId, imageStreams);
-		UploadNoteImageCallbackData[] callbackData = new UploadNoteImageCallbackData[images.length];
-		for (int i = 0; i < callbackData.length; ++i) {
-			callbackData[i] = new UploadNoteImageCallbackData();
-			callbackData[i].imageInfo = new ImageJsonAdapter(images[i]);
-			callbackData[i].imageMarks = requestData.images[i].marks;
+		UploadNoteImageCallbackData.ImageInfo[] imageInfos = new UploadNoteImageCallbackData.ImageInfo[images.length];
+		for (int i = 0; i < imageInfos.length; ++i) {
+			imageInfos[i] = new UploadNoteImageCallbackData.ImageInfo();
+			imageInfos[i].imageInfo = new ImageJsonAdapter(images[i]);
+			imageInfos[i].imageMarks = requestData.images[i].marks;
 		}
+		UploadNoteImageCallbackData callbackData = new UploadNoteImageCallbackData();
+		callbackData.images = imageInfos;
 		callback.fireNoteImageUpload(webRequest, callbackData);
 	}
 	
