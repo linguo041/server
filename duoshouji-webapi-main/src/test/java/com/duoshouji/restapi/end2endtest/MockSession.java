@@ -13,6 +13,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import com.duoshouji.restapi.Constants;
+import com.duoshouji.restapi.image.ImageJsonAdapter;
+import com.duoshouji.restapi.image.ImageMark;
+import com.duoshouji.restapi.image.UploadNoteImageCallbackData;
 import com.duoshouji.service.user.Gender;
 import com.duoshouji.service.util.Image;
 import com.duoshouji.service.util.MobileNumber;
@@ -442,10 +445,15 @@ public class MockSession extends MockClient {
 
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			
+			UploadNoteImageCallbackData[] requestData = new UploadNoteImageCallbackData[images.length];
+			for (int i = 0; i < requestData.length; ++i) {
+				requestData[i] = new UploadNoteImageCallbackData();
+				requestData[i].imageInfo = new ImageJsonAdapter(images[i]);
+				requestData[i].imageMarks = new ImageMark[0];
+			}
 			return post("/notes/{note-id}/images", noteId)
 					.contentType(MediaType.APPLICATION_JSON)
-					.content(new ObjectMapper().writeValueAsString(images))
+					.content(new ObjectMapper().writeValueAsString(requestData))
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
 		

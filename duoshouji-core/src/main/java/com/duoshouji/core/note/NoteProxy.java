@@ -6,8 +6,8 @@ import com.duoshouji.core.FullFunctionalNote;
 import com.duoshouji.core.FullFunctionalUser;
 import com.duoshouji.service.note.CommentPublishAttributes;
 import com.duoshouji.service.note.NoteComment;
+import com.duoshouji.service.note.NoteImage;
 import com.duoshouji.service.note.ReferredCommodity;
-import com.duoshouji.service.util.Image;
 
 public class NoteProxy implements FullFunctionalNote {
 
@@ -28,7 +28,7 @@ public class NoteProxy implements FullFunctionalNote {
 	}
 	
 	@Override
-	public List<Image> getImages() {
+	public List<NoteImage> getImages() {
 		return getNote().getImages();
 	}
 
@@ -48,7 +48,7 @@ public class NoteProxy implements FullFunctionalNote {
 	}
 
 	@Override
-	public Image getMainImage() {
+	public NoteImage getMainImage() {
 		return getNote().getMainImage();
 	}
 
@@ -98,7 +98,7 @@ public class NoteProxy implements FullFunctionalNote {
 	}
 
 	@Override
-	public void setImages(Image[] images) {
+	public void setImages(NoteImage[] images) {
 		getNote().setImages(images);
 	}
 

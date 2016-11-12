@@ -3,8 +3,6 @@ package com.duoshouji.service.note;
 import java.math.BigDecimal;
 import java.util.List;
 
-import com.duoshouji.service.util.Image;
-
 public interface NoteFacade {
 	
 	public static final long NULL_NOTE_ID = -1;
@@ -23,7 +21,7 @@ public interface NoteFacade {
 
 	void likeNote(long userId, long noteId);
 	
-	void setNoteImages(long noteId, Image[] images);
+	void setNoteImages(long noteId, NoteImage[] images);
 	
 	public interface SquareNoteRequester {
 

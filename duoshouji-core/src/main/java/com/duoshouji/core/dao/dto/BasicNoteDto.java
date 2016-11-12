@@ -1,6 +1,6 @@
 package com.duoshouji.core.dao.dto;
 
-import com.duoshouji.service.util.Image;
+import com.duoshouji.service.note.NoteImage;
 
 
 public class BasicNoteDto {
@@ -9,7 +9,7 @@ public class BasicNoteDto {
 	public int commentRatingSum;
 	public int ownerRating;
 	public long publishedTime;
-	public Image mainImage;
+	public NoteImage mainImage;
 	public int likeCount;
 	public int commentCount;
 	public int transactionCount;

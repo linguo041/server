@@ -22,9 +22,9 @@ import com.duoshouji.service.note.Note;
 import com.duoshouji.service.note.NoteCollection;
 import com.duoshouji.service.note.NoteComment;
 import com.duoshouji.service.note.NoteFacade;
+import com.duoshouji.service.note.NoteImage;
 import com.duoshouji.service.note.NotePublishAttributes;
 import com.duoshouji.service.user.UserFacade;
-import com.duoshouji.service.util.Image;
 
 @Service
 public class NoteFacadeImpl implements NoteFacade {
@@ -101,7 +101,7 @@ public class NoteFacadeImpl implements NoteFacade {
 	}
 
 	@Override
-	public void setNoteImages(long noteId, Image[] images) {
+	public void setNoteImages(long noteId, NoteImage[] images) {
 		noteRepository.getNote(noteId).setImages(images);
 	}
 	
