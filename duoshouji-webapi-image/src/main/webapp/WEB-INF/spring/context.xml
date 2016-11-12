@@ -14,4 +14,14 @@
 
     <context:component-scan base-package="com.duoshouji.restapi,com.duoshouji.core"/>
     <mvc:annotation-driven/>
+    <beans:bean class="org.springframework.jdbc.core.JdbcTemplate">
+        <beans:constructor-arg>
+            <beans:bean class="com.mysql.cj.jdbc.MysqlDataSource">
+                <beans:property name="url" value="jdbc:mysql://localhost:3306/duoshouji?characterEncoding=UTF-8"/>
+                <beans:property name="user" value="root"/>
+                <beans:property name="password" value="Duo@2016"/>
+            </beans:bean>
+        </beans:constructor-arg>
+    </beans:bean>
+    
 </beans:beans>

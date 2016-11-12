@@ -6,7 +6,7 @@ import com.duoshouji.service.annotation.Unique;
 import com.duoshouji.service.note.CommentPublishAttributes;
 import com.duoshouji.service.note.Note;
 import com.duoshouji.service.note.NoteComment;
-import com.duoshouji.service.util.Image;
+import com.duoshouji.service.note.NoteImage;
 
 @Unique
 public interface FullFunctionalNote extends Note {
@@ -20,5 +20,5 @@ public interface FullFunctionalNote extends Note {
 
 	void likedByUser(long userId);
 
-	void setImages(Image[] images);
+	void setImages(NoteImage[] images);
 }

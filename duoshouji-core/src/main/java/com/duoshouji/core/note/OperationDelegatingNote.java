@@ -12,8 +12,8 @@ import com.duoshouji.service.common.Category;
 import com.duoshouji.service.common.District;
 import com.duoshouji.service.note.CommentPublishAttributes;
 import com.duoshouji.service.note.NoteComment;
+import com.duoshouji.service.note.NoteImage;
 import com.duoshouji.service.note.ReferredCommodity;
-import com.duoshouji.service.util.Image;
 
 class OperationDelegatingNote implements FullFunctionalNote, ReferredCommodity {
 	
@@ -21,7 +21,7 @@ class OperationDelegatingNote implements FullFunctionalNote, ReferredCommodity {
 	final long noteId;
 	
 	String title;
-	Image mainImage;
+	NoteImage mainImage;
 	int ownerRating;
 	int commentRatingSum;
 	int likeCount;
@@ -30,7 +30,7 @@ class OperationDelegatingNote implements FullFunctionalNote, ReferredCommodity {
 	long publishedTime;
 	long authorId;
 	String content;
-	List<Image> otherImages;
+	List<NoteImage> otherImages;
 	
 	String productName;
 	BigDecimal price;
@@ -54,7 +54,7 @@ class OperationDelegatingNote implements FullFunctionalNote, ReferredCommodity {
 	}
 
 	@Override
-	public Image getMainImage() {
+	public NoteImage getMainImage() {
 		return mainImage;
 	}
 
@@ -92,8 +92,8 @@ class OperationDelegatingNote implements FullFunctionalNote, ReferredCommodity {
 	}
 
 	@Override
-	public List<Image> getImages() {
-		List<Image> allImages = new ArrayList<Image>(otherImages.size() + 1);
+	public List<NoteImage> getImages() {
+		List<NoteImage> allImages = new ArrayList<NoteImage>(otherImages.size() + 1);
 		allImages.addAll(otherImages);
 		allImages.add(getMainImage());
 		return allImages;
@@ -105,13 +105,13 @@ class OperationDelegatingNote implements FullFunctionalNote, ReferredCommodity {
 	}
 
 	@Override
-	public void setImages(Image[] images) {
+	public void setImages(NoteImage[] images) {
 		if (images == null || images.length == 0) {
 			return;
 		}
 		operationManager.setImages(this, images);
 		this.mainImage = images[0];
-		final Image[] otherImages = Arrays.copyOfRange(images, 1, images.length);
+		final NoteImage[] otherImages = Arrays.copyOfRange(images, 1, images.length);
 		this.otherImages = Arrays.asList(otherImages);
 	}
 

@@ -88,6 +88,7 @@ CREATE TABLE `note` (
   `price` decimal(18,2) DEFAULT NULL,
   `district_id` decimal(12,0) DEFAULT NULL,
   `main_image_url` varchar(255) DEFAULT NULL,
+  `main_image_marks` varchar(1024) DEFAULT NULL,
   `rating` int(11) DEFAULT NULL
 );
 
@@ -108,7 +109,8 @@ CREATE TABLE `note_image` (
   `note_id` decimal(13,0) NOT NULL,
   `image_url` varchar(255) NOT NULL,
   `image_width` int(11) NOT NULL,
-  `image_height` int(11) NOT NULL
+  `image_height` int(11) NOT NULL,
+  `image_marks` varchar(1024) NOT NULL
 );
 
 DROP TABLE IF EXISTS `note_keyword`;
@@ -196,7 +198,7 @@ CREATE TABLE `user_wechat_login` (
 
 drop view if exists duoshouji.v_square_notes;
 create view duoshouji.v_square_notes as
-select c.note_id, c.content, c.price, c.district_id, c.brand_id, c.category_id, c.title, c.product_name, coalesce(c.rating, 0) owner_rating, coalesce(a2.rating_sum, 0) comment_rating, c.main_image_url, c.main_image_width, c.main_image_height, c.create_time
+select c.note_id, c.content, c.price, c.district_id, c.brand_id, c.category_id, c.title, c.product_name, coalesce(c.rating, 0) owner_rating, coalesce(a2.rating_sum, 0) comment_rating, c.main_image_url, c.main_image_width, c.main_image_height, c.main_image_marks, c.create_time
   , coalesce(a2.comment_number, 0) comment_number, coalesce(a2.like_number, 0) like_number, coalesce(a2.order_number, 0) order_number,
   u.user_id, u.user_name, u.avatar_url, u.avatar_width, u.avatar_height, u.gender
 from duoshouji.note c left join

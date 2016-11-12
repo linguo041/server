@@ -2,8 +2,6 @@ package com.duoshouji.service.note;
 
 import java.util.List;
 
-import com.duoshouji.service.util.Image;
-
 public interface Note extends AuthorReference, NoteTextProperties {
 
 	long getNoteId();
@@ -18,8 +16,8 @@ public interface Note extends AuthorReference, NoteTextProperties {
 
 	long getPublishedTime();
 	
-	List<Image> getImages();
+	List<NoteImage> getImages();
 	
-	Image getMainImage();
+	NoteImage getMainImage();
 
 }

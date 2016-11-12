@@ -1,12 +1,15 @@
 package com.duoshouji.restapi.controller.model.response;
 
-import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import com.duoshouji.service.common.District;
+import com.duoshouji.restapi.image.ImageJsonAdapter;
+import com.duoshouji.restapi.image.ImageMark;
 import com.duoshouji.service.common.Tag;
 import com.duoshouji.service.note.Note;
-import com.duoshouji.service.util.Image;
+import com.duoshouji.service.note.NoteImage;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class DetailNoteResponseData {
 	
@@ -42,8 +45,12 @@ public class DetailNoteResponseData {
 		return delegator.getPublishedTime();
 	}
 	
-	public List<Image> getImages() {
-		return delegator.getImages();
+	public List<NoteImageAdapter> getImages() {
+		List<NoteImageAdapter> adapters = new ArrayList<NoteImageAdapter>();
+		for (NoteImage noteImage : delegator.getImages()) {
+			adapters.add(new NoteImageAdapter(noteImage));
+		}
+		return adapters;
 	}
 	
 	public String getContent() {
@@ -70,22 +77,23 @@ public class DetailNoteResponseData {
 		return delegator.getRating();
 	}
 	
-	public NoteMark getNoteMark() {
-		return new NoteMark();
-	}
-	
-	public class NoteMark {
+	public class NoteImageAdapter {
 		
-		public BigDecimal getPrice() {
-			return delegator.getCommodity().getPrice();
+		private NoteImage noteImage;
+		
+		public NoteImageAdapter(NoteImage noteImage) {
+			this.noteImage = noteImage;
+		}
+
+		public ImageJsonAdapter getImage() {
+			return new ImageJsonAdapter(noteImage);
 		}
 		
-		public String getProductName() {
-			return delegator.getCommodity().getProductName();
-		}
-		
-		public District getLocation() {
-			return delegator.getCommodity().getDistrict();
+		public List<Object> getMarks() throws Exception {
+			if (noteImage.getMarks() == null) {
+				return Collections.emptyList();
+			}
+			return new ObjectMapper().readerFor(ImageMark.class).readValues(noteImage.getMarks()).readAll();
 		}
 	}
 }

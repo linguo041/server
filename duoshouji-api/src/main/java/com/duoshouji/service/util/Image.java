@@ -24,4 +24,21 @@ public class Image {
 	public int getHeight() {
 		return height;
 	}
+
+	@Override
+	public int hashCode() {
+		return url.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Image))
+			return false;
+		Image that = (Image) obj;
+		return url.equals(that.url) && width == that.width && height == that.height;
+	}
 }

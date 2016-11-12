@@ -7,14 +7,14 @@ import com.duoshouji.core.dao.dto.NoteCommentDto;
 import com.duoshouji.core.dao.dto.NoteDetailDto;
 import com.duoshouji.core.util.IndexRange;
 import com.duoshouji.service.note.CommentPublishAttributes;
+import com.duoshouji.service.note.NoteImage;
 import com.duoshouji.service.note.NotePublishAttributes;
-import com.duoshouji.service.util.Image;
 
 public interface NoteDao {
 	
 	long createNote(long authorId, NotePublishAttributes noteAttributes);
 
-	void saveNoteImages(long noteId, Image[] noteImages);
+	void saveNoteImages(long noteId, NoteImage[] noteImages);
 	
 	NoteDetailDto findNote(long noteId);
 	

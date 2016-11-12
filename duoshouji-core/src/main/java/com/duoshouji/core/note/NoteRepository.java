@@ -27,9 +27,9 @@ import com.duoshouji.service.note.CommentPublishAttributes;
 import com.duoshouji.service.note.Note;
 import com.duoshouji.service.note.NoteCollection;
 import com.duoshouji.service.note.NoteComment;
+import com.duoshouji.service.note.NoteImage;
 import com.duoshouji.service.note.NotePublishAttributes;
 import com.duoshouji.service.user.BasicUser;
-import com.duoshouji.service.util.Image;
 
 @Service
 class NoteRepository {
@@ -145,7 +145,7 @@ class NoteRepository {
 		return userRepository.getUser(note.authorId);
 	}
 	
-	void setImages(OperationDelegatingNote note, Image[] images) {
+	void setImages(OperationDelegatingNote note, NoteImage[] images) {
 		noteDao.saveNoteImages(note.getNoteId(), images);
 	}
 

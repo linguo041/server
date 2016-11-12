@@ -26,6 +26,7 @@ import com.duoshouji.core.dao.dto.NoteDetailDto;
 import com.duoshouji.core.dao.dto.UserDto;
 import com.duoshouji.core.util.IndexRange;
 import com.duoshouji.service.note.CommentPublishAttributes;
+import com.duoshouji.service.note.NoteImage;
 import com.duoshouji.service.note.NotePublishAttributes;
 import com.duoshouji.service.user.Gender;
 import com.duoshouji.service.user.UserFacade;
@@ -102,15 +103,16 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 			
 				});
 		if (noteDto != null) {
-			noteDto.images = mysqlDataSource.query("select * from duoshouji.note_image where note_id = " + noteId, new RowMapper<Image>() {
+			noteDto.images = mysqlDataSource.query("select * from duoshouji.note_image where note_id = " + noteId, new RowMapper<NoteImage>() {
 
 				@Override
-				public Image mapRow(ResultSet rs, int rowNum)
+				public NoteImage mapRow(ResultSet rs, int rowNum)
 						throws SQLException {
-					return new Image(
+					return new NoteImage(
 							rs.getInt("image_width")
 							, rs.getInt("image_height")
 							, rs.getString("image_url")
+							, rs.getString("image_marks")
 							);
 				}
 				
@@ -132,7 +134,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	private void mapNoteBriefDto(BasicNoteDto noteDto, ResultSet rs) throws SQLException {
 		noteDto.commentCount = rs.getInt("comment_number");
 		noteDto.likeCount = rs.getInt("like_number");
-		noteDto.mainImage = new Image(rs.getInt("main_image_width"), rs.getInt("main_image_height"), rs.getString("main_image_url"));
+		noteDto.mainImage = new NoteImage(rs.getInt("main_image_width"), rs.getInt("main_image_height"), rs.getString("main_image_url"), rs.getString("main_image_marks"));
 		noteDto.noteId = rs.getLong("note_id");
 		noteDto.publishedTime = rs.getLong("create_time");
 		noteDto.commentRatingSum = rs.getInt("comment_rating");
@@ -391,9 +393,9 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	}
 
 	@Override
-	public void saveNoteImages(final long noteId, final Image[] noteImages) {
+	public void saveNoteImages(final long noteId, final NoteImage[] noteImages) {
 		mysqlDataSource.update(
-				"update duoshouji.note set main_image_url = ?, main_image_width = ?, main_image_height = ? where note_id = ?"
+				"update duoshouji.note set main_image_url = ?, main_image_width = ?, main_image_height = ?, main_image_marks = ? where note_id = ?"
 				,new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
@@ -401,11 +403,16 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 						ps.setString(1, noteImages[0].getUrl());
 						ps.setInt(2, noteImages[0].getWidth());
 						ps.setInt(3, noteImages[0].getHeight());
-						ps.setLong(4, noteId);
+						if (noteImages[0].getMarks() != null) {
+							ps.setString(4, noteImages[0].getMarks());
+						} else {
+							ps.setNull(4, Types.VARCHAR);
+						}
+						ps.setLong(5, noteId);
 					}
 				});
 		if (noteImages.length > 1) {
-			mysqlDataSource.batchUpdate("insert into duoshouji.note_image values (?,?,?,?)"
+			mysqlDataSource.batchUpdate("insert into duoshouji.note_image values (?,?,?,?,?)"
 					, new BatchPreparedStatementSetter() {
 						
 				@Override
@@ -415,6 +422,11 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 					ps.setString(2, noteImages[i + 1].getUrl());
 					ps.setInt(3, noteImages[i + 1].getWidth());
 					ps.setInt(4, noteImages[i + 1].getHeight());
+					if (noteImages[0].getMarks() != null) {
+						ps.setString(5, noteImages[i + 1].getMarks());
+					} else {
+						ps.setNull(5, Types.VARCHAR);
+					}
 				}
 	
 				@Override

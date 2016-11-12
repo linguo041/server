@@ -19,12 +19,12 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
 import com.duoshouji.core.ImageUploadCallback;
 import com.duoshouji.core.StoreImageException;
-import com.duoshouji.restapi.controller.model.response.ImageJsonAdapter;
+import com.duoshouji.restapi.image.ImageJsonAdapter;
+import com.duoshouji.restapi.image.UploadNoteImageCallbackData;
 import com.duoshouji.service.util.Image;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -34,7 +34,6 @@ public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallbac
 	private static final String CALLBACK_HOST = "restapi.share68.com";
 	
 	private CloseableHttpClient httpClient;
-	private Logger logger = LogManager.getLogger(ImageUploadCallback.class);
 	
 	@PostConstruct
 	public void init() {
@@ -48,24 +47,12 @@ public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallbac
 	
 	@Override
 	public void firePortraitUpload(ServletRequest originalUploadRequest, Image imageInfo) throws StoreImageException {
-		logger.info("Start image upload callback for portrait image [width: {}, height: {}, url: {}]"
-				, imageInfo.getWidth()
-				, imageInfo.getHeight()
-				, imageInfo.getUrl());
 		makeCallbackAndEnsureSuccess(originalUploadRequest, new ImageJsonAdapter(imageInfo));
 	}
 
 	@Override
-	public void fireNoteImageUpload(ServletRequest originalUploadRequest, Image[] imageInfos) throws StoreImageException {
-		ImageJsonAdapter[] targetImages = new ImageJsonAdapter[imageInfos.length];
-		for (int i = 0; i < imageInfos.length; ++i) {
-			targetImages[i] = new ImageJsonAdapter(imageInfos[i]);
-			logger.info("Start image upload callback for note image [width: {}, height: {}, url: {}]"
-					, imageInfos[i].getWidth()
-					, imageInfos[i].getHeight()
-					, imageInfos[i].getUrl());
-		}
-		makeCallbackAndEnsureSuccess(originalUploadRequest, targetImages);
+	public void fireNoteImageUpload(ServletRequest originalUploadRequest, UploadNoteImageCallbackData[] imageInfos) throws StoreImageException {
+		makeCallbackAndEnsureSuccess(originalUploadRequest, imageInfos);
 	}
 	
 	private void makeCallbackAndEnsureSuccess(ServletRequest originalUploadRequest, Object bodyContent) throws StoreImageException {

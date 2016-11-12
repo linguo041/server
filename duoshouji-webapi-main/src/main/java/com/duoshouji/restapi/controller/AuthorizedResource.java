@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.duoshouji.restapi.AuthenticationAdvice;
 import com.duoshouji.restapi.controller.model.request.CommentNoteRequestData;
 import com.duoshouji.restapi.controller.model.request.FollowUserRequestData;
-import com.duoshouji.restapi.controller.model.request.ImageRequestData;
 import com.duoshouji.restapi.controller.model.request.InviteFriendsRequestData;
 import com.duoshouji.restapi.controller.model.request.PublishNoteRequestData;
 import com.duoshouji.restapi.controller.model.request.SetPasswordRequestData;
@@ -30,11 +29,14 @@ import com.duoshouji.restapi.controller.model.response.MobileNumberMappingUserId
 import com.duoshouji.restapi.controller.model.response.NotePublishingResult;
 import com.duoshouji.restapi.controller.model.response.UserProfileResult;
 import com.duoshouji.restapi.controller.model.response.WrongVerificationCodeException;
+import com.duoshouji.restapi.image.ImageJsonAdapter;
+import com.duoshouji.restapi.image.UploadNoteImageCallbackData;
 import com.duoshouji.service.note.CommentPublishAttributes;
 import com.duoshouji.service.note.Note;
 import com.duoshouji.service.note.NoteFacade;
 import com.duoshouji.service.note.NoteFacade.NotePublisher;
 import com.duoshouji.service.note.NoteFacade.SquareNoteRequester;
+import com.duoshouji.service.note.NoteImage;
 import com.duoshouji.service.user.Gender;
 import com.duoshouji.service.user.Password;
 import com.duoshouji.service.user.UserFacade;
@@ -42,6 +44,7 @@ import com.duoshouji.service.user.UserFacade.UserProfileSetter;
 import com.duoshouji.service.util.Image;
 import com.duoshouji.service.util.MobileNumber;
 import com.duoshouji.service.util.VerificationCode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Controller
 public class AuthorizedResource extends AuthenticationAdvice {
@@ -140,7 +143,7 @@ public class AuthorizedResource extends AuthenticationAdvice {
 	@ResponseBody
 	public void setUserPortrait(
 			@ModelAttribute("userId") long userId,
-			@RequestBody ImageRequestData requestData) throws IOException {
+			@RequestBody ImageJsonAdapter requestData) throws IOException {
 		logger.info("Processing call back from image service; user image properties - [width: {}, height: {}, url: {}]"
 				, requestData.width, requestData.height, requestData.url);
 		userFacade.setPortrait(userId, new Image(requestData.width, requestData.height, requestData.url));
@@ -242,12 +245,16 @@ public class AuthorizedResource extends AuthenticationAdvice {
 	@ResponseBody
 	public void setNoteImages(
 			@PathVariable("note-id") long noteId,
-			@RequestBody ImageRequestData[] requestData) throws IOException {
-		Image[] images = new Image[requestData.length];
+			@RequestBody UploadNoteImageCallbackData[] requestData) throws IOException {
+		NoteImage[] images = new NoteImage[requestData.length];
 		for (int i = 0; i < images.length; ++i) {
-			logger.info("Processing call back from image service; note image properties - [width: {}, height: {}, url: {}]"
-					, requestData[i].width, requestData[i].height, requestData[i].url);
-			images[i] = new Image(requestData[i].width, requestData[i].height, requestData[i].url);
+			logger.info("Processing call back from image service");
+			UploadNoteImageCallbackData imageData = requestData[i];
+			String marks = null;
+			if (imageData.imageMarks != null && imageData.imageMarks.length > 0) {
+				marks = new ObjectMapper().writeValueAsString(imageData.imageMarks);
+			}
+			images[i] = new NoteImage(imageData.imageInfo.width, imageData.imageInfo.height, imageData.imageInfo.url, marks);
 		}
 		noteFacade.setNoteImages(noteId, images);
 	}
