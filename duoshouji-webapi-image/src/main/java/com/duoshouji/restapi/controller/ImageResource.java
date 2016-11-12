@@ -7,6 +7,7 @@ import java.util.Base64;
 
 import javax.servlet.ServletRequest;
 
+import org.apache.logging.log4j.LogManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -19,10 +20,7 @@ import com.duoshouji.core.ImageStore;
 import com.duoshouji.core.ImageUploadCallback;
 import com.duoshouji.core.StoreImageException;
 import com.duoshouji.restapi.AuthenticationAdvice;
-import com.duoshouji.restapi.controller.model.request.UploadNoteImageRequestData;
 import com.duoshouji.restapi.controller.model.request.UploadUserPortraitRequestData;
-import com.duoshouji.restapi.image.ImageJsonAdapter;
-import com.duoshouji.restapi.image.UploadNoteImageCallbackData;
 import com.duoshouji.service.util.Image;
 
 @RestController
@@ -54,23 +52,10 @@ public class ImageResource extends AuthenticationAdvice {
 	
 	@PostMapping("/notes/{note-id}/images")
 	public void uploadNoteImage(
-			@RequestBody UploadNoteImageRequestData requestData,
+			@RequestBody String requestData,
 			@PathVariable("note-id") long noteId,
 			ServletRequest webRequest) throws IOException, StoreImageException {
-		InputStream[] imageStreams = new InputStream[requestData.images.length];
-		for (int i = 0; i < imageStreams.length; ++i) {
-			imageStreams[i] = decodeImageData(requestData.images[i].image);
-		}
-		Image[] images = imageStore.saveNoteImage(noteId, imageStreams);
-		UploadNoteImageCallbackData.ImageInfo[] imageInfos = new UploadNoteImageCallbackData.ImageInfo[images.length];
-		for (int i = 0; i < imageInfos.length; ++i) {
-			imageInfos[i] = new UploadNoteImageCallbackData.ImageInfo();
-			imageInfos[i].imageInfo = new ImageJsonAdapter(images[i]);
-			imageInfos[i].imageMarks = requestData.images[i].marks;
-		}
-		UploadNoteImageCallbackData callbackData = new UploadNoteImageCallbackData();
-		callbackData.images = imageInfos;
-		callback.fireNoteImageUpload(webRequest, callbackData);
+		LogManager.getLogger().info(requestData);
 	}
 	
 	private InputStream decodeImageData(String imageData) {
