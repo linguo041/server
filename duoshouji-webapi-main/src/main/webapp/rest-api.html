@@ -536,7 +536,16 @@ API目录索引
 		<tr><td>Request URL</td><td>/user/settings/personal-information/portrait</td></tr>
 		<tr><td>Request Method</td><td>POST</td></tr>
 		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-		<tr><td>Request Parameters</td><td>image=[image byte stream]</td></tr>
+		<tr><td>Request Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>image</td><td>String</td><td>Base64 encoded image data</td></tr>
+              </tbody>
+            </table>		
+		</td></tr>
 		<tr><th colspan="2">HTTP Response</th></tr>
 		<tr><td>Response Status</td><td>200</td></tr>
 		<tr><td>Response Body</td><td>
@@ -705,13 +714,25 @@ API目录索引
             <tr><td>nickname</td><td>String</td><td></td></tr>
             <tr><td>portrait</td><td>String</td><td>image url</td></tr>
             <tr><td>publishTime</td><td>Number</td><td>epoch seconds</td></tr>
-            <tr><td>images</td><td>Array</td><td>Image</td></tr>
+            <tr><td>images</td><td>Array</td><td>NoteImage</td></tr>
             <tr><td>content</td><td>String</td><td></td></tr>
             <tr><td>tags</td><td>Array</td><td>Tag</td></tr>
             <tr><td>likeCount</td><td>Number</td><td></td></tr>
             <tr><td>commentCount</td><td>Number</td><td></td></tr>
             <tr><td>transactionCount</td><td>Number</td><td></td></tr>
             <tr><td>rating</td><td>Number</td><td>[0 ~ 10]</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="json-item">
+        <h5>NoteImage:</h5>
+        <table class="json">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>image</td><td>Json</td><td>Image</td></tr>
+            <tr><td>marks</td><td>Array</td><td>NoteImageMark</td></tr>
           </tbody>
         </table>
         </div>
@@ -725,6 +746,25 @@ API目录索引
             <tr><td>url</td><td>String</td><td>image url</td></tr>
             <tr><td>width</td><td>Number</td><td></td></tr>
             <tr><td>height</td><td>Number</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="json-item">
+        <h5>NoteImageMark:</h5>
+        <table class="json">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>name</td><td>String</td><td></td></tr>
+            <tr><td>nation</td><td>String</td><td></td></tr>
+            <tr><td>currency</td><td>String</td><td></td></tr>
+            <tr><td>brand</td><td>Number</td><td>Brand ID</td></tr>
+            <tr><td>price</td><td>Number</td><td></td></tr>
+            <tr><td>address</td><td>String</td><td></td></tr>
+            <tr><td>category</td><td>Number</td><td>Category ID</td></tr>
+            <tr><td>x</td><td>x</td><td></td></tr>
+            <tr><td>y</td><td>y</td><td></td></tr>
           </tbody>
         </table>
         </div>
@@ -863,8 +903,17 @@ API目录索引
 		<tr><th colspan="2">HTTP Request</th></tr>
 		<tr><td>Request URL</td><td>/notes/{note-id}/images</td></tr>
 		<tr><td>Request Method</td><td>PUT</td></tr>
-		<tr><td>Request Parameters</td><td>images=[image byte stream]</td></tr>
 		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><td>Request Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>images</td><td>Array</td><td>UpdateNoteImageRequestData</td></tr>
+              </tbody>
+            </table>		
+		</td></tr>
 		<tr><th colspan="2">HTTP Response</th></tr>
 		<tr><td>Response Status</td><td>200</td></tr>
 		<tr><td>Response Body</td><td>
@@ -880,6 +929,37 @@ API目录索引
             </table>
 		</td></tr>
 		</table>
+        <div class="json-item">
+        <h5>UpdateNoteImageRequestData:</h5>
+        <table class="json">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>image</td><td>String</td><td>Base64 encoded image data</td></tr>
+            <tr><td>marks</td><td>Array</td><td>NoteImageMark</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="json-item">
+        <h5>NoteImageMark:</h5>
+        <table class="json">
+          <thead>
+            <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>name</td><td>String</td><td></td></tr>
+            <tr><td>nation</td><td>String</td><td></td></tr>
+            <tr><td>currency</td><td>String</td><td></td></tr>
+            <tr><td>brand</td><td>Number</td><td>Brand ID</td></tr>
+            <tr><td>price</td><td>Number</td><td></td></tr>
+            <tr><td>address</td><td>String</td><td></td></tr>
+            <tr><td>category</td><td>Number</td><td>Category ID</td></tr>
+            <tr><td>x</td><td>x</td><td></td></tr>
+            <tr><td>y</td><td>y</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>         
 	</div>
 
 	<div class="api-item" id="api024">
