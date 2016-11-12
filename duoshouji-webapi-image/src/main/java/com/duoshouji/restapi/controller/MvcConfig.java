@@ -11,7 +11,6 @@ import org.springframework.http.converter.ResourceHttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.support.AllEncompassingFormHttpMessageConverter;
-import org.springframework.http.converter.xml.MappingJackson2XmlHttpMessageConverter;
 import org.springframework.http.converter.xml.SourceHttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
@@ -29,8 +28,6 @@ public class MvcConfig extends WebMvcConfigurationSupport {
 		messageConverters.add(new ResourceHttpMessageConverter());
 		messageConverters.add(new SourceHttpMessageConverter<Source>());
 		messageConverters.add(new AllEncompassingFormHttpMessageConverter());
-		messageConverters.add(new MappingJackson2XmlHttpMessageConverter(
-				Jackson2ObjectMapperBuilder.xml().applicationContext(getApplicationContext()).build()));
 		messageConverters.add(new LogRequestBodyMappingJackson2HttpMessageConverter(
 				Jackson2ObjectMapperBuilder.json().applicationContext(getApplicationContext()).build()));
 	}
