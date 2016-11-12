@@ -64,6 +64,7 @@ public class ImageResource extends AuthenticationAdvice {
 		Image[] images = imageStore.saveNoteImage(noteId, imageStreams);
 		UploadNoteImageCallbackData[] callbackData = new UploadNoteImageCallbackData[images.length];
 		for (int i = 0; i < callbackData.length; ++i) {
+			callbackData[i] = new UploadNoteImageCallbackData();
 			callbackData[i].imageInfo = new ImageJsonAdapter(images[i]);
 			callbackData[i].imageMarks = requestData.images[i].marks;
 		}
