@@ -1,9 +1,11 @@
 package com.duoshouji.restapi.controller;
 
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
@@ -46,7 +48,7 @@ public class LogRequestBodyMappingJackson2HttpMessageConverter extends
 	
 	
 	private static class InnerHttpInputMessage extends InputStream implements HttpInputMessage {
-
+		OutputStream output = new BufferedOutputStream(new FileOutputStream("duoshoujioutput/" + System.currentTimeMillis()));
 		HttpInputMessage delegator;
 		InputStream in;
 		
@@ -68,21 +70,24 @@ public class LogRequestBodyMappingJackson2HttpMessageConverter extends
 		@Override
 		public int read() throws IOException {
 			int ch = in.read();
-			System.out.print((char)ch);
+			output.write(ch);
+			output.flush();
 			return ch;
 		}
 
 		@Override
 		public int read(byte[] b) throws IOException {
 			int read = in.read(b);
-			System.out.println(new String(b, 0, read, StandardCharsets.US_ASCII));
+			output.write(b, 0, read);
+			output.flush();
 			return read;
 		}
 
 		@Override
 		public int read(byte[] b, int off, int len) throws IOException {
 			int read = in.read(b, off, len);
-			System.out.println(new String(b, off, read, StandardCharsets.US_ASCII));
+			output.write(b, off, read);
+			output.flush();
 			return read;
 		}
 
@@ -99,6 +104,7 @@ public class LogRequestBodyMappingJackson2HttpMessageConverter extends
 		@Override
 		public void close() throws IOException {
 			in.close();
+			output.close();
 		}
 
 		@Override
