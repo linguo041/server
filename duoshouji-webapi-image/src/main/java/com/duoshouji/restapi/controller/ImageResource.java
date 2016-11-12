@@ -74,6 +74,10 @@ public class ImageResource extends AuthenticationAdvice {
 	}
 	
 	private InputStream decodeImageData(String imageData) {
+		final int prefixIndex = imageData.indexOf(',');
+		if (prefixIndex >= 0) {
+			imageData = imageData.substring(prefixIndex + 1);
+		}
 		return new ByteArrayInputStream(Base64.getDecoder().decode(imageData));
 	}
 }
