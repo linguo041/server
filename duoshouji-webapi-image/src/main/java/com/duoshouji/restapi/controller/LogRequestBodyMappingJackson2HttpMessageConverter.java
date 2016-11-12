@@ -1,6 +1,7 @@
 package com.duoshouji.restapi.controller;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,11 +49,16 @@ public class LogRequestBodyMappingJackson2HttpMessageConverter extends
 	
 	
 	private static class InnerHttpInputMessage extends InputStream implements HttpInputMessage {
-		OutputStream output = new BufferedOutputStream(new FileOutputStream("duoshoujioutput/" + System.currentTimeMillis()));
+		OutputStream output;
 		HttpInputMessage delegator;
 		InputStream in;
 		
 		InnerHttpInputMessage(HttpInputMessage delegator) throws IOException {
+			File file = new File("duoshoujioutput");
+			if (!file.exists()) {
+				file.mkdirs();
+			}
+			output = new BufferedOutputStream(new FileOutputStream("duoshoujioutput/" + System.currentTimeMillis()));
 			this.delegator = delegator;
 			this.in = delegator.getBody();
 		}
