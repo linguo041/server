@@ -7,7 +7,7 @@ import com.duoshouji.core.FullFunctionalUser;
 import com.duoshouji.service.note.CommentPublishAttributes;
 import com.duoshouji.service.note.NoteComment;
 import com.duoshouji.service.note.NoteImage;
-import com.duoshouji.service.note.ReferredCommodity;
+import com.duoshouji.service.util.Location;
 
 public class NoteProxy implements FullFunctionalNote {
 
@@ -103,8 +103,13 @@ public class NoteProxy implements FullFunctionalNote {
 	}
 
 	@Override
-	public ReferredCommodity getCommodity() {
-		return getNote().getCommodity();
+	public String getAddress() {
+		return getNote().getAddress();
+	}
+
+	@Override
+	public Location getLocation() {
+		return getNote().getLocation();
 	}
 
 }

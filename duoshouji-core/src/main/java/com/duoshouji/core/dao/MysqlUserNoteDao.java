@@ -124,11 +124,9 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	private void mapNoteDetailDto(NoteDetailDto noteDto, ResultSet rs) throws SQLException {
 		mapNoteBriefDto(noteDto, rs);
 		noteDto.content = rs.getString("content");
-		noteDto.productName = rs.getString("product_name");
-		noteDto.price = rs.getBigDecimal("price");
-		noteDto.districtId = rs.getLong("district_id");
-		noteDto.categoryId = rs.getLong("category_id");
-		noteDto.brandId = rs.getLong("brand_id");
+		noteDto.address = rs.getString("address");
+		noteDto.longitude = rs.getBigDecimal("longitude");
+		noteDto.latitude = rs.getBigDecimal("latitude");
 	}
 
 	private void mapNoteBriefDto(BasicNoteDto noteDto, ResultSet rs) throws SQLException {
@@ -318,38 +316,25 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 					public void setValues(PreparedStatement ps)
 							throws SQLException {
 						ps.setBigDecimal(1, BigDecimal.valueOf(noteId));
-						if (noteAttributes.isCategorySet()) {
-							ps.setBigDecimal(2, BigDecimal.valueOf(noteAttributes.getCategory().getId()));
+						ps.setString(2, noteAttributes.getTitle());
+						ps.setString(3, noteAttributes.getContent());
+						ps.setLong(4, time);
+						ps.setBigDecimal(5, BigDecimal.valueOf(userId));
+						ps.setLong(6, time);
+						ps.setInt(7, noteAttributes.getRating());
+						ps.setString(8, noteAttributes.getTitle());
+						if (noteAttributes.isAddressSet()) {
+							ps.setString(9, noteAttributes.getAddress());
 						} else {
-							ps.setNull(2, Types.DECIMAL);
+							ps.setNull(9, Types.VARCHAR);
 						}
-						if (noteAttributes.isBrandSet()) {
-							ps.setBigDecimal(3, BigDecimal.valueOf(noteAttributes.getBrand().getId()));
+						if (noteAttributes.isLocationSet()) {
+							ps.setBigDecimal(10, noteAttributes.getLocation().getLongitude());
+							ps.setBigDecimal(11, noteAttributes.getLocation().getLatitude());
 						} else {
-							ps.setNull(3, Types.DECIMAL);
+							ps.setNull(10, Types.DECIMAL);
+							ps.setNull(11, Types.DECIMAL);
 						}
-						if (noteAttributes.isProductNameSet()) {
-							ps.setString(4, noteAttributes.getProductName());
-						} else {
-							ps.setNull(4, Types.VARCHAR);
-						}
-						if (noteAttributes.isPriceSet()) {
-							ps.setBigDecimal(5, noteAttributes.getPrice());
-						} else {
-							ps.setNull(5, Types.DECIMAL);
-						}
-						if (noteAttributes.isDistrictSet()) {
-							ps.setBigDecimal(6, BigDecimal.valueOf(noteAttributes.getDistrict().getId()));
-						} else {
-							ps.setNull(6, Types.DECIMAL);
-						}
-						ps.setString(7, noteAttributes.getTitle());
-						ps.setString(8, noteAttributes.getContent());
-						ps.setLong(9, time);
-						ps.setBigDecimal(10, BigDecimal.valueOf(userId));
-						ps.setLong(11, time);
-						ps.setInt(12, noteAttributes.getRating());
-						ps.setString(13, noteAttributes.getTitle());
 					}
 				});
 		mysqlDataSource.update(
@@ -372,8 +357,8 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	
 	private String buildInsertNoteClause() {
 		return "insert into duoshouji.note "
-				+ "(note_id, category_id, brand_id, product_name, price, district_id, title, content, create_time, user_id, last_update_time, rating, keyword) "
-				+ "values(?,?,?,?,?,?,?,?,?,?,?,?,?)";
+				+ "(note_id, title, content, create_time, user_id, last_update_time, rating, keyword, address, longitude, latitude) "
+				+ "values(?,?,?,?,?,?,?,?,?,?,?)";
 	}
 
 	@Override

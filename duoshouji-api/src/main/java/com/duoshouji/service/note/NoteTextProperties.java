@@ -6,6 +6,4 @@ public interface NoteTextProperties {
 	String getTitle();
 	
 	String getContent();
-	
-	ReferredCommodity getCommodity();
 }
