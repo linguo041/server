@@ -20,9 +20,6 @@ import com.duoshouji.core.dao.dto.NoteCommentDto;
 import com.duoshouji.core.dao.dto.NoteDetailDto;
 import com.duoshouji.core.user.UserRepository;
 import com.duoshouji.core.util.IndexRange;
-import com.duoshouji.service.common.BrandRepository;
-import com.duoshouji.service.common.CategoryRepository;
-import com.duoshouji.service.common.DistrictRepository;
 import com.duoshouji.service.note.CommentPublishAttributes;
 import com.duoshouji.service.note.Note;
 import com.duoshouji.service.note.NoteCollection;
@@ -30,15 +27,13 @@ import com.duoshouji.service.note.NoteComment;
 import com.duoshouji.service.note.NoteImage;
 import com.duoshouji.service.note.NotePublishAttributes;
 import com.duoshouji.service.user.BasicUser;
+import com.duoshouji.service.util.Location;
 
 @Service
 class NoteRepository {
 
 	private NoteDao noteDao;
 	private UserRepository userRepository;
-	private BrandRepository brandRepository;
-	private CategoryRepository categoryRepository;
-	private DistrictRepository districtRepository;
 	private Map<Long, FullFunctionalNote> noteCache = new HashMap<Long, FullFunctionalNote>();
 	
 	@Required
@@ -51,24 +46,6 @@ class NoteRepository {
 	@Autowired
 	public void setUserRepository(UserRepository userRepository) {
 		this.userRepository = userRepository;
-	}
-
-	@Required
-	@Autowired
-	public void setDistrictRepository(DistrictRepository districtRepository) {
-		this.districtRepository = districtRepository;
-	}
-
-	@Required
-	@Autowired
-	public void setBrandRepository(BrandRepository brandRepository) {
-		this.brandRepository = brandRepository;
-	}
-
-	@Required
-	@Autowired
-	public void setCategoryRepository(CategoryRepository categoryRepository) {
-		this.categoryRepository = categoryRepository;
 	}
 
 	OperationDelegatingNote loadNote(long noteId) {
@@ -89,17 +66,9 @@ class NoteRepository {
 		note.authorId = noteDto.authorId;
 		note.content = noteDto.content;
 		note.otherImages = noteDto.images;
-		
-		if (noteDto.brandId > 0) {
-			note.brand = brandRepository.findBrand(noteDto.brandId);
-		}
-		if (noteDto.categoryId > 0) {
-			note.category = categoryRepository.findCategory(noteDto.categoryId);
-		}
-		note.productName = noteDto.productName;
-		note.price = noteDto.price;
-		if (noteDto.districtId > 0) {
-			note.district = districtRepository.findDistrict(noteDto.districtId);
+		note.address = noteDto.address;
+		if (noteDto.longitude != null && noteDto.latitude != null) {
+			note.location = new Location(noteDto.longitude, noteDto.latitude);
 		}
 	}
 	

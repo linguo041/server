@@ -1,21 +1,17 @@
 package com.duoshouji.core.note;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import com.duoshouji.core.FullFunctionalNote;
 import com.duoshouji.core.FullFunctionalUser;
-import com.duoshouji.service.common.Brand;
-import com.duoshouji.service.common.Category;
-import com.duoshouji.service.common.District;
 import com.duoshouji.service.note.CommentPublishAttributes;
 import com.duoshouji.service.note.NoteComment;
 import com.duoshouji.service.note.NoteImage;
-import com.duoshouji.service.note.ReferredCommodity;
+import com.duoshouji.service.util.Location;
 
-class OperationDelegatingNote implements FullFunctionalNote, ReferredCommodity {
+class OperationDelegatingNote implements FullFunctionalNote {
 	
 	final NoteRepository operationManager;
 	final long noteId;
@@ -31,12 +27,8 @@ class OperationDelegatingNote implements FullFunctionalNote, ReferredCommodity {
 	long authorId;
 	String content;
 	List<NoteImage> otherImages;
-	
-	String productName;
-	BigDecimal price;
-	District district;
-	Brand brand;
-	Category category;
+	String address;
+	Location location;
 	
 	public OperationDelegatingNote(long noteId, NoteRepository operationManager) {
 		this.noteId = noteId;
@@ -133,33 +125,13 @@ class OperationDelegatingNote implements FullFunctionalNote, ReferredCommodity {
 	}
 
 	@Override
-	public ReferredCommodity getCommodity() {
-		return this;
+	public String getAddress() {
+		return address;
 	}
 
 	@Override
-	public BigDecimal getPrice() {
-		return price;
-	}
-
-	@Override
-	public District getDistrict() {
-		return district;
-	}
-
-	@Override
-	public String getProductName() {
-		return productName;
-	}
-
-	@Override
-	public Brand getBrand() {
-		return brand;
-	}
-
-	@Override
-	public Category getCategory() {
-		return category;
+	public Location getLocation() {
+		return location;
 	}
 
 }

@@ -10,7 +10,7 @@ public abstract class KeywordBasedNoteRecommendService implements NoteRecommendS
 
 	@Override
 	public List<EcommerceItem> recommendEcommerceItems(NoteTextProperties noteProperties) {
-		return recommend(noteProperties.getCommodity().getProductName());
+		return recommend(noteProperties.getTitle());
 	}
 
 	protected abstract List<EcommerceItem> recommend(String keyword);

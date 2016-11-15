@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import com.duoshouji.restapi.Constants;
+import com.duoshouji.restapi.MockConstants;
 import com.duoshouji.restapi.image.ImageJsonAdapter;
 import com.duoshouji.restapi.image.ImageMark;
 import com.duoshouji.restapi.image.UploadNoteImageCallbackData;
@@ -177,47 +178,32 @@ public class MockSession extends MockClient {
 	public class PublishNote extends DynamicResourceRequest {
 		private final String title;
 		private final String content;
-		private long categoryId, brandId, districtId;
-		private BigDecimal price;
-		private int rating;
+		private String address = "address1";
+		private BigDecimal longitude = MockConstants.MOCK_LONGITUDE, latitude = MockConstants.MOCK_LATITUDE;
 		
 		private PublishNote(MockNoteContent content) {
 			super();
 			this.title = content.getTitle();
 			this.content = content.getContent();
 		}
-
-		public void setCategoryId(long categoryId) {
-			this.categoryId = categoryId;
+		
+		public void setAddress(String address) {
+			this.address = address;
 		}
 
-		public void setBrandId(long brandId) {
-			this.brandId = brandId;
+		public void setLocation(BigDecimal longitude, BigDecimal latitude) {
+			this.longitude = longitude;
+			this.latitude = latitude;
 		}
-
-		public void setDistrictId(long districtId) {
-			this.districtId = districtId;
-		}
-
-		public void setPrice(BigDecimal price) {
-			this.price = price;
-		}
-
-		public void setRating(int rating) {
-			this.rating = rating;
-		}
-
+		
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
 			Map<String, Object> requestData = new HashMap<String, Object>();
-			requestData.put("categoryId", categoryId);
-			requestData.put("brandId", brandId);
-			requestData.put("productName", title);
-			requestData.put("price", price);
-			requestData.put("districtId", districtId);
-			requestData.put("rating", rating);
 			requestData.put("title", title);
 			requestData.put("content", content);
+			requestData.put("address", address);
+			requestData.put("longitude", longitude);
+			requestData.put("latitude", latitude);
 			return post("/user/notes")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(Utils.getJsonString(requestData))

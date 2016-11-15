@@ -38,17 +38,11 @@ public interface NoteFacade {
 
 		void setContent(String content);
 
-		void setCategoryId(long categoryId);
-
-		void setBrandId(long brandId);
-
-		void setProductName(String productName);
-
-		void setPrice(BigDecimal price);
-
-		void setDistrictId(long districtId);
-
 		void setRating(int rating);
+		
+		void setLocation(BigDecimal longitude, BigDecimal latitude);
+		
+		void setAddress(String address);
 		
 		long publishNote();
 	}

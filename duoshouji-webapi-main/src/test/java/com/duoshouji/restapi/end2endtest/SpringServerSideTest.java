@@ -41,9 +41,6 @@ public class SpringServerSideTest {
 	@Test
 	public void duoShouJiEnd2EndTest() throws Exception {
 		MockClient mockClient = new MockClient(mockMvc);
-		final long[] categoryIds = mockClient.emitCommonCategory().performAndExpectSuccess().extract(ValueExtractor.IDS_EXTRACTOR);
-		final long[] brandIds = mockClient.emitCommonBrand().performAndExpectSuccess().extract(ValueExtractor.IDS_EXTRACTOR);
-		final long[] districtIds = mockClient.emitCommonDistrict().performAndExpectSuccess().extract(ValueExtractor.IDS_EXTRACTOR);
 		final long[] channelIds = mockClient.emitCommonChannel().performAndExpectSuccess().extract(ValueExtractor.IDS_EXTRACTOR);
 		
 		MockUser user1 = new MockUser(MobileNumber.valueOf(13661863279l), Gender.MALE);
@@ -67,51 +64,22 @@ public class SpringServerSideTest {
 		
 		PublishNote publisher;
 		publisher = session2.emitPublishNote(MockNoteContent.CONTENT1);
-		publisher.setRating(5);
-		publisher.setPrice(BigDecimal.TEN);
-		publisher.setDistrictId(districtIds[1]);
-		publisher.setCategoryId(categoryIds[1]);
-		publisher.setBrandId(brandIds[1]);
+
 		final long note1 = publisher.performAndExpectSuccess().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
 		session2.emitUploadNoteImages(note1, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).performAndExpectSuccess();
 		publisher = session2.emitPublishNote(MockNoteContent.CONTENT2);
-		publisher.setRating(5);
-		publisher.setPrice(BigDecimal.TEN);
-		publisher.setDistrictId(districtIds[1]);
-		publisher.setCategoryId(categoryIds[1]);
-		publisher.setBrandId(brandIds[1]);
 		final long note2 = publisher.performAndExpectSuccess().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
 		session2.emitUploadNoteImages(note2, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).performAndExpectSuccess();
 		publisher = session2.emitPublishNote(MockNoteContent.CONTENT3);
-		publisher.setRating(5);
-		publisher.setPrice(BigDecimal.TEN);
-		publisher.setDistrictId(districtIds[1]);
-		publisher.setCategoryId(categoryIds[1]);
-		publisher.setBrandId(brandIds[1]);
 		final long note3 = publisher.performAndExpectSuccess().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
 		session2.emitUploadNoteImages(note3, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).performAndExpectSuccess();
 		publisher = session3.emitPublishNote(MockNoteContent.CONTENT4);
-		publisher.setRating(5);
-		publisher.setPrice(BigDecimal.TEN);
-		publisher.setDistrictId(districtIds[2]);
-		publisher.setCategoryId(categoryIds[2]);
-		publisher.setBrandId(brandIds[2]);
 		final long note4 = publisher.performAndExpectSuccess().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
 		session3.emitUploadNoteImages(note4, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).performAndExpectSuccess();
 		publisher = session3.emitPublishNote(MockNoteContent.CONTENT5);
-		publisher.setRating(5);
-		publisher.setPrice(BigDecimal.TEN);
-		publisher.setDistrictId(districtIds[2]);
-		publisher.setCategoryId(categoryIds[2]);
-		publisher.setBrandId(brandIds[2]);
 		final long note5 = publisher.performAndExpectSuccess().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
 		session3.emitUploadNoteImages(note5, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).performAndExpectSuccess();
 		publisher = session3.emitPublishNote(MockNoteContent.CONTENT6);
-		publisher.setRating(5);
-		publisher.setPrice(BigDecimal.TEN);
-		publisher.setDistrictId(districtIds[2]);
-		publisher.setCategoryId(categoryIds[2]);
-		publisher.setBrandId(brandIds[2]);
 		final long note6 = publisher.performAndExpectSuccess().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
 		session3.emitUploadNoteImages(note6, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).performAndExpectSuccess();
 		
@@ -145,11 +113,6 @@ public class SpringServerSideTest {
 		user4.registerAndSetupProfile(mockMvc);
 		MockSession session4 = user4.credentialLoginAndCreateSession(mockMvc);
 		publisher = session4.emitPublishNote(MockNoteContent.CONTENT7);
-		publisher.setRating(5);
-		publisher.setPrice(BigDecimal.TEN);
-		publisher.setDistrictId(districtIds[0]);
-		publisher.setCategoryId(categoryIds[0]);
-		publisher.setBrandId(brandIds[0]);
 		final long note7 = publisher.perform().extract(ValueExtractor.NOTE_ID_EXTRACTOR);
 		session4.emitUploadNoteImages(note7, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).perform();
 		session1.emitListWatchedNotes(0, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note6, note5, note4));

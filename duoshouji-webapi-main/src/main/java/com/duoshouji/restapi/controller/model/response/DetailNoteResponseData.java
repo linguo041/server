@@ -1,5 +1,6 @@
 package com.duoshouji.restapi.controller.model.response;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -75,6 +76,18 @@ public class DetailNoteResponseData {
 	
 	public int getRating() {
 		return delegator.getRating();
+	}
+	
+	public String getAddress() {
+		return delegator.getAddress();
+	}
+	
+	public BigDecimal getLongitude() {
+		return delegator.getLocation().getLongitude();
+	}
+	
+	public BigDecimal getLatitude() {
+		return delegator.getLocation().getLatitude();
 	}
 	
 	public class NoteImageAdapter {

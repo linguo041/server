@@ -2,6 +2,8 @@ package com.duoshouji.service.note;
 
 import java.util.List;
 
+import com.duoshouji.service.util.Location;
+
 public interface Note extends AuthorReference, NoteTextProperties {
 
 	long getNoteId();
@@ -20,4 +22,7 @@ public interface Note extends AuthorReference, NoteTextProperties {
 	
 	NoteImage getMainImage();
 
+	String getAddress();
+	
+	Location getLocation();
 }

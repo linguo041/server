@@ -9,12 +9,6 @@ import org.springframework.stereotype.Service;
 
 import com.duoshouji.core.FullFunctionalNote;
 import com.duoshouji.core.NoteFilter;
-import com.duoshouji.service.common.Brand;
-import com.duoshouji.service.common.BrandRepository;
-import com.duoshouji.service.common.Category;
-import com.duoshouji.service.common.CategoryRepository;
-import com.duoshouji.service.common.District;
-import com.duoshouji.service.common.DistrictRepository;
 import com.duoshouji.service.common.Tag;
 import com.duoshouji.service.common.TagRepository;
 import com.duoshouji.service.note.CommentPublishAttributes;
@@ -25,15 +19,13 @@ import com.duoshouji.service.note.NoteFacade;
 import com.duoshouji.service.note.NoteImage;
 import com.duoshouji.service.note.NotePublishAttributes;
 import com.duoshouji.service.user.UserFacade;
+import com.duoshouji.service.util.Location;
 
 @Service
 public class NoteFacadeImpl implements NoteFacade {
 
 	private NoteRepository noteRepository;
 	private TagRepository tagRepository;
-	private CategoryRepository categoryRepository;
-	private BrandRepository brandRepository;
-	private DistrictRepository districtRepository;
 
 	@Required
 	@Autowired
@@ -45,24 +37,6 @@ public class NoteFacadeImpl implements NoteFacade {
 	@Autowired
 	public void setTagRepository(TagRepository tagRepository) {
 		this.tagRepository = tagRepository;
-	}
-
-	@Required
-	@Autowired
-	public void setCategoryRepository(CategoryRepository categoryRepository) {
-		this.categoryRepository = categoryRepository;
-	}
-
-	@Required
-	@Autowired
-	public void setBrandRepository(BrandRepository brandRepository) {
-		this.brandRepository = brandRepository;
-	}
-
-	@Required
-	@Autowired
-	public void setDistrictRepository(DistrictRepository districtRepository) {
-		this.districtRepository = districtRepository;
 	}
 
 	@Override
@@ -144,15 +118,11 @@ public class NoteFacadeImpl implements NoteFacade {
 		
 		private final long userId;
 		
-		private Category category;
-		private Brand brand;
-		private String productName;
-		private District district;
-		private BigDecimal price;
-		
 		private String title;
 		private String content;
 		private int rating;
+		private Location location;
+		private String address;
 		
 		private InnerNoteBuilder(long userId) {
 			this.userId = userId;
@@ -169,71 +139,25 @@ public class NoteFacadeImpl implements NoteFacade {
 		}
 		
 		@Override
-		public void setCategoryId(long categoryId) {
-			if (categoryId > 0) {
-				category = categoryRepository.findCategory(categoryId);
-			}
-		}
-
-		@Override
-		public void setBrandId(long brandId) {
-			if (brandId > 0) {
-				brand = brandRepository.findBrand(brandId);
-			}
-		}
-
-		@Override
-		public void setProductName(String productName) {
-			this.productName = productName;
-		}
-
-		@Override
-		public void setPrice(BigDecimal price) {
-			this.price = price;
-		}
-
-		@Override
-		public void setDistrictId(long districtId) {
-			if (districtId > 0) {
-				district = districtRepository.findDistrict(districtId);
-			}
-		}
-
-		@Override
 		public void setRating(int rating) {
 			this.rating = rating;
 		}
 		
 		@Override
+		public void setLocation(BigDecimal longitude, BigDecimal latitude) {
+			location = new Location(longitude, latitude);
+		}
+
+		@Override
+		public void setAddress(String address) {
+			this.address = address;
+		}
+
+		@Override
 		public long publishNote() {
 			final FullFunctionalNote note = noteRepository.createNote(userId, this);
 			note.getAuthor().firePublishNote();
 			return note.getNoteId();
-		}
-
-		@Override
-		public Category getCategory() {
-			return category;
-		}
-
-		@Override
-		public Brand getBrand() {
-			return brand;
-		}
-
-		@Override
-		public String getProductName() {
-			return productName;
-		}
-
-		@Override
-		public District getDistrict() {
-			return district;
-		}
-
-		@Override
-		public BigDecimal getPrice() {
-			return price;
 		}
 
 		@Override
@@ -252,28 +176,23 @@ public class NoteFacadeImpl implements NoteFacade {
 		}
 
 		@Override
-		public boolean isCategorySet() {
-			return category != null;
+		public boolean isAddressSet() {
+			return address != null;
 		}
 
 		@Override
-		public boolean isBrandSet() {
-			return brand != null;
+		public String getAddress() {
+			return address;
 		}
 
 		@Override
-		public boolean isProductNameSet() {
-			return productName != null;
+		public boolean isLocationSet() {
+			return location != null;
 		}
 
 		@Override
-		public boolean isDistrictSet() {
-			return district != null;
-		}
-
-		@Override
-		public boolean isPriceSet() {
-			return price != null;
+		public Location getLocation() {
+			return location;
 		}
 	}
 }

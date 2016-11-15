@@ -198,7 +198,7 @@ CREATE TABLE `user_wechat_login` (
 
 drop view if exists duoshouji.v_square_notes;
 create view duoshouji.v_square_notes as
-select c.note_id, c.content, c.price, c.district_id, c.brand_id, c.category_id, c.title, c.product_name, coalesce(c.rating, 0) owner_rating, coalesce(a2.rating_sum, 0) comment_rating, c.main_image_url, c.main_image_width, c.main_image_height, c.main_image_marks, c.create_time
+select c.note_id, c.content, c.address, c.longitude, c.latitude, c.category_id, c.title, coalesce(c.rating, 0) owner_rating, coalesce(a2.rating_sum, 0) comment_rating, c.main_image_url, c.main_image_width, c.main_image_height, c.main_image_marks, c.create_time
   , coalesce(a2.comment_number, 0) comment_number, coalesce(a2.like_number, 0) like_number, coalesce(a2.order_number, 0) order_number,
   u.user_id, u.user_name, u.avatar_url, u.avatar_width, u.avatar_height, u.gender
 from duoshouji.note c left join

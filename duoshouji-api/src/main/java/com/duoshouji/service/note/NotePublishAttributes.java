@@ -1,35 +1,20 @@
 package com.duoshouji.service.note;
 
-import java.math.BigDecimal;
+import com.duoshouji.service.util.Location;
 
-import com.duoshouji.service.common.Brand;
-import com.duoshouji.service.common.Category;
-import com.duoshouji.service.common.District;
 
 public interface NotePublishAttributes {
 
 	public static final int MAX_TAG_COUNT = 9;
 	
-	public Category getCategory();
+	public boolean isAddressSet();
 	
-	public boolean isCategorySet();
-
-	public Brand getBrand();
+	public String getAddress();
 	
-	public boolean isBrandSet();
-
-	public String getProductName();
+	public boolean isLocationSet();
 	
-	public boolean isProductNameSet();	
-
-	public District getDistrict();
+	public Location getLocation();
 	
-	public boolean isDistrictSet();
-
-	public BigDecimal getPrice();
-	
-	public boolean isPriceSet();
-
 	public int getRating();
 
 	public String getTitle();

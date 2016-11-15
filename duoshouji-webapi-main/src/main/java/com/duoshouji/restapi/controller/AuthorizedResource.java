@@ -178,14 +178,15 @@ public class AuthorizedResource extends AuthenticationAdvice {
 			@RequestBody PublishNoteRequestData requestData
 			) {
 		NotePublisher publisher = noteFacade.newNotePublisher(userId);
-		publisher.setCategoryId(requestData.categoryId);
-		publisher.setBrandId(requestData.brandId);
-		publisher.setProductName(requestData.productName);
-		publisher.setPrice(requestData.price);
-		publisher.setDistrictId(requestData.districtId);
 		publisher.setTitle(requestData.title);
 		publisher.setContent(requestData.content);
-		publisher.setRating(requestData.rating);
+		publisher.setRating(1);
+		if (requestData.longitude != null && requestData.latitude != null) {
+			publisher.setLocation(requestData.longitude, requestData.latitude);
+		}
+		if (requestData.address != null) {
+			publisher.setAddress(requestData.address);
+		}
 		return new NotePublishingResult(publisher.publishNote());
 	}
 		
