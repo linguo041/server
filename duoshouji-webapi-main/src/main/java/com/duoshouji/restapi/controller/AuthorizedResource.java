@@ -181,8 +181,12 @@ public class AuthorizedResource extends AuthenticationAdvice {
 		publisher.setTitle(requestData.title);
 		publisher.setContent(requestData.content);
 		publisher.setRating(1);
-		publisher.setLocation(requestData.longitude, requestData.latitude);
-		publisher.setAddress(requestData.address);
+		if (requestData.longitude != null && requestData.latitude != null) {
+			publisher.setLocation(requestData.longitude, requestData.latitude);
+		}
+		if (requestData.address != null) {
+			publisher.setAddress(requestData.address);
+		}
 		return new NotePublishingResult(publisher.publishNote());
 	}
 		
