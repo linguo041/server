@@ -137,8 +137,8 @@ API目录索引
 
 <hr>
 
-<div class="api-detail" id="api001">
-	<div class="api-item">
+<div class="api-detail">
+	<div class="api-item" id="api001">
 		<h4>获取所有的（地区/城市）列表</h4>
 		<table>
 		<tr><th colspan="2">HTTP Request</th></tr>
@@ -533,7 +533,7 @@ API目录索引
 		<h4>上传用户头像</h4>
 		<table>
 		<tr><th colspan="2">HTTP Request</th></tr>
-		<tr><td>Request URL</td><td>/user/settings/personal-information/portrait</td></tr>
+		<tr><td>Request URL</td><td>http://postimage.share68.com/user/settings/personal-information/portrait</td></tr>
 		<tr><td>Request Method</td><td>POST</td></tr>
 		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
 		<tr><td>Request Body</td><td>
@@ -721,6 +721,9 @@ API目录索引
             <tr><td>commentCount</td><td>Number</td><td></td></tr>
             <tr><td>transactionCount</td><td>Number</td><td></td></tr>
             <tr><td>rating</td><td>Number</td><td>[0 ~ 10]</td></tr>
+            <tr><td>address</td><td>String</td><td></td></tr>
+            <tr><td>longitude</td><td>Number</td><td></td></tr>
+            <tr><td>latitude</td><td>Number</td><td></td></tr>
           </tbody>
         </table>
         </div>
@@ -867,9 +870,21 @@ API目录索引
 		<tr><th colspan="2">HTTP Request</th></tr>
 		<tr><td>Request URL</td><td>/user/notes</td></tr>
 		<tr><td>Request Method</td><td>POST</td></tr>
-		<tr><td>Request Parameters</td><td>categoryId=,brandId=,productName=,districtId=,price=,title=,tag=,tag=,...,content=,rating=,longitude=,latitude=,...</td></tr>
 		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
-		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Request Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>title</td><td>String</td><td></td></tr>
+                <tr><td>content</td><td>String</td><td></td></tr>
+                <tr><td>address</td><td>String</td><td>optional</td></tr>
+                <tr><td>longitude</td><td>Number</td><td>optional</td></tr>
+                <tr><td>latitude</td><td>Number</td><td>optional</td></tr>
+              </tbody>
+            </table>
+		</td></tr><tr><th colspan="2">HTTP Response</th></tr>
 		<tr><td>Response Status</td><td>200</td></tr>
 		<tr><td>Response Body</td><td>
             <table class="json">
@@ -901,7 +916,7 @@ API目录索引
 		<h4>上传笔记图片</h4>
 		<table>
 		<tr><th colspan="2">HTTP Request</th></tr>
-		<tr><td>Request URL</td><td>/notes/{note-id}/images</td></tr>
+		<tr><td>Request URL</td><td>http://postimage.share68.com/notes/{note-id}/images</td></tr>
 		<tr><td>Request Method</td><td>PUT</td></tr>
 		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
 		<tr><td>Request Body</td><td>
