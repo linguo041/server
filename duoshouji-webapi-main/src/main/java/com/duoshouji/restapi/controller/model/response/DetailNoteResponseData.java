@@ -83,11 +83,17 @@ public class DetailNoteResponseData {
 	}
 	
 	public BigDecimal getLongitude() {
-		return delegator.getLocation().getLongitude();
+		if (delegator.getLocation() != null) {
+			return delegator.getLocation().getLongitude();
+		}
+		return null;
 	}
 	
 	public BigDecimal getLatitude() {
-		return delegator.getLocation().getLatitude();
+		if (delegator.getLocation() != null) {
+			return delegator.getLocation().getLatitude();
+		}
+		return null;
 	}
 	
 	public class NoteImageAdapter {
