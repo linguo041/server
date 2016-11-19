@@ -101,7 +101,7 @@ public class SpringServerSideTest {
 		
 		session1.emitLikeNote(note6).performAndExpectSuccess();
 		session2.emitLikeNote(note6).performAndExpectSuccess();
-		session1.emitDisplayNote(note6).perform().expect(isLikedByCurrentUser());
+		session1.emitDisplayNote(note6).perform().expect(likedByCurrentUser()).expect(authorFollowedByCurrentUser());
 		session2.emitCommentNote(note6, "comment", MockConstants.MOCK_LONGITUDE, MockConstants.MOCK_LATITUDE, 5).performAndExpectSuccess();
 		session3.emitDisplayNote(note6).perform().expect(likeCount(2)).expect(commentCount(1));
 		
@@ -135,7 +135,7 @@ public class SpringServerSideTest {
 		return new NoteLikeCountMatcher(likeCount);
 	}
 	
-	private NoteIsLikedByCurrentUserMatcher isLikedByCurrentUser() {
+	private NoteIsLikedByCurrentUserMatcher likedByCurrentUser() {
 		return new NoteIsLikedByCurrentUserMatcher();
 	}
 	
@@ -149,6 +149,10 @@ public class SpringServerSideTest {
 	
 	private FanCountMatcher fanCount(int fanCount) {
 		return new FanCountMatcher(fanCount);
+	}
+	
+	private AuthorFollowedByVisitor authorFollowedByCurrentUser() {
+		return new AuthorFollowedByVisitor();
 	}
 	
 	private static class NoteIdMatcher extends SuccessJsonResultMatcher {
@@ -269,6 +273,14 @@ public class SpringServerSideTest {
 			JSONObject jsonProfile = json.getJSONObject("resultValues");
 			Assert.assertEquals(fanCount, jsonProfile.getInt("fanCount"));
 		}
+	}
+	
+	private static class AuthorFollowedByVisitor extends SuccessJsonResultMatcher {
+		@Override
+		protected void verifyJsonResult(JSONObject json) throws Exception {
+			JSONObject jsonProfile = json.getJSONObject("resultValues");
+			Assert.assertTrue(jsonProfile.getBoolean("isAuthorFollowedByVisitor"));
+		}		
 	}
 }
 

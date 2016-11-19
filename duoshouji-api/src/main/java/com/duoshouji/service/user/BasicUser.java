@@ -11,4 +11,6 @@ public interface BasicUser {
 	Gender getGender();
 
 	Image getPortrait();
+
+	boolean isFollowedBy(long userId);
 }

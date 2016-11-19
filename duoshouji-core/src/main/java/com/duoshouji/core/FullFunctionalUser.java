@@ -30,7 +30,7 @@ public interface FullFunctionalUser extends UserProfile {
 	
 	List<FullFunctionalUser> getInviters();
 	
-	void fireBeingFollowed();
+	void fireBeingFollowed(long followerId);
 	
 	void fireInviteFriend(MobileNumber mobileNumber);
 	
