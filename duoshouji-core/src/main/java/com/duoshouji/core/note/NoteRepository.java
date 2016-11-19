@@ -51,12 +51,12 @@ class NoteRepository {
 	OperationDelegatingNote loadNote(long noteId) {
 		final OperationDelegatingNote note = new OperationDelegatingNote(noteId, this);
 		convert(note, noteDao.findNote(noteId));
+		note.likers = new LinkedList<Long>(noteDao.findLikers(noteId));
 		return note;
 	}
 	
 	private void convert(OperationDelegatingNote note, NoteDetailDto noteDto) {
 		note.commentCount = noteDto.commentCount;
-		note.likeCount = noteDto.likeCount;
 		note.mainImage = noteDto.mainImage;
 		note.publishedTime = noteDto.publishedTime;
 		note.commentRatingSum = noteDto.commentRatingSum;

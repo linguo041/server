@@ -27,4 +27,6 @@ public interface NoteDao {
 	void saveUserLikeNote(long noteId, long userId);
 	
 	List<NoteCommentDto> getNoteComments(long noteId);
+
+	List<Long> findLikers(long noteId);
 }

@@ -5,9 +5,15 @@ import com.duoshouji.service.note.Note;
 public class BasicNoteResult {
 	
 	private Note delegator;
+	private Long userId;
 
 	public BasicNoteResult(Note delegator) {
+		this(delegator, null);
+	}	
+	
+	public BasicNoteResult(Note delegator, Long userId) {
 		this.delegator = delegator;
+		this.userId = userId;
 	}
 
 	public long getNoteId() {
@@ -54,4 +60,10 @@ public class BasicNoteResult {
 		return delegator.getTransactionCount();
 	}
 
+	public boolean getIsLikedByVisitor() {
+		if (userId == null) {
+			return false;
+		}
+		return delegator.isLikedBy(userId.longValue());
+	}
 }

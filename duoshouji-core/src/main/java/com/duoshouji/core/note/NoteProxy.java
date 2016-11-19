@@ -112,4 +112,9 @@ public class NoteProxy implements FullFunctionalNote {
 		return getNote().getLocation();
 	}
 
+	@Override
+	public boolean isLikedBy(long userId) {
+		return delegator.isLikedBy(userId);
+	}
+
 }

@@ -25,4 +25,6 @@ public interface Note extends AuthorReference, NoteTextProperties {
 	String getAddress();
 	
 	Location getLocation();
+	
+	boolean isLikedBy(long userId);
 }
