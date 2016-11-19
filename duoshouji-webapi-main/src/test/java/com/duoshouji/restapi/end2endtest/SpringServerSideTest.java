@@ -101,6 +101,7 @@ public class SpringServerSideTest {
 		
 		session1.emitLikeNote(note6).performAndExpectSuccess();
 		session2.emitLikeNote(note6).performAndExpectSuccess();
+		session1.emitDisplayNote(note6).perform().expect(isLikedByCurrentUser());
 		session2.emitCommentNote(note6, "comment", MockConstants.MOCK_LONGITUDE, MockConstants.MOCK_LATITUDE, 5).performAndExpectSuccess();
 		session3.emitDisplayNote(note6).perform().expect(likeCount(2)).expect(commentCount(1));
 		
@@ -134,6 +135,10 @@ public class SpringServerSideTest {
 		return new NoteLikeCountMatcher(likeCount);
 	}
 	
+	private NoteIsLikedByCurrentUserMatcher isLikedByCurrentUser() {
+		return new NoteIsLikedByCurrentUserMatcher();
+	}
+	
 	private NoteCommentCountMatcher commentCount(int commentCount) {
 		return new NoteCommentCountMatcher(commentCount);
 	}
@@ -164,6 +169,14 @@ public class SpringServerSideTest {
 				Assert.assertEquals(noteIds[i], actualNoteId);
 			}
 		}
+	}
+	
+	private static class NoteIsLikedByCurrentUserMatcher extends SuccessJsonResultMatcher {
+		@Override
+		protected void verifyJsonResult(JSONObject json) throws Exception {
+			JSONObject jsonNoteDetail = json.getJSONObject("resultValues");
+			Assert.assertTrue(jsonNoteDetail.getBoolean("isLikedByVisitor"));
+		}		
 	}
 	
 	private static class NoteLikeCountMatcher extends SuccessJsonResultMatcher {

@@ -223,10 +223,15 @@ public class MockSession extends MockClient {
 		}
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return get("/notes")
+			MockHttpServletRequestBuilder builder = get("/notes")
 				.param("loadedSize", Integer.toString(loadedSize))
 				.param("pageSize", Integer.toString(pageSize))
 				.param("timestamp", Long.toString(timestamp));
+			
+			if (token != null) {
+				builder = builder.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
+			}
+			return builder;
 		}
 	}
 	
@@ -239,7 +244,6 @@ public class MockSession extends MockClient {
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
 			return super.getBuilder()
-				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
 				.param("myFollowOnly", "");
 		}
 	}
@@ -290,7 +294,11 @@ public class MockSession extends MockClient {
 		
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return get("/notes/{note-id}", noteId);
+			MockHttpServletRequestBuilder builder = get("/notes/{note-id}", noteId);
+			if (token != null) {
+				builder = builder.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
+			}
+			return builder;
 		}
 	}
 	

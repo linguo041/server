@@ -2,6 +2,7 @@ package com.duoshouji.core.note;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.duoshouji.core.FullFunctionalNote;
@@ -20,15 +21,15 @@ class OperationDelegatingNote implements FullFunctionalNote {
 	NoteImage mainImage;
 	int ownerRating;
 	int commentRatingSum;
-	int likeCount;
 	int commentCount;
 	int transactionCount;
 	long publishedTime;
 	long authorId;
 	String content;
-	List<NoteImage> otherImages;
+	List<NoteImage> otherImages = new LinkedList<NoteImage>();
 	String address;
 	Location location;
+	List<Long> likers = new LinkedList<Long>();
 	
 	public OperationDelegatingNote(long noteId, NoteRepository operationManager) {
 		this.noteId = noteId;
@@ -60,7 +61,7 @@ class OperationDelegatingNote implements FullFunctionalNote {
 
 	@Override
 	public int getLikeCount() {
-		return likeCount;
+		return likers.size();
 	}
 
 	@Override
@@ -121,7 +122,7 @@ class OperationDelegatingNote implements FullFunctionalNote {
 	@Override
 	public void likedByUser(long userId) {
 		operationManager.likedByUser(userId, this);
-		++likeCount;
+		likers.add(Long.valueOf(userId));
 	}
 
 	@Override
@@ -132,6 +133,11 @@ class OperationDelegatingNote implements FullFunctionalNote {
 	@Override
 	public Location getLocation() {
 		return location;
+	}
+
+	@Override
+	public boolean isLikedBy(long userId) {
+		return likers.contains(Long.valueOf(userId));
 	}
 
 }

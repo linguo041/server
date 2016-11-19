@@ -16,10 +16,16 @@ public class DetailNoteResponseData {
 	
 	private List<Tag> tags;
 	private Note delegator;
+	private Long userId;
 	
 	public DetailNoteResponseData(Note delegator, List<Tag>	tags) {
+		this(delegator, tags, null);
+	}
+	
+	public DetailNoteResponseData(Note delegator, List<Tag>	tags, Long userId) {
 		this.delegator = delegator;
 		this.tags = tags;
+		this.userId = userId;
 	}
 	
 	public long getUserId() {
@@ -94,6 +100,13 @@ public class DetailNoteResponseData {
 			return delegator.getLocation().getLatitude();
 		}
 		return null;
+	}
+	
+	public boolean getIsLikedByVisitor() {
+		if (userId == null) {
+			return false;
+		}
+		return delegator.isLikedBy(userId.longValue());
 	}
 	
 	public class NoteImageAdapter {

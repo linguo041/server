@@ -152,6 +152,20 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 		return findNotes(range, new SquareNoteSqlQueryBuilder(cutoff, followerId, filter));
 	}
 	
+	@Override
+	public List<Long> findLikers(long noteId) {
+		return mysqlDataSource.query(
+				"select user_id from duoshouji.likes where note_id = " + noteId
+				, new RowMapper<Long>() {
+
+					@Override
+					public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
+						return Long.valueOf(rs.getLong("user_id"));
+					}
+			
+				});
+	}
+
 	private List<BasicNoteDto> findNotes(IndexRange range, NoteListSqlQuery sqlQuery) {
 		List<BasicNoteDto> returnValue = mysqlDataSource.query(
 				sqlQuery.buildSqlQuery()
