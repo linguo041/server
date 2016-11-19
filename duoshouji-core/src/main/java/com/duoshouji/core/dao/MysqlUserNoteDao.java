@@ -499,6 +499,21 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	}
 
 	@Override
+	public List<Long> findFollowers(long userId) {
+		return mysqlDataSource.query(
+				"select fan_user_id from duoshouji.follow where user_id = " + userId
+				, new RowMapper<Long>() {
+
+					@Override
+					public Long mapRow(ResultSet rs, int rowNum)
+							throws SQLException {
+						return Long.valueOf(rs.getLong("fan_user_id"));
+					}
+			
+				});
+	}
+
+	@Override
 	public List<Long> findInviters(long inviteeId) {
 		return mysqlDataSource.query(
 				"select inviter_id from duoshouji.invitation where invited_mobile = " + inviteeId

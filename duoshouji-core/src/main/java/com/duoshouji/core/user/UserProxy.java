@@ -111,6 +111,11 @@ class UserProxy implements FullFunctionalUser {
 	public void follow(long userId) {
 		getDelegator().follow(userId);
 	}
+	
+	@Override
+	public boolean isFollowedBy(long userId) {
+		return getDelegator().isFollowedBy(userId);
+	}
 
 	@Override
 	public List<FullFunctionalUser> getInviters() {
@@ -118,8 +123,8 @@ class UserProxy implements FullFunctionalUser {
 	}
 
 	@Override
-	public void fireBeingFollowed() {
-		getDelegator().fireBeingFollowed();
+	public void fireBeingFollowed(long followerId) {
+		getDelegator().fireBeingFollowed(followerId);
 	}
 
 	@Override

@@ -66,6 +66,7 @@ public class UserRepository {
 	FullFunctionalUser loadUser(long userId) {
 		final OperationDelegatingUser user = new OperationDelegatingUser(userId, this);
 		convert(user, userDao.findUser(userId));
+		user.followers = new LinkedList<Long>(userDao.findFollowers(userId));
 		return user;
 	}
 	
@@ -79,7 +80,6 @@ public class UserRepository {
 		user.publishedNoteCount = userDto.publishedNoteCount;
 		user.transactionCount = userDto.transactionCount;
 		user.followCount = userDto.watchCount;
-		user.fanCount = userDto.fanCount;
 	}
 
 	void setPassword(OperationDelegatingUser user, Password password) {
@@ -102,7 +102,7 @@ public class UserRepository {
 		userDao.saveFollowConnection(follower.getUserId(), followeeId);
 		FullFunctionalUser followee = userCache.get(Long.valueOf(followeeId));
 		if (followee != null) {
-			followee.fireBeingFollowed();
+			followee.fireBeingFollowed(follower.getUserId());
 		}
 	}
 	

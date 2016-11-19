@@ -1,6 +1,7 @@
 package com.duoshouji.core.user;
 
 import java.math.BigDecimal;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.duoshouji.core.FullFunctionalUser;
@@ -21,7 +22,7 @@ class OperationDelegatingUser implements FullFunctionalUser {
 	int publishedNoteCount;
 	int transactionCount;
 	int followCount;
-	int fanCount;
+	List<Long> followers = new LinkedList<Long>();
 	
 	OperationDelegatingUser(long userId, UserRepository userRepository) {
 		this.userId = userId;
@@ -70,7 +71,7 @@ class OperationDelegatingUser implements FullFunctionalUser {
 
 	@Override
 	public int getFanCount() {
-		return fanCount;
+		return followers.size();
 	}
 
 	@Override
@@ -119,6 +120,11 @@ class OperationDelegatingUser implements FullFunctionalUser {
 	}
 
 	@Override
+	public boolean isFollowedBy(long userId) {
+		return followers.contains(Long.valueOf(userId));
+	}
+
+	@Override
 	public List<FullFunctionalUser> getInviters() {
 		return userRepository.getInviters(this);
 	}
@@ -129,8 +135,8 @@ class OperationDelegatingUser implements FullFunctionalUser {
 	}
 
 	@Override
-	public void fireBeingFollowed() {
-		++fanCount;
+	public void fireBeingFollowed(long followerId) {
+		followers.add(Long.valueOf(followerId));
 	}
 
 	@Override

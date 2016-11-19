@@ -40,6 +40,13 @@ public class DetailNoteResponseData {
 		return delegator.getAuthor().getPortrait().getUrl();
 	}
 	
+	public boolean getIsAuthorFollowedByVisitor() {
+		if (userId == null) {
+			return false;
+		}
+		return delegator.getAuthor().isFollowedBy(userId.longValue());
+	}
+	
 	public long getNoteId() {
 		return delegator.getNoteId();
 	}

@@ -27,5 +27,7 @@ public interface UserDao {
 	void saveFollowConnection(long followerId, long followeeId);
 	
 	void saveInvitation(long inviterId, MobileNumber inviteeMobileNumber);
+
+	List<Long> findFollowers(long userId);
 	
 }
