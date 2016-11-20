@@ -97,14 +97,22 @@ public class AuthorizedResource extends AuthenticationAdvice {
 	@GetMapping("/user/notes")
 	@ResponseBody
 	public List<BasicNoteResult> getPublishedNotes(
-			@ModelAttribute("userId") long userId,
+			@RequestParam(required=false) Long userId,
 			@RequestParam("timestamp") long timestamp,
 			@RequestParam("loadedSize") int loadedSize,
-			@RequestParam("pageSize") int pageSize
+			@RequestParam("pageSize") int pageSize,
+			Model model
 			) {
+		final Long visitorId = (Long) model.asMap().get("userId");
+		long actualUserId;
+		if (userId != null) {
+			actualUserId = userId.longValue();
+		} else {
+			actualUserId = visitorId.longValue();
+		}
 		List<BasicNoteResult> results = new ArrayList<BasicNoteResult>();
-		for (Note note : noteFacade.listPublishedNotes(userId, timestamp).subCollection(loadedSize, loadedSize + pageSize)) {
-			results.add(new BasicNoteResult(note));
+		for (Note note : noteFacade.listPublishedNotes(actualUserId, timestamp).subCollection(loadedSize, loadedSize + pageSize)) {
+			results.add(new BasicNoteResult(note, visitorId));
 		}
 		return results;
 	}
