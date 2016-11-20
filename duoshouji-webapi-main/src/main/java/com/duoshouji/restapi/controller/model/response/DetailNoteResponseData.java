@@ -16,16 +16,16 @@ public class DetailNoteResponseData {
 	
 	private List<Tag> tags;
 	private Note delegator;
-	private Long userId;
+	private Long visitorId;
 	
 	public DetailNoteResponseData(Note delegator, List<Tag>	tags) {
 		this(delegator, tags, null);
 	}
 	
-	public DetailNoteResponseData(Note delegator, List<Tag>	tags, Long userId) {
+	public DetailNoteResponseData(Note delegator, List<Tag>	tags, Long visitorId) {
 		this.delegator = delegator;
 		this.tags = tags;
-		this.userId = userId;
+		this.visitorId = visitorId;
 	}
 	
 	public long getUserId() {
@@ -41,10 +41,10 @@ public class DetailNoteResponseData {
 	}
 	
 	public boolean getIsAuthorFollowedByVisitor() {
-		if (userId == null) {
+		if (visitorId == null) {
 			return false;
 		}
-		return delegator.getAuthor().isFollowedBy(userId.longValue());
+		return delegator.getAuthor().isFollowedBy(visitorId.longValue());
 	}
 	
 	public long getNoteId() {
@@ -110,10 +110,10 @@ public class DetailNoteResponseData {
 	}
 	
 	public boolean getIsLikedByVisitor() {
-		if (userId == null) {
+		if (visitorId == null) {
 			return false;
 		}
-		return delegator.isLikedBy(userId.longValue());
+		return delegator.isLikedBy(visitorId.longValue());
 	}
 	
 	public class NoteImageAdapter {

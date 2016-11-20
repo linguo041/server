@@ -5,15 +5,15 @@ import com.duoshouji.service.note.Note;
 public class BasicNoteResult {
 	
 	private Note delegator;
-	private Long userId;
+	private Long visitorId;
 
 	public BasicNoteResult(Note delegator) {
 		this(delegator, null);
 	}	
 	
-	public BasicNoteResult(Note delegator, Long userId) {
+	public BasicNoteResult(Note delegator, Long visitorId) {
 		this.delegator = delegator;
-		this.userId = userId;
+		this.visitorId = visitorId;
 	}
 
 	public long getNoteId() {
@@ -40,6 +40,10 @@ public class BasicNoteResult {
 		return delegator.getMainImage().getHeight();
 	}
 
+	public long getAuthorId() {
+		return delegator.getAuthor().getUserId();
+	}
+	
 	public String getPortrait() {
 		return delegator.getAuthor().getPortrait().getUrl();
 	}
@@ -61,9 +65,9 @@ public class BasicNoteResult {
 	}
 
 	public boolean getIsLikedByVisitor() {
-		if (userId == null) {
+		if (visitorId == null) {
 			return false;
 		}
-		return delegator.isLikedBy(userId.longValue());
+		return delegator.isLikedBy(visitorId.longValue());
 	}
 }
