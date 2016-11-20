@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -80,8 +81,17 @@ public class AuthorizedResource extends AuthenticationAdvice {
 	
 	@GetMapping("/user/profile")
 	@ResponseBody
-	public UserProfileResult getUserProfile(@ModelAttribute("userId") long userId) {
-		return new UserProfileResult(userFacade.getUserProfile(userId));
+	public UserProfileResult getUserProfile(
+			@RequestParam(required=false) Long userId,
+			Model model) {
+		Long visitorId = (Long) model.asMap().get("userId");
+		long actualUserId;
+		if (userId != null) {
+			actualUserId = userId.longValue();
+		} else {
+			actualUserId = visitorId.longValue();
+		}
+		return new UserProfileResult(userFacade.getUserProfile(actualUserId), visitorId);
 	}
 	
 	@GetMapping("/user/notes")

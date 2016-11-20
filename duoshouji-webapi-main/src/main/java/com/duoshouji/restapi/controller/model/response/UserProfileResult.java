@@ -8,10 +8,15 @@ import com.duoshouji.service.user.UserProfile;
 public class UserProfileResult {
 	
 	private UserProfile profile;
+	private Long visitorId;
 	
 	public UserProfileResult(UserProfile profile) {
-		super();
+		this(profile, null);
+	}	
+	
+	public UserProfileResult(UserProfile profile, Long visitorId) {
 		this.profile = profile;
+		this.visitorId = visitorId;
 	}
 
 	public long getUserId() {
@@ -56,5 +61,12 @@ public class UserProfileResult {
 	
 	public int getFanCount() {
 		return profile.getFanCount();
+	}
+	
+	public boolean getIsFollowedByVisitor() {
+		if (visitorId == null) {
+			return false;
+		}
+		return profile.isFollowedBy(visitorId.longValue());
 	}
 }

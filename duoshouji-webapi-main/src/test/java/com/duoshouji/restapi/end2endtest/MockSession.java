@@ -48,8 +48,8 @@ public class MockSession extends MockClient {
 		return new UpdateProfile(nickname, gender);
 	}
 	
-	public GetUserProfile emitGetUserProfile() {
-		return new GetUserProfile();
+	public GetUserProfile emitGetUserProfile(MockUser user) {
+		return new GetUserProfile(user);
 	}
 	
 	public PublishNote emitPublishNote(MockNoteContent content) {
@@ -168,10 +168,20 @@ public class MockSession extends MockClient {
 	
 	public class GetUserProfile extends DynamicResourceRequest {
 
+		MockUser user;
+		
+		public GetUserProfile(MockUser user) {
+			this.user = user;
+		}
+
 		@Override
 		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
-			return get("/user/profile")
+			MockHttpServletRequestBuilder builder = get("/user/profile")
 				.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
+			if (user != null) {
+				builder = builder.param("userId", user.getUserId().toString());
+			}
+			return builder;
 		}
 	}
 	
