@@ -1,14 +1,14 @@
 package com.duoshouji.restapi;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestHeader;
 
 import com.duoshouji.restapi.auth.UnauthenticatedUserException;
 import com.duoshouji.restapi.auth.UserTokenService;
-import com.duoshouji.service.user.UserFacade;
 
 public abstract class AuthenticationAdvice {
 	
@@ -22,11 +22,10 @@ public abstract class AuthenticationAdvice {
 	
 	@ModelAttribute
 	public void checkToken(Model model,
-			@RequestHeader(name=Constants.APP_TOKEN_HTTP_HEADER_NAME) String token) throws UnauthenticatedUserException {
-		final long userId = tokenService.getUserId(token);
-		if (userId == UserFacade.NULL_USER_ID) {
-			throw new UnauthenticatedUserException("Token is expired or not exists. Please login first.");
+			HttpServletRequest request) throws UnauthenticatedUserException {
+		final String token = request.getHeader(Constants.APP_TOKEN_HTTP_HEADER_NAME);
+		if (token != null) {
+			model.addAttribute("userId", Long.valueOf(tokenService.getUserId(token)));
 		}
-		model.addAttribute("userId", Long.valueOf(userId));
 	}
 }

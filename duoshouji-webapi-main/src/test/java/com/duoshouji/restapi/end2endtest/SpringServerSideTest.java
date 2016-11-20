@@ -105,9 +105,11 @@ public class SpringServerSideTest {
 		session2.emitCommentNote(note6, "comment", MockConstants.MOCK_LONGITUDE, MockConstants.MOCK_LATITUDE, 5).performAndExpectSuccess();
 		session3.emitDisplayNote(note6).perform().expect(likeCount(2)).expect(commentCount(1));
 		
-		session1.emitGetUserProfile().perform().expect(new UserProfileMatcher(user1, BigDecimal.ZERO, 0, 0, 1, 0));
-		session2.emitGetUserProfile().perform().expect(new UserProfileMatcher(user2, BigDecimal.ZERO, 3, 0, 0, 0));
-		session3.emitGetUserProfile().perform().expect(new UserProfileMatcher(user3, BigDecimal.ZERO, 3, 0, 0, 1));
+		session1.emitGetUserProfile(null).perform().expect(new UserProfileMatcher(user1, BigDecimal.ZERO, 0, 0, 1, 0));
+		session2.emitGetUserProfile(null).perform().expect(new UserProfileMatcher(user2, BigDecimal.ZERO, 3, 0, 0, 0));
+		session3.emitGetUserProfile(null).perform().expect(new UserProfileMatcher(user3, BigDecimal.ZERO, 3, 0, 0, 1));
+		session3.emitGetUserProfile(user1).perform().expect(new UserProfileMatcher(user1, BigDecimal.ZERO, 0, 0, 1, 0));
+		session1.emitGetUserProfile(user3).perform().expect(userFollowedByVisitor());
 		
 		MockUser user4 = new MockUser(MobileNumber.valueOf(13816918000l), Gender.MALE);
 		session1.emitInviteContactsFromAddressBook(new MobileNumber[]{user4.getUserId()}).performAndExpectSuccess();
@@ -118,8 +120,8 @@ public class SpringServerSideTest {
 		session4.emitUploadNoteImages(note7, new Image[]{MockConstants.MOCK_LOGO_IMAGE}).perform();
 		session1.emitListWatchedNotes(0, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note6, note5, note4));
 		session1.emitListWatchedNotes(0, DEFAULT_PAGE_SIZE, System.currentTimeMillis()).perform().expect(noteList(note7, note6, note5, note4));
-		session1.emitGetUserProfile().perform().expect(watchCount(2));
-		session4.emitGetUserProfile().perform().expect(fanCount(1));
+		session1.emitGetUserProfile(null).perform().expect(watchCount(2));
+		session4.emitGetUserProfile(null).perform().expect(fanCount(1));
 	}
 
 	
@@ -153,6 +155,10 @@ public class SpringServerSideTest {
 	
 	private AuthorFollowedByVisitor authorFollowedByCurrentUser() {
 		return new AuthorFollowedByVisitor();
+	}
+	
+	private UserFollowedByVisitor userFollowedByVisitor() {
+		return new UserFollowedByVisitor();
 	}
 	
 	private static class NoteIdMatcher extends SuccessJsonResultMatcher {
@@ -280,6 +286,14 @@ public class SpringServerSideTest {
 		protected void verifyJsonResult(JSONObject json) throws Exception {
 			JSONObject jsonProfile = json.getJSONObject("resultValues");
 			Assert.assertTrue(jsonProfile.getBoolean("isAuthorFollowedByVisitor"));
+		}		
+	}
+	
+	private static class UserFollowedByVisitor extends SuccessJsonResultMatcher {
+		@Override
+		protected void verifyJsonResult(JSONObject json) throws Exception {
+			JSONObject jsonProfile = json.getJSONObject("resultValues");
+			Assert.assertTrue(jsonProfile.getBoolean("isFollowedByVisitor"));
 		}		
 	}
 }
