@@ -157,7 +157,7 @@ public class AuthorizedResource extends AuthenticationAdvice {
 		}
 	}
 
-	@PostMapping(path = "/user/settings/personal-information/protrait")
+	@PostMapping(path = "/user/settings/personal-information/portrait")
 	@ResponseBody
 	public void setUserPortrait(
 			@ModelAttribute("userId") long userId,
