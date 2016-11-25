@@ -431,7 +431,7 @@ public class MockSession extends MockClient {
 			requestData.put("url", image.getUrl());
 			requestData.put("width", image.getWidth());
 			requestData.put("height", image.getHeight());
-			return post("/user/settings/personal-information/protrait")
+			return post("/user/settings/personal-information/portrait")
 					.contentType(MediaType.APPLICATION_JSON)
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token)
 					.content(Utils.getJsonString(requestData));
