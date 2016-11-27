@@ -11,6 +11,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.http.HttpHeaders;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.client.utils.URIBuilder;
@@ -64,7 +65,9 @@ public class SynchronizedWebApiImageUploadCallback implements ImageUploadCallbac
 					.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType())
 					.setHeader(Constants.APP_TOKEN_HTTP_HEADER_NAME, ((HttpServletRequest)originalUploadRequest).getHeader(Constants.APP_TOKEN_HTTP_HEADER_NAME))
 					.build();
-			final int statusCode = httpClient.execute(request).getStatusLine().getStatusCode();
+			final CloseableHttpResponse response = httpClient.execute(request);
+			final int statusCode = response.getStatusLine().getStatusCode();
+			response.close();
 			if (statusCode != 200) {
 				throw new StoreImageException("Image url synchronize failed in service.");
 			}
