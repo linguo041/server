@@ -37,11 +37,11 @@ import com.duoshouji.service.util.MobileNumber;
 public class MysqlUserNoteDao implements UserDao, NoteDao {
 
 	private static final long BASE_NOTE_ID = 1000000000000l;
-	private JdbcTemplate mysqlDataSource;
+	private JdbcTemplate jdbcTemplate;
 
 	@Autowired
 	public MysqlUserNoteDao(JdbcTemplate mysqlDataSource) {
-		this.mysqlDataSource = mysqlDataSource;
+		this.jdbcTemplate = mysqlDataSource;
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	}
 	
 	private UserDto queryUser(String sql) {
-		return mysqlDataSource.query(sql
+		return jdbcTemplate.query(sql
 				, new ResultSetExtractor<UserDto>(){
 					@Override
 					public UserDto extractData(ResultSet rs)
@@ -87,7 +87,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	
 	@Override
 	public NoteDetailDto findNote(long noteId) {
-		NoteDetailDto noteDto = mysqlDataSource.query("select * from duoshouji.v_square_notes where note_id = " + noteId
+		NoteDetailDto noteDto = jdbcTemplate.query("select * from duoshouji.v_square_notes where note_id = " + noteId
 				, new ResultSetExtractor<NoteDetailDto>() {
 
 					@Override
@@ -103,7 +103,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 			
 				});
 		if (noteDto != null) {
-			noteDto.images = mysqlDataSource.query("select * from duoshouji.note_image where note_id = " + noteId, new RowMapper<NoteImage>() {
+			noteDto.images = jdbcTemplate.query("select * from duoshouji.note_image where note_id = " + noteId, new RowMapper<NoteImage>() {
 
 				@Override
 				public NoteImage mapRow(ResultSet rs, int rowNum)
@@ -154,7 +154,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	
 	@Override
 	public List<Long> findLikers(long noteId) {
-		return mysqlDataSource.query(
+		return jdbcTemplate.query(
 				"select user_id from duoshouji.likes where note_id = " + noteId
 				, new RowMapper<Long>() {
 
@@ -167,7 +167,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	}
 
 	private List<BasicNoteDto> findNotes(IndexRange range, NoteListSqlQuery sqlQuery) {
-		List<BasicNoteDto> returnValue = mysqlDataSource.query(
+		List<BasicNoteDto> returnValue = jdbcTemplate.query(
 				sqlQuery.buildSqlQuery()
 				, sqlQuery
 				, new RowMapper<BasicNoteDto>(){
@@ -261,7 +261,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	
 	@Override
 	public void createUser(final long userId) {
-		mysqlDataSource.update("insert into duoshouji.user (user_id) values(?)"
+		jdbcTemplate.update("insert into duoshouji.user (user_id) values(?)"
 				, new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
@@ -269,7 +269,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 						ps.setLong(1, userId);
 					}
 		});
-		mysqlDataSource.update("insert into duoshouji.user_extend (user_id) values(?)"
+		jdbcTemplate.update("insert into duoshouji.user_extend (user_id) values(?)"
 				, new PreparedStatementSetter() {
 
 					@Override
@@ -283,7 +283,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 
 	@Override
 	public void saveNickname(final long userId, final String nickname) {
-		mysqlDataSource.update("update duoshouji.user set user_name = ? where user_id = ?"
+		jdbcTemplate.update("update duoshouji.user set user_name = ? where user_id = ?"
 				,new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
@@ -296,7 +296,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 
 	@Override
 	public void saveGender(final long userId, final Gender gender) {
-		mysqlDataSource.update("update duoshouji.user set gender = ? where user_id = ?"
+		jdbcTemplate.update("update duoshouji.user set gender = ? where user_id = ?"
 				,new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
@@ -309,7 +309,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 
 	@Override
 	public void savePasswordDigest(final long userId, final String passwordDigest) {
-		mysqlDataSource.update("update duoshouji.user set password = ? where user_id = ?"
+		jdbcTemplate.update("update duoshouji.user set password = ? where user_id = ?"
 				,new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
@@ -323,8 +323,8 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	@Override
 	public long createNote(final long userId, final NotePublishAttributes noteAttributes) {
 		final long time = System.currentTimeMillis();
-		final long noteId = BASE_NOTE_ID + mysqlDataSource.queryForObject("select count(*) from duoshouji.note", Integer.class);
-		mysqlDataSource.update(buildInsertNoteClause()
+		final long noteId = BASE_NOTE_ID + jdbcTemplate.queryForObject("select count(*) from duoshouji.note", Integer.class);
+		jdbcTemplate.update(buildInsertNoteClause()
 				, new PreparedStatementSetter(){
 					@Override
 					public void setValues(PreparedStatement ps)
@@ -351,7 +351,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 						}
 					}
 				});
-		mysqlDataSource.update(
+		jdbcTemplate.update(
 				"insert into duoshouji.note_keyword values(?,?,?)"
 				, new PreparedStatementSetter() {
 
@@ -364,8 +364,8 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 					}
 			
 		});
-		mysqlDataSource.update("update duoshouji.user_extend set note_number = note_number + 1 where user_id = " + userId);
-		mysqlDataSource.update("insert into duoshouji.note_extend (note_id) values ("+noteId+")");
+		jdbcTemplate.update("update duoshouji.user_extend set note_number = note_number + 1 where user_id = " + userId);
+		jdbcTemplate.update("insert into duoshouji.note_extend (note_id) values ("+noteId+")");
 		return noteId;
 	}
 	
@@ -377,7 +377,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 
 	@Override
 	public void savePortrait(final long userId, final Image portrait) {
-		mysqlDataSource.update(
+		jdbcTemplate.update(
 				"update duoshouji.user set avatar_url = ?, avatar_width = ?, avatar_height = ? where user_id = ?"
 				,new PreparedStatementSetter(){
 					@Override
@@ -393,7 +393,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 
 	@Override
 	public void saveNoteImages(final long noteId, final NoteImage[] noteImages) {
-		mysqlDataSource.update(
+		jdbcTemplate.update(
 				"update duoshouji.note set main_image_url = ?, main_image_width = ?, main_image_height = ?, main_image_marks = ? where note_id = ?"
 				,new PreparedStatementSetter(){
 					@Override
@@ -410,8 +410,9 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 						ps.setLong(5, noteId);
 					}
 				});
+		jdbcTemplate.update("delete from duoshouji.note_image where note_id = " + noteId);
 		if (noteImages.length > 1) {
-			mysqlDataSource.batchUpdate("insert into duoshouji.note_image values (?,?,?,?,?)"
+			jdbcTemplate.batchUpdate("insert into duoshouji.note_image values (?,?,?,?,?)"
 					, new BatchPreparedStatementSetter() {
 						
 				@Override
@@ -439,7 +440,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 
 	@Override
 	public void createComment(final long noteId, final CommentPublishAttributes commentAttributes, final long userId) {
-		mysqlDataSource.update(
+		jdbcTemplate.update(
 				"insert into duoshouji.comment (note_id, user_id, content, created_time, rating) values (?,?,?,?,?)"
 				, new PreparedStatementSetter() {
 
@@ -453,7 +454,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 			}
 			
 		});
-		mysqlDataSource.update("update duoshouji.note_extend set comment_number = comment_number + 1, rating_sum = rating_sum + ? where note_id = ?"
+		jdbcTemplate.update("update duoshouji.note_extend set comment_number = comment_number + 1, rating_sum = rating_sum + ? where note_id = ?"
 				, new PreparedStatementSetter() {
 
 					@Override
@@ -467,7 +468,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 
 	@Override
 	public List<NoteCommentDto> getNoteComments(long noteId) {
-		return mysqlDataSource.query(
+		return jdbcTemplate.query(
 				"select user_id, content from duoshouji.comment where note_id = " + noteId
 				, new RowMapper<NoteCommentDto>() {
 
@@ -485,7 +486,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 
 	@Override
 	public void saveUserLikeNote(final long noteId, final long userId) {
-		mysqlDataSource.update("insert into duoshouji.likes (user_id, note_id) values (?,?)"
+		jdbcTemplate.update("insert into duoshouji.likes (user_id, note_id) values (?,?)"
 				, new PreparedStatementSetter() {
 
 					@Override
@@ -495,12 +496,12 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 					}
 					
 				});
-		mysqlDataSource.update("update duoshouji.note_extend set like_number = like_number + 1 where note_id = " + noteId);
+		jdbcTemplate.update("update duoshouji.note_extend set like_number = like_number + 1 where note_id = " + noteId);
 	}
 
 	@Override
 	public List<Long> findFollowers(long userId) {
-		return mysqlDataSource.query(
+		return jdbcTemplate.query(
 				"select fan_user_id from duoshouji.follow where user_id = " + userId
 				, new RowMapper<Long>() {
 
@@ -515,7 +516,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 
 	@Override
 	public List<Long> findInviters(long inviteeId) {
-		return mysqlDataSource.query(
+		return jdbcTemplate.query(
 				"select inviter_id from duoshouji.invitation where invited_mobile = " + inviteeId
 				, new RowMapper<Long>() {
 					@Override
@@ -529,7 +530,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 
 	@Override
 	public void saveInvitation(final long inviterId, final MobileNumber inviteeMobileNumber) {
-		mysqlDataSource.update(
+		jdbcTemplate.update(
 				"insert into duoshouji.invitation values (?,?)"
 				, new PreparedStatementSetter() {
 
@@ -544,7 +545,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	
 	@Override
 	public void saveFollowConnection(final long followerId, final long followeeId) {
-		mysqlDataSource.update(
+		jdbcTemplate.update(
 				"insert into duoshouji.follow values(?,?,?,?)"
 				, new PreparedStatementSetter() {
 			@Override
@@ -555,7 +556,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 				ps.setBoolean(4, true);				
 			}
 		});
-		mysqlDataSource.update("update duoshouji.user_extend set followed_number = followed_number + 1 where user_id = " + followeeId);
-		mysqlDataSource.update("update duoshouji.user_extend set follow_number = follow_number + 1 where user_id = " + followerId);
+		jdbcTemplate.update("update duoshouji.user_extend set followed_number = followed_number + 1 where user_id = " + followeeId);
+		jdbcTemplate.update("update duoshouji.user_extend set follow_number = follow_number + 1 where user_id = " + followerId);
 	}
 }

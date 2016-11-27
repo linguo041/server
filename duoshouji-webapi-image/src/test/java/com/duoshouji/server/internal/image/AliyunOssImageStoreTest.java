@@ -49,7 +49,9 @@ public class AliyunOssImageStoreTest {
 		Assert.assertEquals(2, images.length);
 		Assert.assertTrue(IOUtils.contentEquals(openStream(images[0].getUrl()) , openStream(MOCK_NOTE_IMAGE_FILE0)));
 		Assert.assertTrue(IOUtils.contentEquals(openStream(images[1].getUrl()) , openStream(MOCK_NOTE_IMAGE_FILE1)));
-		Assert.assertTrue(images[0].getUrl().startsWith("http://images.share68.com/images/notes/0/00"));
-		Assert.assertTrue(images[1].getUrl().startsWith("http://images.share68.com/images/notes/0/01"));
+		Assert.assertTrue(images[0].getUrl().startsWith("http://images.share68.com/images/notes/0/"));
+		Assert.assertTrue(images[0].getUrl().contains("/00."));
+		Assert.assertTrue(images[1].getUrl().startsWith("http://images.share68.com/images/notes/0/"));
+		Assert.assertTrue(images[1].getUrl().contains("/01."));
 	}
 }
