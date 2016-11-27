@@ -12,7 +12,6 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.stereotype.Service;
 
 import com.aliyun.oss.OSSClient;
@@ -42,13 +41,13 @@ public class AliyunOssImageStore implements ImageStore {
 	}
 	
 	@Override
-	public Image saveUserPortrait(long userId, InputStream uploadedImage) throws StoreImageException {
+	public Image saveUserPortrait(long userId, byte[] uploadedImage) throws StoreImageException {
 		final String keyWithoutImageFormat = "images/users/" + userId + "/portrait";
 		return saveImageToAliyun(uploadedImage, keyWithoutImageFormat);
 	}
 
 	@Override
-	public Image[] saveNoteImage(long noteId, InputStream[] uploadedImages) throws StoreImageException {
+	public Image[] saveNoteImage(long noteId, byte[][] uploadedImages) throws StoreImageException {
 		final String noteKeyPrefix = "images/notes/" + noteId + "/";
 		final Image[] results = new Image[uploadedImages.length];
 		for (int i = 0; i < uploadedImages.length; ++i) {
@@ -58,10 +57,8 @@ public class AliyunOssImageStore implements ImageStore {
 		return results;
 	}
 	
-	private Image saveImageToAliyun(InputStream uploadedImage, String keyWithoutImageFormat) throws StoreImageException {
+	private Image saveImageToAliyun(byte[] imageBytes, String keyWithoutImageFormat) throws StoreImageException {
 		try {
-			final byte[] imageBytes = IOUtils.toByteArray(uploadedImage);
-			
 			ImageReader imageReader = getImageReader(new ByteArrayInputStream(imageBytes));
 			final int width = imageReader.getWidth(imageReader.getMinIndex());
 			final int height = imageReader.getHeight(imageReader.getMinIndex());

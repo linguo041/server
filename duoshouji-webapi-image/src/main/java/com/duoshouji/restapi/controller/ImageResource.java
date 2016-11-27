@@ -1,8 +1,6 @@
 package com.duoshouji.restapi.controller;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Base64;
 
 import javax.servlet.ServletRequest;
@@ -57,7 +55,7 @@ public class ImageResource extends AuthenticationAdvice {
 			@RequestBody UploadNoteImageRequestData requestData,
 			@PathVariable("note-id") long noteId,
 			ServletRequest webRequest) throws IOException, StoreImageException {
-		InputStream[] imageStreams = new InputStream[requestData.images.length];
+		byte[][] imageStreams = new byte[requestData.images.length][];
 		for (int i = 0; i < imageStreams.length; ++i) {
 			imageStreams[i] = decodeImageData(requestData.images[i].image);
 		}
@@ -73,11 +71,11 @@ public class ImageResource extends AuthenticationAdvice {
 		callback.fireNoteImageUpload(webRequest, callbackData);
 	}
 	
-	private InputStream decodeImageData(String imageData) {
+	private byte[] decodeImageData(String imageData) {
 		final int prefixIndex = imageData.indexOf(',');
 		if (prefixIndex >= 0) {
 			imageData = imageData.substring(prefixIndex + 1);
 		}
-		return new ByteArrayInputStream(Base64.getDecoder().decode(imageData));
+		return Base64.getDecoder().decode(imageData);
 	}
 }

@@ -28,7 +28,7 @@ public class AliyunOssImageStoreTest {
 	public void uploadUserPortrait() throws Exception {
 		AliyunOssImageStore imageStore = new AliyunOssImageStore();
 		imageStore.init();
-		Image image = imageStore.saveUserPortrait(0l, openStream(MOCK_PORTRAIT_FILE));
+		Image image = imageStore.saveUserPortrait(0l, IOUtils.toByteArray(openStream(MOCK_PORTRAIT_FILE)));
 		imageStore.destory();
 		Assert.assertTrue(IOUtils.contentEquals(
 				openStream(image.getUrl())
@@ -40,9 +40,9 @@ public class AliyunOssImageStoreTest {
 	public void uploadNoteImages() throws Exception {
 		AliyunOssImageStore imageStore = new AliyunOssImageStore();
 		imageStore.init();
-		Image[] images = imageStore.saveNoteImage(0l , new InputStream[] {
-				openStream(MOCK_NOTE_IMAGE_FILE0),
-				openStream(MOCK_NOTE_IMAGE_FILE1)
+		Image[] images = imageStore.saveNoteImage(0l , new byte[][] {
+				IOUtils.toByteArray(openStream(MOCK_NOTE_IMAGE_FILE0)),
+				IOUtils.toByteArray(openStream(MOCK_NOTE_IMAGE_FILE1))
 				});
 		imageStore.destory();
 		
