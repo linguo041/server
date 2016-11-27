@@ -97,7 +97,7 @@ public class AuthorizedResource extends AuthenticationAdvice {
 	@GetMapping("/user/notes")
 	@ResponseBody
 	public List<BasicNoteResult> getPublishedNotes(
-			@RequestParam(required=false) Long userId,
+			@RequestParam(value="userId", required=false) Long userId,
 			@RequestParam("timestamp") long timestamp,
 			@RequestParam("loadedSize") int loadedSize,
 			@RequestParam("pageSize") int pageSize,
