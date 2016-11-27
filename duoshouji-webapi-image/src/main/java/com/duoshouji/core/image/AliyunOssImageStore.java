@@ -42,13 +42,13 @@ public class AliyunOssImageStore implements ImageStore {
 	
 	@Override
 	public Image saveUserPortrait(long userId, byte[] uploadedImage) throws StoreImageException {
-		final String keyWithoutImageFormat = "images/users/" + userId + "/portrait";
+		final String keyWithoutImageFormat = "images/users/" + userId + "/portrait/" + System.currentTimeMillis();
 		return saveImageToAliyun(uploadedImage, keyWithoutImageFormat);
 	}
 
 	@Override
 	public Image[] saveNoteImage(long noteId, byte[][] uploadedImages) throws StoreImageException {
-		final String noteKeyPrefix = "images/notes/" + noteId + "/";
+		final String noteKeyPrefix = "images/notes/" + noteId + "/" + System.currentTimeMillis() + "/";
 		final Image[] results = new Image[uploadedImages.length];
 		for (int i = 0; i < uploadedImages.length; ++i) {
 			final String keyWithoutImageFormat = noteKeyPrefix + String.format("%02d", i);
