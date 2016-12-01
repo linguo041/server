@@ -243,6 +243,8 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 		void appendWhereConditions(StringBuilder sqlBuilder) {
 			if (noteFilter != null) {
 				if (noteFilter.isChannelSet()) {
+					int mod = (int) (noteFilter.getChannel().getId() % 10);
+					sqlBuilder.append(" and mod(note_id, "+mod+") = 0 ");
 				}
 			}
 			if (followerId != UserFacade.NULL_USER_ID) {

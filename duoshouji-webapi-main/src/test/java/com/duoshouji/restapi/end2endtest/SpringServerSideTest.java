@@ -91,9 +91,9 @@ public class SpringServerSideTest {
 		session3.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE, timestamp1).perform().expect(emptyNoteList());
 		session1.emitListSquareNotes(0, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note6, note5, note4, note3, note2, note1));
 		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp2, channelIds[0]).perform().expect(noteList(note6, note5, note4, note3, note2, note1));
-		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp2, channelIds[1]).perform().expect(noteList(note6, note5, note4, note3, note2, note1));
-		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp2, channelIds[2]).perform().expect(noteList(note6, note5, note4, note3, note2, note1));
-		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp2, channelIds[3]).perform().expect(noteList(note6, note5, note4, note3, note2, note1));
+		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp2, channelIds[1]).perform().expect(noteList(note5, note3, note1));
+		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp2, channelIds[2]).perform().expect(noteList(note6, note3));
+		session1.emitListChannelNotes(0, DEFAULT_PAGE_SIZE, timestamp2, channelIds[3]).perform().expect(noteList(note5, note1));
 		session1.emitListWatchedNotes(0, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note6, note5, note4));
 		session2.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note3, note2, note1));
 		session3.emitListPublishedNotes(0, DEFAULT_PAGE_SIZE, timestamp2).perform().expect(noteList(note6, note5, note4));
