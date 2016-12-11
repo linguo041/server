@@ -71,11 +71,15 @@ public class AuthorizedResource extends AuthenticationAdvice {
 	@GetMapping("/user/mobile-contacts/status")
 	@ResponseBody
 	public MobileNumberMappingUserIdResult[] getRegisteredUserIds(
+			Model model,
 			@RequestParam("mobiles") MobileNumber[] mobileNumbers) {
+		final Long visitorId = (Long) model.asMap().get("userId");
+		
 		MobileNumberMappingUserIdResult[] results = new MobileNumberMappingUserIdResult[mobileNumbers.length];
 		for (int i = 0; i < mobileNumbers.length; ++i) {
 			final MobileNumber mobileNumber = mobileNumbers[i];
-			results[i] = new MobileNumberMappingUserIdResult(mobileNumber, userFacade.getUserId(mobileNumber));
+			final boolean isFolloing = (visitorId != null ? userFacade.checkFollows(visitorId, mobileNumber.toLong()) : false); 
+			results[i] = new MobileNumberMappingUserIdResult(mobileNumber, userFacade.getUserId(mobileNumber), isFolloing);
 		}
 		return results;
 	}
