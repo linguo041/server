@@ -111,6 +111,9 @@ public class SpringServerSideTest {
 		session3.emitGetUserProfile(user1).perform().expect(new UserProfileMatcher(user1, BigDecimal.ZERO, 0, 0, 1, 0));
 		session1.emitGetUserProfile(user3).perform().expect(userFollowedByVisitor());
 		
+		session1.emitCheckFollowing(user3.getUserId()).perform().expect(followingStatusIs(true));
+		session1.emitCheckFollowing(user2.getUserId()).perform().expect(followingStatusIs(false));
+		
 		MockUser user4 = new MockUser(MobileNumber.valueOf(13816918000l), Gender.MALE);
 		session1.emitInviteContactsFromAddressBook(new MobileNumber[]{user4.getUserId()}).performAndExpectSuccess();
 		user4.registerAndSetupProfile(mockMvc);
@@ -147,6 +150,10 @@ public class SpringServerSideTest {
 	
 	private WatchCountMatcher watchCount(int watchCount) {
 		return new WatchCountMatcher(watchCount);
+	}
+	
+	private CheckFollowingMatcher followingStatusIs(boolean isFollowing) {
+		return new CheckFollowingMatcher(isFollowing);
 	}
 	
 	private FanCountMatcher fanCount(int fanCount) {
@@ -263,6 +270,21 @@ public class SpringServerSideTest {
 		protected void verifyJsonResult(JSONObject json) throws Exception {
 			JSONObject jsonProfile = json.getJSONObject("resultValues");
 			Assert.assertEquals(watchCount, jsonProfile.getInt("watchCount"));
+		}
+	}
+	
+	private static class CheckFollowingMatcher extends SuccessJsonResultMatcher {
+		private final boolean isFollowing;
+
+		public CheckFollowingMatcher(boolean isFollowing) {
+			super();
+			this.isFollowing = isFollowing;
+		}
+
+		@Override
+		protected void verifyJsonResult(JSONObject json) throws Exception {
+			JSONObject jsonProfile = json.getJSONObject("resultValues");
+			Assert.assertEquals(isFollowing, jsonProfile.getBoolean("isFollowing"));
 		}
 	}
 	

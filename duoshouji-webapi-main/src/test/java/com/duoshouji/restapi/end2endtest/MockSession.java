@@ -84,6 +84,10 @@ public class MockSession extends MockClient {
 		return new WatchUser(userId);
 	}
 	
+	public CheckFollowing emitCheckFollowing(MobileNumber userId) {
+		return new CheckFollowing(userId);
+	}
+	
 	public DisplayComment emitDisplayComment(long noteId) {
 		return new DisplayComment(noteId);
 	}
@@ -374,6 +378,22 @@ public class MockSession extends MockClient {
 					.content(Utils.getJsonString(Collections.singletonMap("followeeId", (Object)followeeId.toLong())))
 					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
 		}
+	}
+	
+	public class CheckFollowing extends DynamicResourceRequest {
+		private MobileNumber followeeId;
+		
+		public CheckFollowing(MobileNumber followeeId) {
+			super();
+			this.followeeId = followeeId;
+		}
+
+		@Override
+		protected MockHttpServletRequestBuilder getBuilder() throws Exception {
+			return get("/user/follows/{mobile-number}", followeeId)
+					.header(Constants.APP_TOKEN_HTTP_HEADER_NAME, token);
+		}
+		
 	}
 	
 	public class LikeNote extends DynamicResourceRequest {

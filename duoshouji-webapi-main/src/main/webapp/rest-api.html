@@ -99,6 +99,7 @@ API目录索引
         <ul>
           <li><a href="#api005">获取个人信息（个人首页）</a>
           <li><a href="#api006">查看手机联系人是否是注册用户</a>
+          <li><a href="#api026">查看当前用户是否关注了其他某个手机用户</a>
         </ul>
       <li>用户信息更新
         <ul>
@@ -361,6 +362,30 @@ API目录索引
           </tbody>
         </table>
         </div>		
+	</div>
+
+	<div class="api-item"  id="api026">
+		<h4>查看当前用户是否关注了其他某个手机用户</h4>
+		<table>
+		<tr><th colspan="2">HTTP Request</th></tr>
+		<tr><td>Request URL</td><td>/user/follows/{mobile-number}</td></tr>
+		<tr><td>Request Method</td><td>GET</td></tr>
+		<tr><td>Request Headers</td><td>X-App-Token</td></tr>
+		<tr><th colspan="2">HTTP Response</th></tr>
+		<tr><td>Response Status</td><td>200</td></tr>
+		<tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>isFollowing</td><td>true,手机用户存在并且已经被当前用户关注; 否则返回false</td></tr>
+              </tbody>
+            </table>
+		</td></tr>
+		</table>	
 	</div>
 
 	<div class="api-item"  id="api007">

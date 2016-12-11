@@ -26,6 +26,7 @@ import com.duoshouji.restapi.controller.model.request.PublishNoteRequestData;
 import com.duoshouji.restapi.controller.model.request.SetPasswordRequestData;
 import com.duoshouji.restapi.controller.model.request.SetPersonalInformationRequestData;
 import com.duoshouji.restapi.controller.model.response.BasicNoteResult;
+import com.duoshouji.restapi.controller.model.response.FollowStatusResponseData;
 import com.duoshouji.restapi.controller.model.response.MobileNumberMappingUserIdResult;
 import com.duoshouji.restapi.controller.model.response.NotePublishingResult;
 import com.duoshouji.restapi.controller.model.response.UserProfileResult;
@@ -260,6 +261,15 @@ public class AuthorizedResource extends AuthenticationAdvice {
 		userFacade.inviteFriends(userId, mobiles);
 	}
 
+	@GetMapping("/user/follows/{mobile-number}")
+	@ResponseBody
+	public FollowStatusResponseData checkFollowingUser(
+			@ModelAttribute("userId") long userId,
+			@PathVariable("mobile-number") long mobileNumber
+			) {
+		return new FollowStatusResponseData(userFacade.checkFollows(userId, mobileNumber));
+	}
+	
 	@PostMapping("/notes/{note-id}/images")
 	@ResponseBody
 	public void setNoteImages(

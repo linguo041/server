@@ -142,6 +142,15 @@ public class UserFacadeImpl implements UserFacade {
 	}
 
 	@Override
+	public boolean checkFollows(long followerId, long followeeId) {
+		FullFunctionalUser user = userRepository.getUser(followeeId);
+		if (user == null) {
+			return false;
+		}
+		return user.isFollowedBy(followerId);
+	}
+
+	@Override
 	public void inviteFriends(long userId, MobileNumber[] mobileNumbers) {
 		final FullFunctionalUser user = userRepository.getUser(userId);
 		for (MobileNumber mobileNumber : mobileNumbers) {
