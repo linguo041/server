@@ -14,6 +14,8 @@ public interface NoteDao {
 	
 	long createNote(long authorId, NotePublishAttributes noteAttributes);
 
+	void deleteNote(long noteId);
+
 	void saveNoteImages(long noteId, NoteImage[] noteImages);
 	
 	NoteDetailDto findNote(long noteId);

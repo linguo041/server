@@ -212,7 +212,13 @@ public class AuthorizedResource extends AuthenticationAdvice {
 		}
 		return new NotePublishingResult(publisher.publishNote());
 	}
-		
+	
+	@PostMapping("/notes/{note-id}/delete")
+	@ResponseBody
+	public void deleteNote(@PathVariable("note-id") long noteId) {
+		noteFacade.deleteNote(noteId);
+	}
+	
 	@PostMapping("/notes/{note-id}/likes")
 	@ResponseBody
 	public void likeNote(

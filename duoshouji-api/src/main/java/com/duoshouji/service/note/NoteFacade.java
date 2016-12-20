@@ -17,6 +17,8 @@ public interface NoteFacade {
 	
 	NotePublisher newNotePublisher(long userId);
 		
+	void deleteNote(long noteId);
+	
 	void publishComment(long userId, long noteId, CommentPublishAttributes commentAttributes);
 
 	void likeNote(long userId, long noteId);
@@ -46,4 +48,5 @@ public interface NoteFacade {
 		
 		long publishNote();
 	}
+
 }

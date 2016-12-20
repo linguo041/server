@@ -65,6 +65,11 @@ public class NoteFacadeImpl implements NoteFacade {
 	}
 
 	@Override
+	public void deleteNote(long noteId) {
+		noteRepository.deleteNote(noteId);
+	}
+
+	@Override
 	public void publishComment(long userId, long noteId, CommentPublishAttributes commentAttributes) {
 		noteRepository.getNote(noteId).addComment(userId, commentAttributes);
 	}

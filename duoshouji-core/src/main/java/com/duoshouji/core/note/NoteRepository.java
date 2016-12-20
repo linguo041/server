@@ -94,6 +94,11 @@ class NoteRepository {
 		return getNote(noteId);
 	}
 
+	void deleteNote(long noteId) {
+		noteDao.deleteNote(noteId);
+		noteCache.remove(Long.valueOf(noteId));
+	}
+
 	Iterator<Note> findNotes(long cutoff, IndexRange range, long authorId) {
 		return new InnerNoteIterator(noteDao.findNotes(cutoff, range, authorId));
 	}
@@ -170,5 +175,4 @@ class NoteRepository {
 			return getNote(noteDtos.get(index++).noteId);
 		}
 	}
-
 }

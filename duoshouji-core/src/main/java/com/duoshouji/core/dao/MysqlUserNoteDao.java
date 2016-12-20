@@ -371,6 +371,17 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 		return noteId;
 	}
 	
+	@Override
+	public void deleteNote(long noteId) {
+		jdbcTemplate.update("delete from duoshouji.comment where note_id = " + noteId);
+		jdbcTemplate.update("delete from duoshouji.likes where note_id = " + noteId);
+		jdbcTemplate.update("delete from duoshouji.note where note_id = " + noteId);
+		jdbcTemplate.update("delete from duoshouji.note_extend where note_id = " + noteId);
+		jdbcTemplate.update("delete from duoshouji.note_image where note_id = " + noteId);
+		jdbcTemplate.update("delete from duoshouji.note_keyword where note_id = " + noteId);
+		jdbcTemplate.update("delete from duoshouji.note_recommend where note_id = " + noteId);
+	}
+
 	private String buildInsertNoteClause() {
 		return "insert into duoshouji.note "
 				+ "(note_id, title, content, create_time, user_id, last_update_time, rating, keyword, address, longitude, latitude) "
