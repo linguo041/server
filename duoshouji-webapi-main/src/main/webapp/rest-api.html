@@ -131,6 +131,7 @@ API目录索引
           <li><a href="#api023">上传笔记图片</a>
           <li><a href="#api024">为笔记写评论</a>
           <li><a href="#api025">为笔记点赞</a>
+          <li><a href="#api027">删除笔记</a>
         </ul>	  
     </ul>
 </ul>
@@ -215,6 +216,7 @@ API目录索引
 		<tr><th colspan="2">HTTP Request</th></tr>
 		<tr><td>Request URL</td><td>/common/commodity/brands</td></tr>
 		<tr><td>Request Method</td><td>GET</td></tr>
+		<tr><td>Request Parameter</td><td>[keyword=](optional)</td></tr>
 		<tr><th colspan="2">HTTP Response</th></tr>
 		<tr><td>Response Status</td><td>200</td></tr>
 		<tr><td>Response Body</td><td>
@@ -1099,6 +1101,30 @@ API目录索引
     </table>
     </div>
 	</div>
+
+    <div class="api-item" id="api027">
+        <h4>删除笔记</h4>
+        <table>
+        <tr><th colspan="2">HTTP Request</th></tr>
+        <tr><td>Request URL</td><td>/notes/{note-id}/delete</td></tr>
+        <tr><td>Request Method</td><td>POST</td></tr>
+        <tr><td>Request Headers</td><td>X-App-Token</td></tr>
+        <tr><th colspan="2">HTTP Response</th></tr>
+        <tr><td>Response Status</td><td>200</td></tr>
+        <tr><td>Response Body</td><td>
+            <table class="json">
+              <thead>
+                <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>resultCode</td><td>Number</td><td>0</td></tr>
+                <tr><td>resultErrorMessage</td><td>String</td><td>null</td></tr>
+                <tr><td>resultValue</td><td>Json</td><td>null</td></tr>
+              </tbody>
+            </table>
+        </td></tr>
+        </table>
+    </div>
 	
 </div>
 

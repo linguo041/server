@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.duoshouji.service.common.Brand;
@@ -56,8 +57,10 @@ public class CatalogResource {
 	}
 
 	@RequestMapping(path = "/common/commodity/brands", method = RequestMethod.GET)
-	public List<Brand> getBrands() {
-		return brandRepository.getBrands();
+	public List<Brand> getBrands(
+			@RequestParam(name="keyword", required=false) String keyword
+			) {
+		return brandRepository.getBrands(keyword);
 	}
 	
 	@RequestMapping(path = "/common/commodity/categories", method = RequestMethod.GET)
