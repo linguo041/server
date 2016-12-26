@@ -323,7 +323,7 @@ public class MysqlUserNoteDao implements UserDao, NoteDao {
 	}
 
 	@Override
-	public long createNote(final long userId, final NotePublishAttributes noteAttributes) {
+	public synchronized long createNote(final long userId, final NotePublishAttributes noteAttributes) {
 		final long time = System.currentTimeMillis();
 		final long noteId = BASE_NOTE_ID + jdbcTemplate.queryForObject("select count(*) from duoshouji.note", Integer.class);
 		jdbcTemplate.update(buildInsertNoteClause()

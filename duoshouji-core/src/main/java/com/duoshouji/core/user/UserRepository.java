@@ -27,7 +27,7 @@ public class UserRepository {
 		this.userDao = userDao;
 	}
 
-	private boolean isUserExists(long userId) {
+	synchronized private boolean isUserExists(long userId) {
 		return userDao.findUser(userId) != null;
 	}
 	
@@ -47,7 +47,7 @@ public class UserRepository {
 		return user;
 	}
 	
-	FullFunctionalUser createUser(MobileNumber mobileNumber) {
+	synchronized FullFunctionalUser createUser(MobileNumber mobileNumber) {
 		final long userId = mobileNumber.toLong();
 		userDao.createUser(userId);
 		final FullFunctionalUser user = new UserProxy(userId, this);
