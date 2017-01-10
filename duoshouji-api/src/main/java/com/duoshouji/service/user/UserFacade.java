@@ -30,6 +30,8 @@ public interface UserFacade {
 
 	void inviteFriends(long userId, MobileNumber[] mobileNumbers);
 
+	boolean checkFollows(long followerId, long followeeId);
+	
 	public static interface UserProfileSetter {
 		
 		void setNickname(String nickname);

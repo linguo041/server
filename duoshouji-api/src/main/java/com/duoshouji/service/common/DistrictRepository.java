@@ -2,9 +2,15 @@ package com.duoshouji.service.common;
 
 import java.util.List;
 
-public interface DistrictRepository {
 
-	List<District> listDistricts();
+public abstract class DistrictRepository {
+
+	public abstract List<District> getDistricts();
 	
-	District getDistrict(long districtId);
+	public abstract District findDistrict(long districtId);
+	
+	protected final District createDistrict(long districtId, String districtName) {
+		return new District(districtId, districtName);
+	}
+
 }

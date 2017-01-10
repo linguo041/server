@@ -2,14 +2,18 @@ package com.duoshouji.service.common;
 
 import java.util.List;
 
-public interface TagRepository {
+import com.duoshouji.service.note.NoteTextProperties;
 
-	List<Tag> listChannels();
+public abstract class TagRepository {
 
-	List<Tag> listTags(Category category, Brand brand);
+	public abstract List<Tag> getChannels();
+
+	public abstract Tag findChannel(long tagId);
 	
-	Tag findTag(long tagId);
-	
-	List<Tag> findTags(long[] tagIds);
+	public abstract List<Tag> findTags(NoteTextProperties noteProperties);
+
+	protected final Tag createTag(long tagId, String tagName) {
+		return new Tag(tagId, tagName);
+	}
 }
 
